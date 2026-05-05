@@ -1,4 +1,5 @@
 <script lang="ts">
+	import Grid from '$lib/assets/svg/grid.svelte';
 	import type { LogtimeData } from '$lib/types/profile';
 	import LogtimeBars from './LogtimeBars.svelte';
 	import LogtimeHeatmaps from './LogtimeHeatmaps.svelte';
@@ -19,19 +20,7 @@
 
 <section class="logtime-section">
 	<div class="section-header">
-		<svg
-			width="13"
-			height="13"
-			viewBox="0 0 24 24"
-			fill="none"
-			stroke="currentColor"
-			stroke-width="2"
-		>
-			<rect x="3" y="3" width="7" height="7" />
-			<rect x="14" y="3" width="7" height="7" />
-			<rect x="14" y="14" width="7" height="7" />
-			<rect x="3" y="14" width="7" height="7" />
-		</svg>
+		<Grid />
 		Logtime Overview
 		<div class="view-switcher">
 			<button class:active={view === 'bars'} onclick={() => (view = 'bars')}>Bars</button>

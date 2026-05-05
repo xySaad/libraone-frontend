@@ -7,6 +7,9 @@
 	import { fmtSeconds } from '$lib/utils/time';
 	import type { MaplProfile, LogtimeData } from '$lib/types/profile';
 	import Discord from '$lib/assets/svg/discord.svelte';
+	import Location from '$lib/assets/svg/location.svelte';
+	import CheckMark from '$lib/assets/svg/check-mark.svelte';
+	import Search from '$lib/assets/svg/search.svelte';
 
 	interface Props {
 		profile?: MaplProfile | null;
@@ -70,50 +73,21 @@
 		<div class="badges">
 			{#if user.campus}
 				<span class="badge badge-campus">
-					<svg
-						width="11"
-						height="11"
-						viewBox="0 0 24 24"
-						fill="none"
-						stroke="currentColor"
-						stroke-width="2.5"
-					>
-						<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-						<circle cx="12" cy="10" r="3" />
-					</svg>
+					<Location />
 					{user.campus}
 				</span>
 			{/if}
 
 			{#if user.canAccessPlatform}
 				<span class="badge badge-access" data-tooltip="Can access platform">
-					<svg
-						width="11"
-						height="11"
-						viewBox="0 0 24 24"
-						fill="none"
-						stroke="currentColor"
-						stroke-width="2.5"
-					>
-						<polyline points="20 6 9 17 4 12" />
-					</svg>
+					<CheckMark />
 					Platform
 				</span>
 			{/if}
 
 			{#if user.canBeAuditor}
 				<span class="badge badge-auditor" data-tooltip="Can audit peers">
-					<svg
-						width="11"
-						height="11"
-						viewBox="0 0 24 24"
-						fill="none"
-						stroke="currentColor"
-						stroke-width="2.5"
-					>
-						<circle cx="11" cy="11" r="8" />
-						<line x1="21" y1="21" x2="16.65" y2="16.65" />
-					</svg>
+					<Search />
 					Auditor
 				</span>
 			{/if}

@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { reSize } from '$lib/actions/resize';
+	import ArrowLeft from '$lib/assets/svg/arrow-left.svelte';
+	import ArrowRight from '$lib/assets/svg/arrow-right.svelte';
 	import type { EmblaCarouselType, EmblaEventType, EmblaOptionsType } from 'embla-carousel';
 	import useEmblaCarousel from 'embla-carousel-svelte';
 	import { tick, type Snippet } from 'svelte';
@@ -47,16 +49,7 @@
 
 <div class="embla" use:reSize={onResize}>
 	<button class="nav embla__prev" aria-label="Prev" onclick={goToPrev} disabled={!prevActive}>
-		<svg
-			viewBox="0 0 24 24"
-			fill="none"
-			stroke="currentColor"
-			stroke-width="2"
-			stroke-linecap="round"
-			stroke-linejoin="round"
-		>
-			<polyline points="15 18 9 12 15 6" />
-		</svg>
+		<ArrowLeft />
 	</button>
 	<div
 		class="embla__viewport"
@@ -70,16 +63,7 @@
 	</div>
 
 	<button class="nav embla__next" aria-label="Next" onclick={goToNext} disabled={!nextActive}>
-		<svg
-			viewBox="0 0 24 24"
-			fill="none"
-			stroke="currentColor"
-			stroke-width="2"
-			stroke-linecap="round"
-			stroke-linejoin="round"
-		>
-			<polyline points="9 18 15 12 9 6" />
-		</svg>
+		<ArrowRight />
 	</button>
 </div>
 
@@ -116,7 +100,7 @@
 				background: var(--carousel-nav-bg-hover, color-mix(in srgb, currentColor 12%, transparent));
 				transform: scale(1.08);
 			}
-			svg {
+			:global(svg) {
 				width: 16px;
 				height: 16px;
 			}

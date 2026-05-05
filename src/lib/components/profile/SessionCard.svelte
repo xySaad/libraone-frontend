@@ -1,4 +1,5 @@
 <script lang="ts">
+	import Clock from '$lib/assets/svg/clock.svelte';
 	import type { LastSession } from '$lib/types/profile';
 	import { formatDate, sessionDuration } from '$lib/utils/time';
 
@@ -7,17 +8,7 @@
 
 <div class="card card-session">
 	<div class="card-title">
-		<svg
-			width="13"
-			height="13"
-			viewBox="0 0 24 24"
-			fill="none"
-			stroke="currentColor"
-			stroke-width="2"
-		>
-			<circle cx="12" cy="12" r="10" />
-			<polyline points="12 6 12 12 16 14" />
-		</svg>
+		<Clock />
 		Last Session
 	</div>
 
