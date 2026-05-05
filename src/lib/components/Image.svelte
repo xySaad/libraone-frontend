@@ -1,7 +1,7 @@
 <script lang="ts">
 	interface Props {
-		src: string;
-		alt: string;
+		src?: string | null;
+		alt?: string | null;
 		headers: Record<string, string>;
 	}
 
