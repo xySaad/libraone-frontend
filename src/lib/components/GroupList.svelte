@@ -46,15 +46,17 @@
 
 	const copyAuditors = (group: UserGroupFieldsFragment['group']) => {
 		const members = group.members.map((m) => '@' + m.user?.login);
-		const auditors = group.auditors.map((a) => '- @' + a.auditor?.login);
+		const auditors = group.auditors.filter((a) => !a.closedAt).map((a) => '- @' + a.auditor?.login);
+		const startDate = new Date().toLocaleTimeString('en-GB', {
+			hour: '2-digit',
+			minute: '2-digit'
+		});
 
 		const text = `Project: ${group.path.split('/').slice(-1)}
 Team Members: ${members.join(' ')}
-Available between: 09:30AM - 19:00
+Available between: ${startDate} - 19:00
 Auditors:
 ${auditors.join('\n')}`;
-
-		console.log(text);
 
 		navigator.clipboard.writeText(text);
 	};
@@ -338,8 +340,8 @@ ${auditors.join('\n')}`;
 	}
 
 	.avatar {
-		width: 100px;
-		height: 100px;
+		width: 50px;
+		height: 50px;
 	}
 	.avatar,
 	.avatar-chip {
@@ -353,8 +355,8 @@ ${auditors.join('\n')}`;
 		}
 	}
 	.avatar-chip {
-		width: 100px;
-		height: 100px;
+		width: 50px;
+		height: 50px;
 
 		position: relative;
 		display: flex;
