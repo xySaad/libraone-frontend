@@ -9,26 +9,32 @@
 	const { months, maxTotal }: Props = $props();
 </script>
 
-<div class="bar-chart">
-	{#each months as [key, data] (key)}
-		{@const pct = (data.total / maxTotal) * 100}
-		<div class="bar-col">
-			<div class="bar-label-top">{pct > 5 ? fmtSeconds(data.total) : ''}</div>
-			<div class="bar-track">
-				<div class="bar-fill" style="height: {pct}%" data-tooltip={fmtSeconds(data.total)}></div>
+<div class="chart-viewport">
+	<div class="bar-chart">
+		{#each months as [key, data] (key)}
+			{@const pct = (data.total / maxTotal) * 100}
+			<div class="bar-col">
+				<div class="bar-label-top">{pct > 0 ? fmtSeconds(data.total) : ''}</div>
+				<div class="bar-track">
+					<div class="bar-fill" style="height: {pct}%" data-tooltip={fmtSeconds(data.total)}></div>
+				</div>
+				<div class="bar-label">{monthLabel(key)}</div>
 			</div>
-			<div class="bar-label">{monthLabel(key)}</div>
-		</div>
-	{/each}
+		{/each}
+	</div>
 </div>
 
 <style>
+	.chart-viewport {
+		overflow-x: auto;
+		padding-top: 40px;
+	}
 	.bar-chart {
 		display: flex;
 		align-items: flex-end;
 		gap: 10px;
-		height: 120px;
-		overflow: auto;
+		height: 210px;
+		padding-bottom: 10px;
 	}
 	.bar-col {
 		flex: 1;
