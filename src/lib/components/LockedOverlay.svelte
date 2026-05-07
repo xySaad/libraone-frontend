@@ -22,12 +22,12 @@
 	<div class="blur-content">
 		{@render children()}
 	</div>
-	<button class="lock-overlay" {onclick}>
-		<div class="lock-badge">
+	<div class="lock-overlay">
+		<button class="lock-badge" {onclick}>
 			<Lock size={16} />
 			<span>{message}</span>
-		</div>
-	</button>
+		</button>
+	</div>
 </div>
 
 <style>
