@@ -34,8 +34,8 @@ html {
 	}
 
 	body {
-		width: 100vw;
-		height: 100%;
+		width: 100svw;
+		height: 100svh;
 		display: flex;
 		flex-direction: column;
 		gap: 20px;
