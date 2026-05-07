@@ -35,9 +35,3 @@
 		</FallbackImage>
 	{/if}
 </button>
-
-<style>
-	button {
-		cursor: pointer;
-	}
-</style>

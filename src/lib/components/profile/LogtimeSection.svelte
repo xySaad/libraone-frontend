@@ -73,7 +73,6 @@
 		font-weight: 600;
 		padding: 6px 12px;
 		border-radius: 999px;
-		cursor: pointer;
 	}
 	.view-switcher button.active {
 		background: hsla(210, 80%, 55%, 0.16);
