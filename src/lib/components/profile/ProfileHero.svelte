@@ -4,16 +4,15 @@
 	import Location from '$lib/assets/svg/location.svelte';
 	import Search from '$lib/assets/svg/search.svelte';
 	import type { PublicUserFieldsFragment } from '$lib/graphql/generated';
-	import type { LogtimeData, MaplProfile } from '$lib/types/profile';
-	import { fmtSeconds } from '$lib/utils/time';
+	import type { Snippet } from 'svelte';
 	import UserAvatar from '../image/UserAvatar.svelte';
 
 	interface Props {
-		profile?: MaplProfile | null;
-		logtime?: LogtimeData | null;
+		active?: boolean | null;
 		user: PublicUserFieldsFragment;
+		children?: Snippet;
 	}
-	const { user, profile, logtime }: Props = $props();
+	const { user, active, children }: Props = $props();
 
 	// let cfNeeded = $state(false);
 	const getDiscord = async () => {
@@ -27,9 +26,6 @@
 		}
 		return '-';
 	};
-	const totalSec = $derived(
-		logtime ? Object.values(logtime).reduce((a, v) => a + (v?.total ?? 0), 0) : 0
-	);
 </script>
 
 <div class="cd-chall">
@@ -40,7 +36,7 @@
 
 	<div class="avatar-wrap">
 		<UserAvatar avatarUrl={user.avatarUrl} userLogin={user.login} />
-		{#if profile?.location}
+		{#if active}
 			<span class="online-dot" data-tooltip="Active"></span>
 		{/if}
 	</div>
@@ -89,37 +85,7 @@
 		</div>
 	</div>
 
-	{#if profile}
-		<div class="quick-stats">
-			<div class="qs-item">
-				<span class="qs-label">Group</span>
-				<span class="qs-value">{profile.main_group ?? '—'}</span>
-			</div>
-
-			<div class="qs-sep"></div>
-
-			<div class="qs-item">
-				<span class="qs-label">Sub-group</span>
-				<span class="qs-value">{profile.sub_group ?? '—'}</span>
-			</div>
-
-			{#if profile.location}
-				<div class="qs-sep"></div>
-				<div class="qs-item">
-					<span class="qs-label">Location</span>
-					<span class="qs-value">{profile.location}</span>
-				</div>
-			{/if}
-
-			{#if logtime}
-				<div class="qs-sep"></div>
-				<div class="qs-item">
-					<span class="qs-label">Total logtime</span>
-					<span class="qs-value accent">{fmtSeconds(totalSec)}</span>
-				</div>
-			{/if}
-		</div>
-	{/if}
+	{@render children?.()}
 </header>
 
 <style>
@@ -224,43 +190,5 @@
 		background: hsla(45, 80%, 50%, 0.1);
 		border: 1px solid hsla(45, 80%, 50%, 0.2);
 		color: hsl(45, 85%, 65%);
-	}
-	.quick-stats {
-		width: 100%;
-		display: flex;
-		flex-wrap: wrap;
-		align-items: center;
-		gap: 0;
-		margin-top: 4px;
-		padding-top: 16px;
-		border-top: 1px solid hsla(215, 40%, 70%, 0.07);
-	}
-	.qs-item {
-		display: flex;
-		flex-direction: column;
-		gap: 2px;
-		padding: 0 20px 0 0;
-	}
-	.qs-label {
-		font-size: 0.65rem;
-		font-weight: 600;
-		color: var(--text-muted);
-		text-transform: uppercase;
-		letter-spacing: 0.07em;
-	}
-	.qs-value {
-		font-size: 0.88rem;
-		font-weight: 600;
-		color: var(--text-value);
-	}
-	.qs-value.accent {
-		color: hsl(210, 80%, 65%);
-	}
-	.qs-sep {
-		width: 1px;
-		height: 28px;
-		background: hsla(215, 40%, 70%, 0.1);
-		margin-right: 20px;
-		flex-shrink: 0;
 	}
 </style>

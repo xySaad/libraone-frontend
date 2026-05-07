@@ -1,5 +1,6 @@
 <script lang="ts">
 	import UserGroupsList from '$lib/components/GroupList.svelte';
+	import LockedOverlay from '$lib/components/LockedOverlay.svelte';
 	import LogtimeSection from '$lib/components/profile/LogtimeSection.svelte';
 	import NotFoundState from '$lib/components/profile/NotFoundState.svelte';
 	import ProfileHero from '$lib/components/profile/ProfileHero.svelte';
@@ -11,13 +12,16 @@
 		GetUserByLoginDocument,
 		type PublicUserFieldsFragment
 	} from '$lib/graphql/generated';
+	import { fakeLastSession, fakeLogtime, fakeProfile } from '$lib/mock/mapl';
 	import { profileUserState } from '$lib/stores/user.svelte';
+	import type { LogtimeData, MaplProfile } from '$lib/types/profile';
 	import { formatDateInput } from '$lib/utils/time';
 	import { get } from 'svelte/store';
 	import type { PageProps } from './$types';
-	import type { LogtimeData, MaplProfile } from '$lib/types/profile';
+	import ProfileStats from '$lib/components/profile/profileStats.svelte';
 
 	const { params }: PageProps = $props();
+	const profileToken = $derived(get(profileUserState)?.token);
 
 	const getPublicUser = async (userId: string) => {
 		if (Number.isInteger(+userId)) {
@@ -36,7 +40,7 @@
 	const getMaplProfile = async (login: string) => {
 		try {
 			const r = await fetch(`https://mapl.zone01oujda.ma/profile/${login}`, {
-				headers: { 'X-TOKEN': `${get(profileUserState)?.token}` }
+				headers: { 'X-TOKEN': `${profileToken}` }
 			});
 			return r.ok ? r.json() : null;
 		} catch {
@@ -54,7 +58,7 @@
 
 			const r = await fetch(
 				`https://mapl.zone01oujda.ma/logtime/${login}?start=${formatDateInput(start)}&end=${formatDateInput(end)}`,
-				{ headers: { 'X-TOKEN': `${get(profileUserState)?.token}` } }
+				{ headers: { 'X-TOKEN': `${profileToken}` } }
 			);
 
 			return r.ok ? r.json() : null;
@@ -71,7 +75,7 @@
 	const mount = async () => {
 		try {
 			user = await getPublicUser(params.id);
-			if (user.login) {
+			if (user.login && profileToken) {
 				getMaplProfile(user.login).then((p) => (profile = p));
 				getMaplLogtime(user.login).then((l) => (logtime = l));
 			}
@@ -88,14 +92,30 @@
 	{#if loading}
 		<SkeletonLoader />
 	{:else if user}
-		<ProfileHero {user} {profile} {logtime} />
+		<ProfileHero {user} active={!!profile?.location}>
+			{#if !profileToken}
+				<LockedOverlay message="Link profile">
+					<ProfileStats logtime={fakeLogtime} profile={fakeProfile} />
+				</LockedOverlay>
+			{:else}
+				<ProfileStats {logtime} {profile} />
+			{/if}
+		</ProfileHero>
 		{#if user.login}
-			{#if profile?.last_session}
+			{#if !profileToken}
+				<LockedOverlay message="Link profile">
+					<SessionCard lastSession={fakeLastSession} />
+				</LockedOverlay>
+			{:else if profile?.last_session}
 				<div class="cards-grid">
 					<SessionCard lastSession={profile.last_session} />
 				</div>
 			{/if}
-			{#if logtime}
+			{#if !profileToken}
+				<LockedOverlay message="Link profile">
+					<LogtimeSection logtime={fakeLogtime} />
+				</LockedOverlay>
+			{:else if logtime}
 				<LogtimeSection {logtime} />
 			{/if}
 		{/if}
