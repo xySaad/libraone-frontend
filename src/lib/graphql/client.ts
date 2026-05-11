@@ -20,7 +20,7 @@ const patchedRequest = async (...args: Parameters<typeof Client.request>) => {
 			if (headers.get('content-type')?.includes('application/json')) {
 				const json = JSON.parse(body);
 				if (json.errors?.length > 0) {
-					goto(resolve('/login/intra'));
+					goto(resolve('/login/intra'), { replaceState: true });
 					throw error;
 				}
 			}
