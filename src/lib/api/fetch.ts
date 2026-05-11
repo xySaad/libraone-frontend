@@ -20,10 +20,8 @@ export const fetchJSON = async <Req, Res>(
 	});
 
 	const json = await resp.json();
-	console.log(json);
-	if (!resp.ok) {
-		throw new FetchError(resp.status, { cause: json });
-	}
+
+	if (!resp.ok) throw new FetchError(resp.status, { cause: json });
 
 	return json;
 };

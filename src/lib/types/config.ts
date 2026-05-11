@@ -1,9 +1,10 @@
-import { fetchJSON } from '$lib/api/fetch';
+import { FetchError, fetchJSON } from '$lib/api/fetch';
 
 export type Method = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 export type APIConfig = {
 	ORIGIN: string;
 	HEADERS?: () => HeadersInit;
+	ERR_HANDLER?: (status: number) => void;
 };
 
 export function config<T extends APIConfig>(cfg: T) {
@@ -34,14 +35,28 @@ export function endpoint<Res, H extends string[]>(
 
 export function endpoint<Req, Res>(method: Method, path: `/${string}`, requiredHeaders?: boolean) {
 	if (!requiredHeaders)
-		return function (this: APIConfig, body?: Req) {
+		return async function (this: APIConfig, body?: Req) {
 			const url = this.ORIGIN + path;
-			return fetchJSON<Req, Res>(method, url, this.HEADERS?.(), body);
+			try {
+				return await fetchJSON<Req, Res>(method, url, this.HEADERS?.(), body);
+			} catch (error) {
+				if (error instanceof FetchError) {
+					this.ERR_HANDLER?.(error.status);
+					throw error;
+				}
+			}
 		};
 
-	return function (this: APIConfig, headers: HeadersInit, body?: Req) {
+	return async function (this: APIConfig, headers: HeadersInit, body?: Req) {
 		const url = this.ORIGIN + path;
 		const mergedHeaders = { ...headers, ...this.HEADERS?.() };
-		return fetchJSON<Req, Res>(method, url, mergedHeaders, body);
+		try {
+			return await fetchJSON<Req, Res>(method, url, mergedHeaders, body);
+		} catch (error) {
+			if (error instanceof FetchError) {
+				this.ERR_HANDLER?.(error.status);
+				throw error;
+			}
+		}
 	};
 }

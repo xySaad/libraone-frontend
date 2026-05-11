@@ -1,3 +1,5 @@
+import { goto } from '$app/navigation';
+import { resolve } from '$app/paths';
 import { profileUserState } from '$lib/stores/user.svelte';
 import { config, endpoint } from '$lib/types/config';
 import type { GraphQLObject } from '$lib/types/object';
@@ -14,6 +16,9 @@ export const api = {
 	PROFILE: config({
 		ORIGIN: 'https://mapl.zone01oujda.ma',
 		HEADERS: () => ({ 'X-TOKEN': get(profileUserState)?.token ?? '' }),
+		ERR_HANDLER: (status: number) => {
+			if (status === 403) goto(resolve('/login/profile'), { replaceState: true });
+		},
 		login: endpoint<LoginReq, ProfileCreds>('POST', '/login'),
 		online: endpoint<Record<string, string>>('GET', '/online'),
 		profile({ login }: { login: string }) {
