@@ -46,16 +46,16 @@
 	{#if members.length > 0}
 		<div class="members-row">
 			<div class="avatar-stack">
-				{#each members.slice(0, 5) as member (member.userLogin)}
+				{#each members.slice(0, 5) as member (member.user?.id)}
 					<div
 						class="avatar-chip"
-						class:is-captain={member.userLogin === captainLogin}
-						data-tooltip={member.userLogin === captainLogin
-							? `${member.userLogin} (captain)`
-							: member.userLogin}
+						class:is-captain={member.user?.login === captainLogin}
+						data-tooltip={member.user?.login === captainLogin
+							? `${member.user?.login} (captain)`
+							: member.user?.login}
 						data-tooltip-pos="right"
 					>
-						<UserAvatar userLogin={member.userLogin} />
+						<UserAvatar avatarUrl={member.user?.avatarUrl} userLogin={member.user?.login} />
 					</div>
 				{/each}
 				{#if members.length > 5}

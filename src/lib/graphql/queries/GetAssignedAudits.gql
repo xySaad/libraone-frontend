@@ -9,7 +9,11 @@ query GetAssignedAudits {
 			path
 			captainLogin
 			members {
-				userLogin
+				user {
+					login
+					avatarUrl
+					id
+				}
 			}
 		}
 	}
