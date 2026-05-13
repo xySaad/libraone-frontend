@@ -19,13 +19,14 @@
 	let sortDir = $state<'desc' | 'asc'>('desc');
 	let eventUsersPromiseList = $state<ReturnType<typeof getEventUsers>[]>([]);
 
+	let offset = $state(0);
 	$effect(() => {
+		offset = 0; 
 		eventUsersPromiseList = [
 			getEventUsers(+params.id, { orderBy: { [sortKey]: sortDir }, limit, offset: 0, search })
 		];
 	});
 
-	let offset = 0;
 	function handleScroll() {
 		offset += limit;
 		eventUsersPromiseList.push(
