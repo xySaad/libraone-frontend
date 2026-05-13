@@ -27,13 +27,14 @@
 	};
 
 	let pages = $state<Promise<UserGroupFieldsFragment[]>[]>([]);
-	let offset = LIMIT;
+	let offset = 0;
 	$effect(() => {
+		offset = 0;
 		pages = [fetchPage(0)];
 	});
 	function loadMore() {
-		pages.push(fetchPage(offset));
 		offset += LIMIT;
+		pages.push(fetchPage(offset));
 	}
 
 	// ── helpers ──────────────────────────────────────────────────────────
