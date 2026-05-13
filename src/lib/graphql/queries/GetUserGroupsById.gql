@@ -3,7 +3,7 @@ query GetUserGroupsById($userId: Int, $offset: Int, $limit: Int) {
 		where: { userId: { _eq: $userId }, accepted: { _eq: true } }
 		offset: $offset
 		limit: $limit
-		order_by: { group: { auditors_aggregate: { max: { createdAt: desc_nulls_last } } } }
+		order_by: [{ group: { updatedAt: desc } }, { id: desc }]
 	) {
 		...UserGroupFields
 	}
