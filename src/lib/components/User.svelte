@@ -6,6 +6,7 @@
 	import { GetUserProfileDocument } from '$lib/graphql/generated';
 	import { intraUserState, profileUserState } from '$lib/stores/user.svelte';
 	import Image from '$lib/components/image/Image.svelte';
+	import UserAvatar from './image/UserAvatar.svelte';
 
 	const getUserProfile = async (userId: number) => {
 		const user = await Client.request(GetUserProfileDocument, { userId });
@@ -27,7 +28,7 @@
 		{#await getUserProfile($intraUserState.userId)}
 			<Progress />
 		{:then user}
-			<img src={user.avatarUrl} alt={user.login} />
+			<UserAvatar avatarUrl={user.avatarUrl} userLogin={user.login} />
 		{/await}
 	</a>
 {:else}
