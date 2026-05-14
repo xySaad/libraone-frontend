@@ -3,6 +3,7 @@
 	import { Client } from '$lib/graphql/client';
 	import {
 		GetPendingUserGroupsByIdDocument,
+		GetPendingUserGroupsByLoginDocument,
 		GetUserGroupsByIdDocument,
 		GetUserGroupsByLoginDocument,
 		type UserGroupFieldsFragment
@@ -14,26 +15,25 @@
 
 	const LIMIT = 10;
 
-	type Filter = 'accepted' | 'pending' | 'ignored';
-	let activeFilter = $state<Filter>('accepted');
+	// true = accepted, null = pending, false = ignored
+	let activeFilter = $state<boolean | null>(true);
 
 	const isById = () => Number.isInteger(+userId);
 
-	const fetchPage = async (offset: number, filter: Filter) => {
+	const fetchPage = async (offset: number, filter: boolean | null) => {
 		const vars = { offset, limit: LIMIT };
 
-		if (filter === 'pending') {
+		if (filter === null) {
 			const params = isById()
 				? [GetPendingUserGroupsByIdDocument, { userId: +userId, ...vars }]
-				: [GetUserGroupsByLoginDocument, { userLogin: userId, ...vars }];
+				: [GetPendingUserGroupsByLoginDocument, { userLogin: userId, ...vars }];
 			const res = await Client.request(...params);
 			return res.group_user;
 		}
 
-		const accepted = filter === 'accepted'; // true | false
 		const params = isById()
-			? [GetUserGroupsByIdDocument, { userId: +userId, accepted, ...vars }]
-			: [GetUserGroupsByLoginDocument, { userLogin: userId, accepted, ...vars }];
+			? [GetUserGroupsByIdDocument, { userId: +userId, accepted: filter, ...vars }]
+			: [GetUserGroupsByLoginDocument, { userLogin: userId, accepted: filter, ...vars }];
 		const res = await Client.request(...params);
 		return res.group_user;
 	};
@@ -42,18 +42,13 @@
 	let offset = 0;
 
 	$effect(() => {
-		const currentFilter = activeFilter;
 		offset = 0;
-		pages = [fetchPage(0, currentFilter)];
+		pages = [fetchPage(0, activeFilter)];
 	});
 
 	function loadMore() {
 		offset += LIMIT;
 		pages.push(fetchPage(offset, activeFilter));
-	}
-
-	function setFilter(f: Filter) {
-		if (f !== activeFilter) activeFilter = f;
 	}
 </script>
 
@@ -62,9 +57,9 @@
 		<button
 			role="tab"
 			class="filter-btn"
-			class:active={activeFilter === 'accepted'}
-			aria-selected={activeFilter === 'accepted'}
-			onclick={() => setFilter('accepted')}
+			class:active={activeFilter === true}
+			aria-selected={activeFilter === true}
+			onclick={() => (activeFilter = true)}
 		>
 			<span class="filter-dot accepted-dot"></span>
 			Accepted
@@ -72,9 +67,9 @@
 		<button
 			role="tab"
 			class="filter-btn"
-			class:active={activeFilter === 'pending'}
-			aria-selected={activeFilter === 'pending'}
-			onclick={() => setFilter('pending')}
+			class:active={activeFilter === null}
+			aria-selected={activeFilter === null}
+			onclick={() => (activeFilter = null)}
 		>
 			<span class="filter-dot pending-dot"></span>
 			Pending
@@ -82,9 +77,9 @@
 		<button
 			role="tab"
 			class="filter-btn"
-			class:active={activeFilter === 'ignored'}
-			aria-selected={activeFilter === 'ignored'}
-			onclick={() => setFilter('ignored')}
+			class:active={activeFilter === false}
+			aria-selected={activeFilter === false}
+			onclick={() => (activeFilter = false)}
 		>
 			<span class="filter-dot ignored-dot"></span>
 			Ignored
@@ -116,7 +111,6 @@
 		gap: 12px;
 	}
 
-	/* ── Filter bar ──────────────────────────────────────── */
 	.filter-bar {
 		display: flex;
 		gap: 4px;
@@ -173,7 +167,6 @@
 		background: hsl(0, 55%, 48%);
 	}
 
-	/* ── Rest ────────────────────────────────────────────── */
 	.sentinel {
 		width: 0;
 		height: 0;
