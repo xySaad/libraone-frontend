@@ -2,6 +2,7 @@
 	import { infiniteScroll } from '$lib/actions/infiniteScroll';
 	import { Client } from '$lib/graphql/client';
 	import {
+		GetPendingUserGroupsByIdDocument,
 		GetUserGroupsByIdDocument,
 		GetUserGroupsByLoginDocument,
 		type UserGroupFieldsFragment
@@ -13,30 +14,83 @@
 
 	const LIMIT = 10;
 
-	const fetchPage = async (offset: number) => {
-		const vars = { offset, limit: LIMIT };
-		const params = Number.isInteger(+userId)
-			? [GetUserGroupsByIdDocument, { userId: +userId, ...vars }]
-			: [GetUserGroupsByLoginDocument, { userLogin: userId, ...vars }];
+	type Filter = 'accepted' | 'pending' | 'ignored';
+	let activeFilter = $state<Filter>('accepted');
 
-		const userGroups = await Client.request(...params);
-		return userGroups.group_user;
+	const isById = () => Number.isInteger(+userId);
+
+	const fetchPage = async (offset: number, filter: Filter) => {
+		const vars = { offset, limit: LIMIT };
+
+		if (filter === 'pending') {
+			const params = isById()
+				? [GetPendingUserGroupsByIdDocument, { userId: +userId, ...vars }]
+				: [GetUserGroupsByLoginDocument, { userLogin: userId, ...vars }];
+			const res = await Client.request(...params);
+			return res.group_user;
+		}
+
+		const accepted = filter === 'accepted'; // true | false
+		const params = isById()
+			? [GetUserGroupsByIdDocument, { userId: +userId, accepted, ...vars }]
+			: [GetUserGroupsByLoginDocument, { userLogin: userId, accepted, ...vars }];
+		const res = await Client.request(...params);
+		return res.group_user;
 	};
 
 	let pages = $state<Promise<UserGroupFieldsFragment[]>[]>([]);
 	let offset = 0;
+
 	$effect(() => {
+		const currentFilter = activeFilter;
 		offset = 0;
-		pages = [fetchPage(0)];
+		pages = [fetchPage(0, currentFilter)];
 	});
 
 	function loadMore() {
 		offset += LIMIT;
-		pages.push(fetchPage(offset));
+		pages.push(fetchPage(offset, activeFilter));
+	}
+
+	function setFilter(f: Filter) {
+		if (f !== activeFilter) activeFilter = f;
 	}
 </script>
 
 <div class="groups-root">
+	<div class="filter-bar" role="tablist" aria-label="Group membership filter">
+		<button
+			role="tab"
+			class="filter-btn"
+			class:active={activeFilter === 'accepted'}
+			aria-selected={activeFilter === 'accepted'}
+			onclick={() => setFilter('accepted')}
+		>
+			<span class="filter-dot accepted-dot"></span>
+			Accepted
+		</button>
+		<button
+			role="tab"
+			class="filter-btn"
+			class:active={activeFilter === 'pending'}
+			aria-selected={activeFilter === 'pending'}
+			onclick={() => setFilter('pending')}
+		>
+			<span class="filter-dot pending-dot"></span>
+			Pending
+		</button>
+		<button
+			role="tab"
+			class="filter-btn"
+			class:active={activeFilter === 'ignored'}
+			aria-selected={activeFilter === 'ignored'}
+			onclick={() => setFilter('ignored')}
+		>
+			<span class="filter-dot ignored-dot"></span>
+			Ignored
+		</button>
+	</div>
+
 	{#each pages as page (page)}
 		{#await page}
 			{#each { length: 3 } as _, i (i)}
@@ -46,7 +100,6 @@
 			{#if groups.length > 0}
 				<div class="sentinel" use:infiniteScroll={loadMore}></div>
 			{/if}
-
 			{#each groups as userGroup (userGroup.id)}
 				<GroupCard {userGroup} intraUserId={$intraUserState?.userId} />
 			{/each}
@@ -63,6 +116,64 @@
 		gap: 12px;
 	}
 
+	/* ── Filter bar ──────────────────────────────────────── */
+	.filter-bar {
+		display: flex;
+		gap: 4px;
+		padding-bottom: 4px;
+	}
+
+	.filter-btn {
+		display: inline-flex;
+		align-items: center;
+		gap: 6px;
+		padding: 4px 12px;
+		border-radius: 6px;
+		border: 1px solid transparent;
+		background: transparent;
+		color: var(--text-muted);
+		font-size: 12px;
+		font-weight: 500;
+		font-family: 'Inter Variable', sans-serif;
+		letter-spacing: 0.01em;
+		cursor: pointer;
+		transition:
+			background 0.15s ease,
+			color 0.15s ease,
+			border-color 0.15s ease;
+	}
+
+	.filter-btn:hover:not(.active) {
+		background: var(--secondary);
+		color: var(--text-value);
+		border-color: hsla(215, 40%, 70%, 0.08);
+	}
+
+	.filter-btn.active {
+		background: var(--secondary);
+		color: var(--text-primary);
+		border-color: hsla(215, 40%, 70%, 0.12);
+	}
+
+	.filter-dot {
+		width: 6px;
+		height: 6px;
+		border-radius: 50%;
+		flex-shrink: 0;
+		opacity: 0.85;
+	}
+
+	.accepted-dot {
+		background: hsl(142, 50%, 42%);
+	}
+	.pending-dot {
+		background: hsl(38, 75%, 52%);
+	}
+	.ignored-dot {
+		background: hsl(0, 55%, 48%);
+	}
+
+	/* ── Rest ────────────────────────────────────────────── */
 	.sentinel {
 		width: 0;
 		height: 0;
@@ -71,8 +182,8 @@
 	.group-card.skeleton {
 		height: 120px;
 		border-radius: var(--border-radius-lg, 12px);
-		border: 1px solid hsl(213, 40%, 14%);
-		background: hsla(213, 40%, 10%, 0.7);
+		border: 1px solid hsla(215, 40%, 70%, 0.08);
+		background: var(--secondary);
 		animation: pulse 1.4s ease infinite;
 	}
 

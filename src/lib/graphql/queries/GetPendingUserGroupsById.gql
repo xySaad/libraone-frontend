@@ -1,0 +1,10 @@
+query GetPendingUserGroupsById($userId: Int, $offset: Int, $limit: Int) {
+	group_user(
+		where: { userId: { _eq: $userId }, accepted: { _is_null: true } }
+		offset: $offset
+		limit: $limit
+		order_by: [{ group: { updatedAt: desc } }, { id: desc }]
+	) {
+		...UserGroupFields
+	}
+}

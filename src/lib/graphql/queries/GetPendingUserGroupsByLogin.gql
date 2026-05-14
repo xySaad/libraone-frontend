@@ -1,0 +1,10 @@
+query GetPendingUserGroupsByLogin($userLogin: String, $offset: Int, $limit: Int) {
+	group_user(
+		where: { userLogin: { _eq: $userLogin }, accepted: { _is_null: true } }
+		offset: $offset
+		limit: $limit
+		order_by: [{ group: { updatedAt: desc } }, { id: desc }]
+	) {
+		...UserGroupFields
+	}
+}
