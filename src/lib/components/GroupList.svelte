@@ -24,17 +24,26 @@
 		const vars = { offset, limit: LIMIT };
 
 		if (filter === null) {
-			const params = isById()
-				? [GetPendingUserGroupsByIdDocument, { userId: +userId, ...vars }]
-				: [GetPendingUserGroupsByLoginDocument, { userLogin: userId, ...vars }];
-			const res = await Client.request(...params);
+			const res = isById()
+				? await Client.request(GetPendingUserGroupsByIdDocument, { userId: +userId, ...vars })
+				: await Client.request(GetPendingUserGroupsByLoginDocument, {
+						userLogin: userId,
+						...vars
+					});
 			return res.group_user;
 		}
 
-		const params = isById()
-			? [GetUserGroupsByIdDocument, { userId: +userId, accepted: filter, ...vars }]
-			: [GetUserGroupsByLoginDocument, { userLogin: userId, accepted: filter, ...vars }];
-		const res = await Client.request(...params);
+		const res = isById()
+			? await Client.request(GetUserGroupsByIdDocument, {
+					userId: +userId,
+					accepted: filter,
+					...vars
+				})
+			: await Client.request(GetUserGroupsByLoginDocument, {
+					userLogin: userId,
+					accepted: filter,
+					...vars
+				});
 		return res.group_user;
 	};
 
