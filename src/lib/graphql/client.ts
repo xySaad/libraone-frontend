@@ -31,6 +31,7 @@ const patchedRequest = async (...args: Parameters<typeof Client.request>) => {
 				const json: { errors?: GraphQLError[] } = JSON.parse(body);
 
 				if (json.errors?.some((e) => e.extensions.code === 'invalid-jwt')) {
+					intraUserState.set(null);
 					goto(resolve('/login/intra'), { replaceState: true });
 					throw error;
 				}

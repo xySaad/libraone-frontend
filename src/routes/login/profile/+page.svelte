@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 	import { api } from '$lib/api';
 	import { FetchError } from '$lib/api/fetch';
 	import Link from '$lib/assets/svg/link.svelte';
@@ -10,6 +12,12 @@
 	let error = $state('');
 	let loading = $state(false);
 
+	$effect(() => {
+		if ($profileUserState) {
+			goto(resolve('/login'), { replaceState: true });
+		}
+	});
+
 	const handleSubmit = async (e: SubmitEvent) => {
 		e.preventDefault();
 		error = '';
@@ -18,7 +26,7 @@
 		try {
 			const creds = await api.PROFILE.login({ username, password });
 			$profileUserState = creds;
-			history.back();
+			goto(resolve('/'), { replaceState: true });
 		} catch (e) {
 			if (e instanceof FetchError && typeof e.cause?.detail == 'string')
 				error = e.cause?.detail || 'Invalid username or password';
