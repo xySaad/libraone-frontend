@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 	import api from '$lib/api';
 	import { FetchError } from '$lib/api/fetch';
 	import Link from '$lib/assets/svg/link.svelte';
@@ -25,6 +27,12 @@
 	let error = $state('');
 	let loading = $state(false);
 
+	$effect(() => {
+		if ($intraUserState) {
+			goto(resolve('/login'), { replaceState: true });
+		}
+	});
+
 	const handleSubmit = async (e: SubmitEvent) => {
 		e.preventDefault();
 		error = '';
@@ -38,7 +46,7 @@
 			const userId = +payload.sub;
 
 			intraUserState.set({ jwt: token, userId });
-			history.back();
+			goto(resolve('/'), { replaceState: true });
 		} catch (err) {
 			if (err instanceof FetchError) {
 				error = err.cause.error || 'Authentication failed';

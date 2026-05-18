@@ -17,7 +17,10 @@ export const api = {
 		ORIGIN: 'https://mapl.zone01oujda.ma',
 		HEADERS: () => ({ 'X-TOKEN': get(profileUserState)?.token ?? '' }),
 		ERR_HANDLER: (_status: number, body: { detail: string }) => {
-			if (body?.detail === 'Forbidden') goto(resolve('/login/profile'), { replaceState: true });
+			if (body?.detail === 'Forbidden') {
+				profileUserState.set(null);
+				goto(resolve('/login/profile'), { replaceState: true });
+			}
 		},
 		login: endpoint<LoginReq, ProfileCreds>('POST', '/login'),
 		online: endpoint<Record<string, string>>('GET', '/online'),
