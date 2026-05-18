@@ -38,7 +38,11 @@
 			const userId = +payload.sub;
 
 			intraUserState.set({ jwt: token, userId });
-			history.back();
+			if (document.referrer && new URL(document.referrer).host === location.host) {
+				history.back();
+			} else {
+				location.replace('/');
+			}
 		} catch (err) {
 			if (err instanceof FetchError) {
 				error = err.cause.error || 'Authentication failed';

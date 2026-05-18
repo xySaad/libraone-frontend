@@ -18,7 +18,11 @@
 		try {
 			const creds = await api.PROFILE.login({ username, password });
 			$profileUserState = creds;
-			history.back();
+			if (document.referrer && new URL(document.referrer).host === location.host) {
+				history.back();
+			} else {
+				location.replace('/');
+			}
 		} catch (e) {
 			if (e instanceof FetchError && typeof e.cause?.detail == 'string')
 				error = e.cause?.detail || 'Invalid username or password';
