@@ -27,12 +27,6 @@
 	let error = $state('');
 	let loading = $state(false);
 
-	$effect(() => {
-		if ($intraUserState) {
-			goto(resolve('/login'), { replaceState: true });
-		}
-	});
-
 	const handleSubmit = async (e: SubmitEvent) => {
 		e.preventDefault();
 		error = '';

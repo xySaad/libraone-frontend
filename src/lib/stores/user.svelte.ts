@@ -1,10 +1,7 @@
-import { browser } from '$app/environment';
 import type { ProfileCreds } from '$lib/types/profile';
 import { writable } from 'svelte/store';
 
 const readStorage = <T>(key: string): T | null => {
-	if (!browser) return null;
-
 	const raw = localStorage.getItem(key);
 	if (!raw) return null;
 
@@ -17,8 +14,6 @@ const readStorage = <T>(key: string): T | null => {
 };
 
 const syncStorage = (key: string, value: unknown) => {
-	if (!browser) return;
-
 	if (value === null) {
 		localStorage.removeItem(key);
 		return;
