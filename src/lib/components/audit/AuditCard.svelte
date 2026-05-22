@@ -2,8 +2,9 @@
 	import Clock from '$lib/assets/svg/clock.svelte';
 	import UserAvatar from '$lib/components/image/UserAvatar.svelte';
 	import { formatDate, timeRemaining } from '$lib/utils/time';
-	import CopyButton from '$lib/components/CopyButton.svelte';
 	import type { GetAssignedAuditsQuery } from '$lib/graphql/generated';
+	import AuditCopyButton from './AuditCopyButton.svelte';
+	import ShowCodeButton from './ShowCodeButton.svelte';
 
 	type Props = {
 		name: string;
@@ -18,9 +19,8 @@
 	let now = $state(Date.now());
 	let showCode = $state(false);
 
-	// Tick every minute while panel is open
+	// Keep countdown labels fresh while the audit card is mounted.
 	$effect(() => {
-		if (!open) return;
 		const id = setInterval(() => (now = Date.now()), 60_000);
 		return () => clearInterval(id);
 	});
@@ -70,54 +70,10 @@
 	<!-- Actions -->
 	{#if code}
 		<div class="actions">
-			<CopyButton text={code} label="Copy code" aria-label="Copy audit code" />
-			<button
-				class="toggle-btn"
-				onclick={() => (showCode = !showCode)}
-				aria-label={showCode ? 'Hide code' : 'Show code'}
-				data-tooltip={showCode ? 'Hide code' : 'Show code'}
-				data-tooltip-pos="right"
-			>
-				{#if showCode}
-					<!-- Eye-off icon -->
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						width="13"
-						height="13"
-						viewBox="0 0 24 24"
-						fill="none"
-						stroke="currentColor"
-						stroke-width="2"
-						stroke-linecap="round"
-						stroke-linejoin="round"
-					>
-						<path
-							d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"
-						/>
-						<path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
-						<line x1="1" y1="1" x2="23" y2="23" />
-					</svg>
-				{:else}
-					<!-- Eye icon -->
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						width="13"
-						height="13"
-						viewBox="0 0 24 24"
-						fill="none"
-						stroke="currentColor"
-						stroke-width="2"
-						stroke-linecap="round"
-						stroke-linejoin="round"
-					>
-						<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-						<circle cx="12" cy="12" r="3" />
-					</svg>
-				{/if}
-			</button>
-			{#if showCode}
-				<span class="code-display">{code}</span>
-			{/if}
+			<ShowCodeButton visible={showCode} {code} onToggle={() => (showCode = !showCode)} />
+			<!-- {#if showCode} -->
+				<AuditCopyButton text={code} />
+			<!-- {/if} -->
 		</div>
 	{/if}
 </li>
@@ -277,47 +233,6 @@
 		display: flex;
 		align-items: center;
 		gap: 6px;
-	}
-
-	.toggle-btn {
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
-		width: 26px;
-		height: 26px;
-		padding: 0;
-		border-radius: 6px;
-		border: 1px solid hsla(215, 40%, 70%, 0.08);
-		background: hsla(213, 40%, 16%, 0.8);
-		color: hsl(215, 15%, 55%);
-		cursor: pointer;
-		flex-shrink: 0;
-		transition:
-			background 0.15s,
-			color 0.15s,
-			border-color 0.15s;
-
-		&:hover {
-			background: hsl(213, 40%, 20%);
-			color: hsl(215, 20%, 75%);
-			border-color: hsla(215, 40%, 70%, 0.15);
-		}
-
-		&:active {
-			background: hsl(213, 40%, 18%);
-		}
-	}
-
-	.code-display {
-		font-family: ui-monospace, 'Cascadia Code', 'SF Mono', monospace;
-		font-size: 0.72rem;
-		font-weight: 600;
-		letter-spacing: 0.08em;
-		color: hsl(210, 20%, 80%);
-		background: hsla(213, 40%, 14%, 0.9);
-		border: 1px solid hsla(215, 40%, 70%, 0.1);
-		border-radius: 5px;
-		padding: 2px 7px;
-		user-select: all;
+		flex-wrap: wrap;
 	}
 </style>
