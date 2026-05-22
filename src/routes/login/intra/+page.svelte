@@ -1,8 +1,7 @@
 <script lang="ts">
 	import api from '$lib/api';
-	import { FetchError } from '$lib/api/fetch';
-	import Link from '$lib/assets/svg/link.svelte';
-	import PanelCard from '$lib/components/PanelCard.svelte';
+	import intra from '$lib/assets/intra.png';
+	import LoginForm from '$lib/components/login/LoginForm.svelte';
 	import { intraUserState } from '$lib/stores/user.svelte';
 	import { jwtDecode } from 'jwt-decode';
 
@@ -20,51 +19,21 @@
 		};
 	}
 
-	let username = $state('');
-	let password = $state('');
-	let error = $state('');
-	let loading = $state(false);
-
-	const handleSubmit = async (e: SubmitEvent) => {
-		e.preventDefault();
-		error = '';
-		loading = true;
-
-		try {
-			const b64 = btoa(`${username}:${password}`);
-			const token = await api.INTRA.signin({ Authorization: `Basic ${b64}` });
-
-			const payload = jwtDecode<JWTPayload>(token);
-			const userId = +payload.sub;
-
-			intraUserState.set({ jwt: token, userId });
-			history.back();
-		} catch (err) {
-			if (err instanceof FetchError) {
-				error = err.cause.error || 'Authentication failed';
-			}
-		} finally {
-			loading = false;
-		}
-	};
+	async function handleSubmit({ username, password }: { username: string; password: string }) {
+		const b64 = btoa(`${username}:${password}`);
+		const token = await api.INTRA.signin({ Authorization: `Basic ${b64}` });
+		const payload = jwtDecode<JWTPayload>(token);
+		intraUserState.set({ jwt: token, userId: +payload.sub });
+		history.back();
+	}
 </script>
 
 <article>
-	<form onsubmit={handleSubmit}>
-		<PanelCard wordmark="Intra">
-			<input bind:value={username} type="text" placeholder="username" required />
-			<input bind:value={password} type="password" placeholder="password" required />
-
-			{#if error}
-				<p class="error">{error}</p>
-			{/if}
-
-			<button class="btn blue" type="submit" disabled={loading}>
-				<Link />
-				{loading ? 'Linking...' : 'Link'}
-			</button>
-		</PanelCard>
-	</form>
+	<LoginForm title="Intra" onsubmit={handleSubmit} titleColor="hsl(38, 80%, 62%)">
+		{#snippet icon()}
+			<img src={intra} alt="intra" />
+		{/snippet}
+	</LoginForm>
 </article>
 
 <style>
@@ -75,20 +44,6 @@
 		align-items: center;
 		justify-content: center;
 		overflow: hidden;
-	}
-
-	.error {
-		margin-top: 0.75rem;
-		font-size: 0.875rem;
-		color: #ef4444;
-		text-align: center;
-	}
-	button:disabled {
-		opacity: 0.5;
-		cursor: not-allowed;
-		pointer-events: none;
-		filter: grayscale(20%);
-		transform: none;
-		box-shadow: none;
+		width: 100%;
 	}
 </style>
