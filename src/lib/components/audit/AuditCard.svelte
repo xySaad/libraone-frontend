@@ -2,8 +2,9 @@
 	import Clock from '$lib/assets/svg/clock.svelte';
 	import UserAvatar from '$lib/components/image/UserAvatar.svelte';
 	import { formatDate, timeRemaining } from '$lib/utils/time';
-	import CopyButton from '$lib/components/CopyButton.svelte';
 	import type { GetAssignedAuditsQuery } from '$lib/graphql/generated';
+	import AuditCopyButton from './AuditCopyButton.svelte';
+	import ShowCodeButton from './ShowCodeButton.svelte';
 
 	type Props = {
 		name: string;
@@ -16,9 +17,10 @@
 	let { name, endAt, code, captainLogin, members }: Props = $props();
 
 	let now = $state(Date.now());
-	// Tick every minute while panel is open
+	let showCode = $state(false);
+
+	// Keep countdown labels fresh while the audit card is mounted.
 	$effect(() => {
-		if (!open) return;
 		const id = setInterval(() => (now = Date.now()), 60_000);
 		return () => clearInterval(id);
 	});
@@ -68,7 +70,10 @@
 	<!-- Actions -->
 	{#if code}
 		<div class="actions">
-			<CopyButton text={code} label="Copy code" aria-label="Copy audit code" />
+			<ShowCodeButton visible={showCode} {code} onToggle={() => (showCode = !showCode)} />
+			<!-- {#if showCode} -->
+				<AuditCopyButton text={code} />
+			<!-- {/if} -->
 		</div>
 	{/if}
 </li>
@@ -184,7 +189,6 @@
 		margin-left: -6px;
 		flex-shrink: 0;
 		border-radius: 50%;
-		/* overflow: hidden; */
 		position: relative;
 
 		:global(button) {
@@ -227,6 +231,8 @@
 
 	.actions {
 		display: flex;
+		align-items: center;
 		gap: 6px;
+		flex-wrap: wrap;
 	}
 </style>
