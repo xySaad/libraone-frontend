@@ -7,22 +7,33 @@
 		glow?: boolean;
 		padding?: 'sm' | 'md' | 'lg';
 		children?: Snippet;
+		maxWidth?: string;
 	}
 
-	const { tag = 'div', glow = false, padding = 'md', children }: Props = $props();
+	const {
+		tag = 'div',
+		glow = false,
+		padding = 'md',
+		children,
+		maxWidth = 'auto'
+	}: Props = $props();
 </script>
 
-<svelte:element this={tag} class="card" data-padding={padding}>
+<svelte:element this={tag} class="card" data-padding={padding} style:max-width={maxWidth}>
 	{#if glow}<div class="card-glow" aria-hidden="true"></div>{/if}
 	{@render children?.()}
 </svelte:element>
 
 <style>
 	.card {
+		width: 100%;
+		display: flex;
+		flex-direction: column;
+		gap: 10px;
 		position: relative;
-		border-radius: 14px;
-		background: hsla(215, 35%, 10%, 0.5);
-		border: 1px solid hsla(215, 40%, 70%, 0.08);
+		border-radius: var(--card-radius);
+		background: var(--card-bg);
+		border: 1px solid var(--card-border);
 		backdrop-filter: blur(10px);
 	}
 
