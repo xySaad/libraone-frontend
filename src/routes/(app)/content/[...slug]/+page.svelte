@@ -21,6 +21,29 @@
 		if (max === null || min === max) return `${min} members`;
 		return `${min}-${max} members`;
 	}
+
+	async function downloadFile(url: string, filename: string) {
+		try {
+			const response = await fetch(url);
+			if (!response.ok) throw new Error('Network response was not ok');
+			
+			const blob = await response.blob();
+			const blobUrl = URL.createObjectURL(blob);
+			
+			const a = document.createElement('a');
+			a.href = blobUrl;
+			a.download = filename;
+			document.body.appendChild(a);
+			a.click();
+			
+			// Cleanup
+			document.body.removeChild(a);
+			URL.revokeObjectURL(blobUrl);
+		} catch (error) {
+			console.error('Failed to download file via fetch, falling back to new tab:', error);
+			window.open(url, '_blank');
+		}
+	}
 </script>
 
 {#await projectPromise}
@@ -60,6 +83,14 @@
 				{#if content.subject}
 					<Tabs.Content value="subject">
 						<div class="scroll">
+							<div class="content-actions">
+								<button 
+									class="download-btn" 
+									onclick={() => downloadFile(`https://learn.zone01oujda.ma${content.subject}`, 'subject.md')}
+								>
+									<span class="meta-icon" style="font-size: 1.1rem;">⬇️</span> Download Subject
+								</button>
+							</div>
 							<Markdown url={`https://learn.zone01oujda.ma${content.subject}`} />
 						</div>
 					</Tabs.Content>
@@ -70,13 +101,23 @@
 						<div class="scroll">
 							{#each content.validations as validation, index (index)}
 								{#if validation.form}
+									<div class="content-actions">
+										<button 
+											class="download-btn" 
+											onclick={() => downloadFile(`https://learn.zone01oujda.ma${validation.form}`, `audit_${index + 1}.md`)}
+										>
+											<span class="meta-icon" style="font-size: 1.1rem;">⬇️</span> Download Audit {index + 1}
+										</button>
+									</div>
 									<Markdown url={`https://learn.zone01oujda.ma${validation.form}`} />
 								{/if}
 								{#if validation.testImage}
-									Test Image:
-									<a href="https://{validation.testImage}" rel="external">
-										{validation.testImage}
-									</a>
+									<div class="test-image-link">
+										Test Image:
+										<a href="https://{validation.testImage}" rel="external">
+											{validation.testImage}
+										</a>
+									</div>
 								{/if}
 							{/each}
 						</div>
@@ -91,6 +132,7 @@
 	.scroll {
 		max-height: 70vh;
 		overflow-y: auto;
+		padding-right: 8px; /* Added slight padding for scrollbar */
 	}
 
 	.project-meta {
@@ -142,6 +184,41 @@
 		font-weight: 700;
 		color: var(--text, #f0f0f0);
 		line-height: 1.2;
+	}
+
+	/* New styles for the download button area */
+	.content-actions {
+		display: flex;
+		justify-content: flex-end;
+		margin-bottom: 16px;
+		padding-top: 8px;
+	}
+
+	.download-btn {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		padding: 8px 16px;
+		border-radius: 8px;
+		border: 1px solid var(--bg-3, #333);
+		background: var(--bg-2, #1a1a1a);
+		color: var(--text, #f0f0f0);
+		font-weight: 600;
+		font-size: 0.85rem;
+		cursor: pointer;
+		transition: all 0.2s ease;
+	}
+
+	.download-btn:hover {
+		background: var(--bg-3, #333);
+		border-color: var(--secondary, #888);
+	}
+
+	.test-image-link {
+		margin-top: 16px;
+		padding: 12px;
+		background: var(--bg-2, #1a1a1a);
+		border-radius: 8px;
 	}
 
 	section {
