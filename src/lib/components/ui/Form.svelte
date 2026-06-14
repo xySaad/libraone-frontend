@@ -17,7 +17,7 @@
 
 	interface PropsWithoutButton extends PropsBase {
 		button?: never;
-		loadingLabel: never;
+		loadingLabel?: never;
 	}
 
 	type Props = PropsWithButton | PropsWithoutButton;

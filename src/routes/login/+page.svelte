@@ -15,7 +15,7 @@
 	<div class="grid-overlay" aria-hidden="true"></div>
 	<Card maxWidth="600px">
 		<Wordmark>Login</Wordmark>
-		<LoginAnchor disabled type="gitea" subtitle="Login via OAuth">
+		<LoginAnchor type="gitea" subtitle="Login via OAuth">
 			<Gitea />
 		</LoginAnchor>
 
