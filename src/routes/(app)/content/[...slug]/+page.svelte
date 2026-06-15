@@ -60,7 +60,10 @@
 				{#if content.subject}
 					<Tabs.Content value="subject">
 						<div class="scroll">
-							<Markdown url={`https://learn.zone01oujda.ma${content.subject}`} />
+							<Markdown
+								fileName="{project.name}.md"
+								url={`https://learn.zone01oujda.ma${content.subject}`}
+							/>
 						</div>
 					</Tabs.Content>
 				{/if}
@@ -70,7 +73,10 @@
 						<div class="scroll">
 							{#each content.validations as validation, index (index)}
 								{#if validation.form}
-									<Markdown url={`https://learn.zone01oujda.ma${validation.form}`} />
+									<Markdown
+										fileName="{project.name}-audit.md"
+										url={`https://learn.zone01oujda.ma${validation.form}`}
+									/>
 								{/if}
 								{#if validation.testImage}
 									Test Image:

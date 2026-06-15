@@ -68,7 +68,7 @@
 	<!-- Actions -->
 	{#if code}
 		<div class="actions">
-			<CopyButton text={code} label="Copy code" aria-label="Copy audit code" />
+			<CopyButton text={code} label="Code" />
 		</div>
 	{/if}
 </li>
