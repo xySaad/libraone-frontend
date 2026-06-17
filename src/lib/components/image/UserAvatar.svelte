@@ -1,10 +1,11 @@
 <script lang="ts">
 	import FallbackImage from './FallbackImage.svelte';
 	import Image from './Image.svelte';
-	import { profileUserState } from '$lib/stores/user.svelte';
 	import { resolve } from '$app/paths';
 	import Person from '$lib/assets/svg/person.svelte';
 	import Block from '$lib/assets/svg/block.svelte';
+	import api from '$lib/api';
+	import { profileUserState } from '$lib/stores/user.svelte';
 
 	interface Props {
 		userLogin?: string | null;
@@ -12,7 +13,6 @@
 		banned?: boolean | null;
 	}
 	const { avatarUrl, userLogin, banned }: Props = $props();
-	const profileToken = $derived($profileUserState?.token);
 
 	let error = $state(false);
 </script>
@@ -23,13 +23,13 @@
 	</div>
 	<div class="avatar">
 		<FallbackImage src={avatarUrl}>
-			{#if error || !profileToken}
+			{#if error || !$profileUserState}
 				<Person />
 			{:else}
 				<Image
-					src={`https://mapl.zone01oujda.ma/image/map/${userLogin}`}
+					src={`${api.CAMPUS.ORIGIN}/image/map/${userLogin ?? ''}`}
 					alt={userLogin}
-					headers={{ 'X-TOKEN': `${profileToken}` }}
+					headers={{}}
 					onerror={() => (error = true)}
 				>
 					<Person />

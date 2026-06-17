@@ -7,6 +7,7 @@
 	import { intraUserState, profileUserState } from '$lib/stores/user.svelte';
 	import Image from '$lib/components/image/Image.svelte';
 	import UserAvatar from './image/UserAvatar.svelte';
+	import api from '$lib/api';
 
 	const getUserProfile = async (userId: number) => {
 		const user = await Client.request(GetUserProfileDocument, { userId });
@@ -15,13 +16,9 @@
 </script>
 
 {#if $profileUserState}
-	{@const username = $profileUserState.username}
-	<a href={resolve('/(app)/users/[id]', { id: $profileUserState.username })}>
-		<Image
-			src={`https://mapl.zone01oujda.ma/image/map/${username}`}
-			alt={username}
-			headers={{ 'X-TOKEN': $profileUserState.token }}
-		/>
+	{@const username = $profileUserState.graphql_login}
+	<a href={resolve('/(app)/users/[id]', { id: $profileUserState.graphql_login })}>
+		<Image src={`${api.CAMPUS.ORIGIN}/image/map/${username}`} alt={username} headers={{}} />
 	</a>
 {:else if $intraUserState}
 	<a href={resolve(`/users/${$intraUserState.userId}`)}>

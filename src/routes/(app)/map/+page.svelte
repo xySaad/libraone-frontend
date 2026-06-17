@@ -1,6 +1,4 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
-	import { resolve } from '$app/paths';
 	import { api } from '$lib/api';
 	import UserAvatar from '$lib/components/image/UserAvatar.svelte';
 	const columns = 2;
@@ -20,11 +18,7 @@
 	};
 
 	const fetchOnlineUsers = async () => {
-		const busyPosts = await api.PROFILE.online().catch(() => {
-			goto(resolve('/login/profile'), { replaceState: true });
-			return {} as Record<string, string>;
-		});
-
+		const busyPosts = await api.CAMPUS.online().catch(() => ({}) as Record<string, string>);
 		const onlineUsers: Record<string, string | undefined> = {};
 		for (const post in busyPosts) {
 			onlineUsers[busyPosts[post]] = post;

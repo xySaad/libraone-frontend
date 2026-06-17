@@ -11,7 +11,7 @@
 	let start = $state(formatDateInput(firstOfMonth));
 	let end = $state(formatDateInput(lastOfMonth));
 
-	const leaderboardPromise = $derived(api.PROFILE.leaderboard({ start, end }));
+	const leaderboardPromise = $derived(api.CAMPUS.leaderboard({ start, end }));
 
 	const maxValue = $derived.by(async () => {
 		const data = await leaderboardPromise;

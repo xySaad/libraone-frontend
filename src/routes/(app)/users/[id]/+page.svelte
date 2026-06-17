@@ -20,7 +20,7 @@
 	import type { PageProps } from './$types';
 
 	const { params }: PageProps = $props();
-	const profileToken = $derived($profileUserState?.token);
+	const profileState = $derived($profileUserState);
 
 	const getPublicUser = async (userId: string) => {
 		if (Number.isInteger(+userId)) {
@@ -42,7 +42,7 @@
 		const start = new Date(now);
 		start.setMonth(start.getMonth() - 12);
 		const end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-		return await api.PROFILE.logtime({
+		return await api.CAMPUS.logtime({
 			start: formatDateInput(start),
 			end: formatDateInput(end),
 			login
@@ -57,8 +57,8 @@
 	const mount = async () => {
 		try {
 			user = await getPublicUser(params.id);
-			if (user.login && profileToken) {
-				api.PROFILE.profile({ login: user.login }).then((p) => (profile = p));
+			if (user.login && profileState) {
+				api.CAMPUS.profile({ login: user.login }).then((p) => (profile = p));
 				getMaplLogtime(user.login).then((l) => (logtime = l));
 			}
 		} finally {
@@ -75,7 +75,7 @@
 		<SkeletonLoader />
 	{:else if user}
 		<ProfileHero {user} active={!!profile?.location}>
-			{#if !profileToken}
+			{#if !profileState}
 				<LockedOverlay message="Link profile">
 					<ProfileStats logtime={fakeLogtime} profile={fakeProfile} />
 				</LockedOverlay>
@@ -84,7 +84,7 @@
 			{/if}
 		</ProfileHero>
 		{#if user.login}
-			{#if !profileToken}
+			{#if !profileState}
 				<LockedOverlay message="Link profile">
 					<LogtimeSection logtime={fakeLogtime} />
 				</LockedOverlay>
