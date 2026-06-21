@@ -23,7 +23,7 @@
 		}
 
 		const oauthWindow = window.open(
-			'http://localhost:5051/oauth/gitea',
+			'https://libraone.undo.it/api/oauth/gitea',
 			'_blank',
 			'popup,width=600,height=700'
 		);
