@@ -5,7 +5,6 @@
 	import Person from '$lib/assets/svg/person.svelte';
 	import Block from '$lib/assets/svg/block.svelte';
 	import api from '$lib/api';
-	import { profileUserState } from '$lib/stores/user.svelte';
 
 	interface Props {
 		userLogin?: string | null;
@@ -23,7 +22,7 @@
 	</div>
 	<div class="avatar">
 		<FallbackImage src={avatarUrl}>
-			{#if error || !$profileUserState}
+			{#if error}
 				<Person />
 			{:else}
 				<Image

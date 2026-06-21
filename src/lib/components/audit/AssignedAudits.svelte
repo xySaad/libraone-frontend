@@ -3,7 +3,7 @@
 	import { GetAssignedAuditsDocument } from '$lib/graphql/generated';
 	import AuditTrigger from './AuditTrigger.svelte';
 	import AuditPanel from './AuditPanel.svelte';
-	import { intraUserState } from '$lib/stores/user.svelte';
+	import { profileUserState } from '$lib/stores/user.svelte';
 
 	let open = $state(false);
 	let panelEl = $state<HTMLDivElement | null>(null);
@@ -17,7 +17,7 @@
 		else document.removeEventListener('mousedown', handleOutsideClick);
 		return () => document.removeEventListener('mousedown', handleOutsideClick);
 	});
-	const userId = $derived($intraUserState?.userId);
+	const userId = $derived($profileUserState?.graphql_id);
 </script>
 
 {#if userId}

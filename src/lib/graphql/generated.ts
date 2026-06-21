@@ -2568,6 +2568,8 @@ export type Group_User = {
   createdAt: Scalars['timestamptz']['output'];
   enrollerId?: Maybe<Scalars['Int']['output']>;
   enrollment: Scalars['String']['output'];
+  /** A computed field, executes function "group_user_enrollment_status" */
+  enrollmentStatus?: Maybe<Scalars['String']['output']>;
   /** An object relationship */
   event: Event;
   eventId: Scalars['Int']['output'];
@@ -2696,6 +2698,7 @@ export type Group_User_Bool_Exp = {
   createdAt?: InputMaybe<Timestamptz_Comparison_Exp>;
   enrollerId?: InputMaybe<Int_Comparison_Exp>;
   enrollment?: InputMaybe<String_Comparison_Exp>;
+  enrollmentStatus?: InputMaybe<String_Comparison_Exp>;
   event?: InputMaybe<Event_Bool_Exp>;
   eventId?: InputMaybe<Int_Comparison_Exp>;
   group?: InputMaybe<Group_Bool_Exp>;
@@ -2735,6 +2738,8 @@ export type Group_User_Max_Fields = {
   createdAt?: Maybe<Scalars['timestamptz']['output']>;
   enrollerId?: Maybe<Scalars['Int']['output']>;
   enrollment?: Maybe<Scalars['String']['output']>;
+  /** A computed field, executes function "group_user_enrollment_status" */
+  enrollmentStatus?: Maybe<Scalars['String']['output']>;
   eventId?: Maybe<Scalars['Int']['output']>;
   groupId?: Maybe<Scalars['Int']['output']>;
   id?: Maybe<Scalars['Int']['output']>;
@@ -2767,6 +2772,8 @@ export type Group_User_Min_Fields = {
   createdAt?: Maybe<Scalars['timestamptz']['output']>;
   enrollerId?: Maybe<Scalars['Int']['output']>;
   enrollment?: Maybe<Scalars['String']['output']>;
+  /** A computed field, executes function "group_user_enrollment_status" */
+  enrollmentStatus?: Maybe<Scalars['String']['output']>;
   eventId?: Maybe<Scalars['Int']['output']>;
   groupId?: Maybe<Scalars['Int']['output']>;
   id?: Maybe<Scalars['Int']['output']>;
@@ -2815,6 +2822,7 @@ export type Group_User_Order_By = {
   createdAt?: InputMaybe<Order_By>;
   enrollerId?: InputMaybe<Order_By>;
   enrollment?: InputMaybe<Order_By>;
+  enrollmentStatus?: InputMaybe<Order_By>;
   event?: InputMaybe<Event_Order_By>;
   eventId?: InputMaybe<Order_By>;
   group?: InputMaybe<Group_Order_By>;

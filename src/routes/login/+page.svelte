@@ -1,8 +1,6 @@
 <script lang="ts">
-	import intra from '$lib/assets/intra.png';
 	import Gitea from '$lib/assets/svg/gitea.svelte';
 	import LoginAnchor from '$lib/components/login/LoginAnchor.svelte';
-	import Divider from '$lib/components/shared/Divider.svelte';
 	import Wordmark from '$lib/components/shared/Wordmark.svelte';
 	import Card from '$lib/components/ui/Card.svelte';
 </script>
@@ -16,12 +14,6 @@
 		<Wordmark>Login</Wordmark>
 		<LoginAnchor type="gitea" subtitle="Login via OAuth">
 			<Gitea />
-		</LoginAnchor>
-
-		<Divider>Link Accounts</Divider>
-
-		<LoginAnchor type="intra" subtitle="Link your Intra account">
-			<img src={intra} alt="intra" />
 		</LoginAnchor>
 	</Card>
 </div>
