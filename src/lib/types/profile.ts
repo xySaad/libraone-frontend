@@ -4,9 +4,10 @@ export interface LoginReq {
 }
 
 export interface ProfileCreds {
-	username: string;
+	id: number;
+	graphql_login: string;
+	graphql_id: number;
 	role: string;
-	token: string;
 }
 
 export type LastSession = {

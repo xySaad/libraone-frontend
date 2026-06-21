@@ -8,8 +8,8 @@
 		GetUserGroupsByLoginDocument,
 		type UserGroupFieldsFragment
 	} from '$lib/graphql/generated';
-	import { intraUserState } from '$lib/stores/user.svelte';
 	import GroupCard from '$lib/components/group/GroupCard.svelte';
+	import { profileUserState } from '$lib/stores/user.svelte';
 
 	const { userId }: { userId: string } = $props();
 
@@ -105,7 +105,7 @@
 				<div class="sentinel" use:infiniteScroll={loadMore}></div>
 			{/if}
 			{#each groups as userGroup (userGroup.id)}
-				<GroupCard {userGroup} intraUserId={$intraUserState?.userId} />
+				<GroupCard {userGroup} intraUserId={$profileUserState?.id} />
 			{/each}
 		{:catch err}
 			<p class="error-msg">Failed to load groups: {err.message}</p>

@@ -1,26 +1,23 @@
 import { goto } from '$app/navigation';
 import { resolve } from '$app/paths';
-import { profileUserState } from '$lib/stores/user.svelte';
 import { config, endpoint } from '$lib/types/config';
 import type { GraphQLObject } from '$lib/types/object';
-import type {
-	LeaderboardUser,
-	LoginReq,
-	LogtimeData,
-	MaplProfile,
-	ProfileCreds
-} from '$lib/types/profile';
-import { get } from 'svelte/store';
+import type { LeaderboardUser, LogtimeData, MaplProfile, ProfileCreds } from '$lib/types/profile';
+
+const handleUnAuthorized = (status: number) =>
+	status === 401 && goto(resolve(`/login/gitea?from=${location.pathname}`), { replaceState: true });
 
 export const api = {
-	PROFILE: config({
-		ORIGIN: 'https://mapl.zone01oujda.ma',
-		HEADERS: () => ({ 'X-TOKEN': get(profileUserState)?.token ?? '' }),
-		ERR_HANDLER: (_status: number, body: { detail: string }) => {
-			if (body?.detail === 'Forbidden') goto(resolve('/login/profile'), { replaceState: true });
-		},
-		login: endpoint<LoginReq, ProfileCreds>('POST', '/login'),
+	LIBRAONE: config({
+		ORIGIN: 'https://libraone.undo.it/api',
+		candidate(login?: string) {
+			return endpoint<ProfileCreds>('GET', `/candidate/${login ?? ''}`).call(this);
+		}
+	}),
+	CAMPUS: config({
+		ORIGIN: 'https://libraone.undo.it/api/campus',
 		online: endpoint<Record<string, string>>('GET', '/online'),
+		ERR_HANDLER: handleUnAuthorized,
 		profile({ login }: { login: string }) {
 			return endpoint<MaplProfile>('GET', `/profile/${login}`).call(this);
 		},
