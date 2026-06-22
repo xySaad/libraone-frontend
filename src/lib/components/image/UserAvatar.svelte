@@ -1,6 +1,5 @@
 <script lang="ts">
 	import FallbackImage from './FallbackImage.svelte';
-	import Image from './Image.svelte';
 	import { resolve } from '$app/paths';
 	import Person from '$lib/assets/svg/person.svelte';
 	import Block from '$lib/assets/svg/block.svelte';
@@ -12,8 +11,6 @@
 		banned?: boolean | null;
 	}
 	const { avatarUrl, userLogin, banned }: Props = $props();
-
-	let error = $state(false);
 </script>
 
 <a href={resolve(`/users/${userLogin}`)} class:banned>
@@ -21,31 +18,70 @@
 		<Block />
 	</div>
 	<div class="avatar">
-		<FallbackImage src={avatarUrl}>
-			{#if error}
+		<div class="graphql">
+			<FallbackImage src={avatarUrl}>
 				<Person />
-			{:else}
-				<Image
-					src={`${api.CAMPUS.ORIGIN}/image/map/${userLogin ?? ''}`}
-					alt={userLogin}
-					headers={{}}
-					onerror={() => (error = true)}
-				>
-					<Person />
-				</Image>
-			{/if}
-		</FallbackImage>
+			</FallbackImage>
+		</div>
+		<div class="campus">
+			<FallbackImage src={`${api.CAMPUS.ORIGIN}/image/map/${userLogin}`}>
+				<Person />
+			</FallbackImage>
+		</div>
 	</div>
 </a>
 
 <style>
+	@keyframes show {
+		to {
+			width: 100%;
+			height: 100%;
+		}
+	}
+	@keyframes hide {
+		to {
+			width: 0;
+			height: 0;
+		}
+	}
 	a {
 		display: block;
 		position: relative;
 		max-width: 85px;
-		border-radius: 100%;
-		aspect-ratio: 1;
-		overflow: hidden;
+		.avatar {
+			border-radius: 100%;
+			aspect-ratio: 1;
+			overflow: hidden;
+			transition: transform 0.8s;
+
+			.graphql {
+				width: 0;
+				height: 0;
+				animation: show 0s 0.2s forwards;
+			}
+
+			.campus {
+				transform: rotateY(180deg);
+				height: 100%;
+				width: 100%;
+				animation: hide 0s 0.2s forwards;
+			}
+		}
+		&:hover {
+			.avatar {
+				transform: rotateY(180deg);
+				.graphql {
+					width: 100%;
+					height: 100%;
+					animation: hide 0s 0.2s forwards;
+				}
+				.campus {
+					width: 0;
+					height: 0;
+					animation: show 0s 0.2s forwards;
+				}
+			}
+		}
 
 		.banned-status {
 			display: none;
