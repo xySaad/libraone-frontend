@@ -11,30 +11,13 @@ For live schema code generation run:
 ```sh
 $ npx graphql-codegen --watch
 ```
+## Libraone API
+This application uses an API that can be found at [libraone-backend](https://github.com/xySaad/libraone-backend)
+## Svelte
 
-## sv
+### Developing
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
-
-## Creating a project
-
-If you're seeing this, you've probably already done this step. Congrats!
-
-```sh
-# create a new project
-npx sv create my-app
-```
-
-To recreate this project with the same configuration:
-
-```sh
-# recreate this project
-npx sv@0.15.1 create --template minimal --types ts --add prettier eslint mcp="ide:claude-code,vscode+setup:remote" storybook tailwindcss="plugins:typography,forms" paraglide="languageTags:en, es, ar+demo:no" sveltekit-adapter="adapter:static" --install npm .
-```
-
-## Developing
-
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+Once you've installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
 
 ```sh
 npm run dev
@@ -43,7 +26,7 @@ npm run dev
 npm run dev -- --open
 ```
 
-## Building
+### Building
 
 To create a production version of your app:
 
