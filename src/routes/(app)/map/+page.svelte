@@ -56,7 +56,11 @@
 									{@const username = BusyPosts[postId]}
 									<div class="post" data-post={postId} data-highlighted={matchesSearch(username)}>
 										{#if username}
-											<UserAvatar userLogin={username} />
+											<UserAvatar
+												userLogin={username}
+												avatarUrl={`${api.CAMPUS.ORIGIN}/image/map/${username}`}
+												allowSwitch={false}
+											/>
 										{/if}
 									</div>
 								{/each}

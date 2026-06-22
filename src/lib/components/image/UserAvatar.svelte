@@ -9,15 +9,16 @@
 		userLogin?: string | null;
 		avatarUrl?: string | null;
 		banned?: boolean | null;
+		allowSwitch?: boolean;
 	}
-	const { avatarUrl, userLogin, banned }: Props = $props();
+	const { avatarUrl, userLogin, banned, allowSwitch = true }: Props = $props();
 </script>
 
 <a href={resolve(`/users/${userLogin}`)} class:banned>
 	<div class="banned-status">
 		<Block />
 	</div>
-	<div class="avatar">
+	<div class="avatar" class:allow-switch={allowSwitch}>
 		<div class="graphql">
 			<FallbackImage src={avatarUrl}>
 				<Person />
@@ -68,7 +69,7 @@
 			}
 		}
 		&:hover {
-			.avatar {
+			.avatar.allow-switch {
 				transform: rotateY(180deg);
 				.graphql {
 					width: 100%;
