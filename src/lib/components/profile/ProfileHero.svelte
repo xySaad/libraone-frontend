@@ -30,28 +30,28 @@
 	};
 </script>
 
-<Card tag="header" glow padding="lg">
-	<div class="avatar-wrap">
-		<UserAvatar
-			avatarUrl={user.avatarUrl}
-			userLogin={user.login}
-			banned={!user.canAccessPlatform}
-		/>
-		{#if active}
-			<OnlineDot />
-		{/if}
-	</div>
-
-	<div class="card-info">
-		<h1 class="card-name">
+<Card tag="section" glow padding="lg">
+	<header>
+		<div class="avatar-wrap">
+			<UserAvatar
+				avatarUrl={user.avatarUrl}
+				userLogin={user.login}
+				banned={!user.canAccessPlatform}
+			/>
+			{#if active}
+				<OnlineDot />
+			{/if}
+		</div>
+		<h1 class="meta">
 			{#if user.firstName || user.lastName}
 				{user.firstName ?? ''} {user.lastName ?? ''}
 			{:else}
 				{user.login}
 			{/if}
+			<p class="login">@{user.login}</p>
 		</h1>
-		<p class="card-login">@{user.login}</p>
-
+	</header>
+	<div class="card-info">
 		<div class="badges">
 			{#if user.campus}
 				<span class="badge badge-campus"><Location />{user.campus}</span>
@@ -80,8 +80,6 @@
 </Card>
 
 <style>
-	/* Card base handles: border-radius, bg, border, backdrop-filter, padding, glow */
-
 	:global(.card) {
 		display: flex;
 		flex-wrap: wrap;
@@ -89,6 +87,26 @@
 		gap: 20px;
 	}
 
+	header {
+		display: flex;
+		gap: 20px;
+
+		.meta {
+			font-size: 1.45rem;
+			font-weight: 700;
+			letter-spacing: -0.03em;
+			color: var(--text-primary);
+			margin: 0;
+			line-height: 1.2;
+		}
+
+		.login {
+			font-size: 0.82rem;
+			color: var(--text-muted);
+			margin: 0 0 10px;
+			font-family: 'SF Mono', 'Fira Code', monospace;
+		}
+	}
 	.avatar-wrap {
 		position: relative;
 	}
@@ -99,22 +117,6 @@
 		display: flex;
 		flex-direction: column;
 		gap: 4px;
-	}
-
-	.card-name {
-		font-size: 1.45rem;
-		font-weight: 700;
-		letter-spacing: -0.03em;
-		color: var(--text-primary);
-		margin: 0;
-		line-height: 1.2;
-	}
-
-	.card-login {
-		font-size: 0.82rem;
-		color: var(--text-muted);
-		margin: 0 0 10px;
-		font-family: 'SF Mono', 'Fira Code', monospace;
 	}
 
 	.badges {
