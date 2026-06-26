@@ -2,10 +2,12 @@ fragment UserGroupFields on group_user {
 	id
 	userLogin
 	userId
+	groupId
 	group {
 		captainId
 		captainLogin
 		path
+		status
 		members {
 			id
 			user {

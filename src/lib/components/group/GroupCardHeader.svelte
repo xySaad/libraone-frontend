@@ -1,12 +1,15 @@
 <script lang="ts">
 	import PartnerExchange from '$lib/assets/svg/partner-exchange.svelte';
+	import type { Group_Status_Enum } from '$lib/graphql/generated';
 	interface Props {
+		id: number;
 		name: string;
 		parent: string | null;
 		isCaptain: boolean;
 		isTeammate: boolean;
+		status: Group_Status_Enum;
 	}
-	const { name, parent, isCaptain, isTeammate }: Props = $props();
+	const { name, parent, isCaptain, isTeammate, id, status }: Props = $props();
 </script>
 
 <div class="card-header">
@@ -14,7 +17,7 @@
 		{#if parent}
 			<span class="parent-path">{parent}</span>
 		{/if}
-		<h3 class="project-name">{name}</h3>
+		<h3 class="project-name">{name} #{id}</h3>
 	</div>
 
 	<div class="badges">
@@ -26,6 +29,9 @@
 				<PartnerExchange /> Teammate
 			</span>
 		{/if}
+		<span class="badge">
+			{status}
+		</span>
 	</div>
 </div>
 

@@ -25,7 +25,14 @@
 	<div class="accent-bar"></div>
 
 	<div class="card-body">
-		<GroupCardHeader {name} {parent} {isCaptain} {isTeammate} />
+		<GroupCardHeader
+			{name}
+			{parent}
+			{isCaptain}
+			{isTeammate}
+			id={userGroup.groupId}
+			status={userGroup.group.status}
+		/>
 		<MembersRow members={userGroup.group.members} captainId={userGroup.group.captainId} />
 
 		<AuditSection group={userGroup.group} />
