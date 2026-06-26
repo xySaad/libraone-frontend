@@ -43,12 +43,9 @@
 			{/if}
 		</div>
 		<h1 class="meta">
-			{#if user.firstName || user.lastName}
-				{user.firstName ?? ''} {user.lastName ?? ''}
-			{:else}
-				{user.login}
-			{/if}
-			<p class="login">@{user.login}</p>
+			{user.firstName}
+			{user.lastName}
+			<p class="login">@{user.login} #{user.id}</p>
 		</h1>
 	</header>
 	<div class="card-info">
