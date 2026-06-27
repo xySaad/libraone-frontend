@@ -21,13 +21,7 @@
 			position: relative;
 			height: 1px;
 			width: 30%;
-			background: linear-gradient(
-				90deg,
-				transparent,
-				hsla(215, 40%, 70%, 0.12) 30%,
-				hsla(215, 40%, 70%, 0.12) 70%,
-				transparent
-			);
+			background: var(--card-border);
 		}
 
 		&.empty {
