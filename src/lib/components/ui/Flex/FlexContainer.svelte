@@ -36,6 +36,7 @@
 		display: flex;
 		gap: var(--gap);
 		flex-wrap: wrap;
+		width: 100%;
 
 		--total-gap: calc(var(--gap) * var(--children-count));
 		--raw-threshold: calc(var(--raw-width) * var(--children-count));
