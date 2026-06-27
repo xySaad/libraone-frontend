@@ -3,7 +3,7 @@
 		size?: string;
 	}
 
-	const { size = '14px' }: Props = $props();
+	const { size = '40px' }: Props = $props();
 </script>
 
 <span class="spinner" aria-hidden="true" style="width: {size}; height: {size};"></span>
