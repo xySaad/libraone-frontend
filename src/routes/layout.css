@@ -50,6 +50,9 @@
 
 	/* spinner */
 	--spinner-track: hsla(0, 0%, 100%, 0.3);
+
+	/* live */
+	--live-dot: hsl(140, 80%, 55%);
 }
 
 html {

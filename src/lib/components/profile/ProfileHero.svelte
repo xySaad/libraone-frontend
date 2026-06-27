@@ -39,7 +39,7 @@
 				banned={!user.canAccessPlatform}
 			/>
 			{#if active}
-				<OnlineDot />
+				<div class="online-dot"><OnlineDot /></div>
 			{/if}
 		</div>
 		<h1 class="meta">
@@ -84,6 +84,12 @@
 		gap: 20px;
 	}
 
+	.online-dot {
+		position: absolute;
+		bottom: -5px;
+		right: -5px;
+		padding: 10px;
+	}
 	header {
 		display: flex;
 		gap: 20px;

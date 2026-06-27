@@ -1,17 +1,12 @@
-<div class="oneline-dot" data-tooltip="Online"></div>
+<div class="online-dot" data-tooltip="Online"></div>
 
 <style>
-	.oneline-dot {
-		animation: pulse-online 2s infinite;
-		position: absolute;
-		bottom: 4px;
-		right: 4px;
-		width: 12px;
-		height: 12px;
+	.online-dot {
+		width: 10px;
+		height: 10px;
 		border-radius: 50%;
-		background: hsl(142, 70%, 45%);
-		border: 2px solid hsl(222, 47%, 6%);
-		box-shadow: 0 0 6px hsla(142, 70%, 45%, 0.6);
+		background: var(--live-dot);
+		animation: pulse-online 2s ease-in-out infinite;
 	}
 
 	@keyframes pulse-online {
