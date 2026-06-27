@@ -1,14 +1,15 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
+	import type { HTMLAttributes } from 'svelte/elements';
 
-	interface Props {
+	interface Props extends HTMLAttributes<HTMLSpanElement> {
 		children: Snippet;
 	}
 
-	const { children }: Props = $props();
+	const { children, ...rest }: Props = $props();
 </script>
 
-<span> {@render children()}</span>
+<span {...rest}> {@render children()}</span>
 
 <style>
 	span {
