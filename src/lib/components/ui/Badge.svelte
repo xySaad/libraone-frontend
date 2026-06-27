@@ -4,18 +4,18 @@
 	interface Props {
 		children: Snippet;
 		tooltip?: string;
+		width?: string;
 	}
 
-	const { children, tooltip }: Props = $props();
+	const { children, tooltip, width }: Props = $props();
 </script>
 
-<span data-tooltip={tooltip}>
+<span data-tooltip={tooltip} style:width>
 	{@render children()}
 </span>
 
 <style>
 	span {
-		width: 100%;
 		display: inline-flex;
 		align-items: center;
 		padding: 0.2rem 0.55rem;
