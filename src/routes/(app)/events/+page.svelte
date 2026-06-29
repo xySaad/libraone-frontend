@@ -1,25 +1,31 @@
 <script lang="ts">
-	import EventList from '$lib/components/EventList.svelte';
+	import ObjectCardList from '$lib/components/activity/ObjectCardList.svelte';
+	import Suspend from '$lib/components/shared/Suspend.svelte';
 	import { Client } from '$lib/graphql/client';
-	import { GetRootEventsDocument } from '$lib/graphql/generated';
+	import { GetRootObjectsDocument } from '$lib/graphql/generated';
 
 	const getRootEvents = async () => {
-		const { rootEvents } = await Client.request(GetRootEventsDocument);
-		return rootEvents;
+		const { rootEvents } = await Client.request(GetRootObjectsDocument);
+		return rootEvents.map((e) => e.object);
 	};
 </script>
 
-<div class="rootEvents">
-	{#await getRootEvents()}
-		<div>loading ....</div>
-	{:then rootEvents}
-		<EventList events={rootEvents} />
-	{/await}
-</div>
+<article>
+	<Suspend data={getRootEvents()} loading="kerby">
+		{#snippet children(object)}
+			<ObjectCardList objectList={object} />
+		{/snippet}
+	</Suspend>
+</article>
 
 <style>
-	.rootEvents {
-		overflow: auto;
-		padding: 20px;
+	article {
+		padding: 24px;
+		display: flex;
+		flex-direction: column;
+		gap: 20px;
+
+		overflow-y: scroll;
+		overflow-x: hidden;
 	}
 </style>

@@ -1,0 +1,5 @@
+query GetObjectOverview($objectId: Int) {
+	object(where: { id: { _eq: $objectId } }) {
+		...ObjectOverview
+	}
+}

@@ -51,8 +51,11 @@
 	/* spinner */
 	--spinner-track: hsla(0, 0%, 100%, 0.3);
 
-	/* live */
-	--live-dot: hsl(140, 80%, 55%);
+	/* live / online state */
+	--success: hsl(140, 70%, 60%);
+	--success-border: hsla(140, 70%, 50%, 0.3);
+	--success-bg: hsla(140, 70%, 40%, 0.15);
+	--success-dot: hsl(140, 80%, 55%);
 }
 
 html {

@@ -5,7 +5,7 @@
 		width: 10px;
 		height: 10px;
 		border-radius: 50%;
-		background: var(--live-dot);
+		background: var(--success-dot);
 		animation: pulse-online 2s ease-in-out infinite;
 	}
 

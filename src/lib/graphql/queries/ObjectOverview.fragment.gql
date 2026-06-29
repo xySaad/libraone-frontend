@@ -1,0 +1,16 @@
+fragment ObjectOverview on object {
+	id
+	name
+	type
+	campus
+	groups_aggregate {
+		aggregate {
+			count
+		}
+	}
+	events_aggregate {
+		aggregate {
+			count
+		}
+	}
+}

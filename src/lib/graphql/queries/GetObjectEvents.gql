@@ -1,0 +1,21 @@
+query GetObjectEvents($objectId: Int) {
+	object(where: { id: { _eq: $objectId } }) {
+		events {
+			id
+			startAt
+			endAt
+			description
+			campus
+			registrations_aggregate {
+				aggregate {
+					count
+				}
+			}
+			users_aggregate {
+				aggregate {
+					count
+				}
+			}
+		}
+	}
+}

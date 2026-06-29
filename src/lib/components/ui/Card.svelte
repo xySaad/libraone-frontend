@@ -8,6 +8,7 @@
 		padding?: 'sm' | 'md' | 'lg';
 		children?: Snippet;
 		maxWidth?: string;
+		maxHeight?: string;
 	}
 
 	const {
@@ -15,11 +16,18 @@
 		glow = false,
 		padding = 'md',
 		children,
-		maxWidth = 'auto'
+		maxWidth = 'auto',
+		maxHeight = 'auto'
 	}: Props = $props();
 </script>
 
-<svelte:element this={tag} class="card" data-padding={padding} style:max-width={maxWidth}>
+<svelte:element
+	this={tag}
+	class="card"
+	data-padding={padding}
+	style:max-width={maxWidth}
+	style:max-height={maxHeight}
+>
 	{#if glow}<div class="card-glow" aria-hidden="true"></div>{/if}
 	{@render children?.()}
 </svelte:element>
@@ -27,8 +35,10 @@
 <style>
 	.card {
 		width: 100%;
+		height: 100%;
 		display: flex;
 		flex-direction: column;
+		justify-content: space-between;
 		gap: 10px;
 		position: relative;
 		border-radius: var(--card-radius);
