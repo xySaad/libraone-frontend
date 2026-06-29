@@ -1,0 +1,9 @@
+query GetObjectChildren($objectId: Int) {
+	object(where: { id: { _eq: $objectId } }) {
+		childrenRelation {
+			child {
+				...ObjectOverview
+			}
+		}
+	}
+}

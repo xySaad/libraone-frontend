@@ -49,7 +49,7 @@
 	</dl>
 	{#if !user.canBeAuditor}
 		<span style:width="100%">
-			<Badge>
+			<Badge width="100%">
 				<div class="unavailable">
 					<Block width="18px" height="18px" />
 					Unavailable for audits

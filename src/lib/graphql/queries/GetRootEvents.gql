@@ -1,5 +1,7 @@
-query GetRootEvents {
-	rootEvents: event(where: { parentId: { _is_null: true } }, order_by: { endAt: desc }) {
-		...EventFields
+query GetRootObjects {
+	rootEvents: event(where: { parentId: { _is_null: true } }, distinct_on: objectId) {
+		object {
+			...ObjectOverview
+		}
 	}
 }

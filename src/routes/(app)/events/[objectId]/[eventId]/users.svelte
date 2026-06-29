@@ -3,9 +3,8 @@
 	import { getEventUsers } from '$lib/api/events';
 	import FilterControls from '$lib/components/FilterControls.svelte';
 	import UserCard from '$lib/components/UserCard.svelte';
-	import type { PageProps } from './$types';
 
-	const { params }: PageProps = $props();
+	const { eventId }: { eventId: number } = $props();
 	const sortOptions = [
 		{ key: 'createdAt', label: 'Joined' },
 		{ key: 'level', label: 'Level' },
@@ -21,16 +20,16 @@
 
 	let offset = $state(0);
 	$effect(() => {
-		offset = 0; 
+		offset = 0;
 		eventUsersPromiseList = [
-			getEventUsers(+params.id, { orderBy: { [sortKey]: sortDir }, limit, offset: 0, search })
+			getEventUsers(eventId, { orderBy: { [sortKey]: sortDir }, limit, offset: 0, search })
 		];
 	});
 
 	function handleScroll() {
 		offset += limit;
 		eventUsersPromiseList.push(
-			getEventUsers(+params.id, { orderBy: { [sortKey]: sortDir }, limit, offset, search })
+			getEventUsers(eventId, { orderBy: { [sortKey]: sortDir }, limit, offset, search })
 		);
 	}
 </script>

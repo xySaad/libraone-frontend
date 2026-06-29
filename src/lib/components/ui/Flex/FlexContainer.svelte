@@ -5,8 +5,9 @@
 		children: Snippet;
 		minWidth: number;
 		gap: string;
+		justifyContent?: string;
 	}
-	const { children, minWidth, gap }: Props = $props();
+	const { children, minWidth, gap, justifyContent }: Props = $props();
 	let childrenCount = $state(0);
 	function countChildren(node: HTMLElement) {
 		childrenCount = node.childElementCount;
@@ -21,6 +22,7 @@
 </script>
 
 <div
+	style:justify-content={justifyContent}
 	style:--raw-width={minWidth}
 	style:--gap={gap}
 	use:countChildren
@@ -34,7 +36,7 @@
 		display: flex;
 		gap: var(--gap);
 		flex-wrap: wrap;
-		margin-right: auto;
+		width: 100%;
 
 		--total-gap: calc(var(--gap) * var(--children-count));
 		--raw-threshold: calc(var(--raw-width) * var(--children-count));

@@ -1,29 +1,48 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
+	import type { Pathname } from '$app/types';
 	import Event from '$lib/assets/svg/event.svelte';
 	import Gite from '$lib/assets/svg/gite.svelte';
 	import Leaderboard from '$lib/assets/svg/leaderboard.svelte';
+	import Card from '$lib/components/ui/Card.svelte';
+	import FlexContainer from '$lib/components/ui/Flex/FlexContainer.svelte';
+	import FlexItem from '$lib/components/ui/Flex/FlexItem.svelte';
+	import type { Component } from 'svelte';
+
+	interface Link {
+		href: Pathname;
+		icon: Component;
+		text: string;
+	}
 
 	const response = await fetch(
 		`https://api.github.com/repos/xySaad/libraone-frontend/contributors`
 	);
 	const contributors: { login: string; avatar_url: string; html_url: string }[] =
 		await response.json();
+
+	const links: Link[] = [
+		{ href: '/events', icon: Event, text: 'Events' },
+		{ href: '/map', icon: Gite, text: 'Map' },
+		{ href: '/events', icon: Leaderboard, text: 'Leaderboard' }
+	];
 </script>
 
 <nav class="links">
-	<a class="card" href={resolve('/events')}>
-		<Event />
-		<p>Events</p>
-	</a>
-	<a class="card" href={resolve('/map')}>
-		<Gite />
-		<p>Map</p>
-	</a>
-	<a class="card" href={resolve('/leaderboard')}>
-		<Leaderboard />
-		<p>Leaderboard</p>
-	</a>
+	<FlexContainer gap="10px" minWidth={250} justifyContent="center">
+		{#each links as link (link)}
+			<FlexItem>
+				<a href={resolve(link.href)}>
+					<Card>
+						<div class="wrap">
+							<link.icon />
+							<p>{link.text}</p>
+						</div>
+					</Card>
+				</a>
+			</FlexItem>
+		{/each}
+	</FlexContainer>
 </nav>
 
 <footer class="contributors-footer">
@@ -42,39 +61,21 @@
 
 <style>
 	.links {
-		display: flex;
-		gap: 1.5rem;
-		margin: auto;
-	}
+		padding: 10vw;
+		a {
+			font-weight: 900;
 
-	.card {
-		text-decoration: none;
-		background: #1e293b;
-		padding: 1.5rem 2rem;
-		border-radius: 12px;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		gap: 0.5rem;
-		color: inherit;
-		transition: 0.2s ease;
-		min-width: 120px;
-		justify-content: center;
-		flex: 1;
-	}
-
-	.card:hover {
-		background: #334155;
-		transform: translateY(-4px);
-	}
-
-	.card p {
-		margin: 0;
-		font-size: 0.95rem;
+			.wrap {
+				width: 100%;
+				display: flex;
+				justify-content: space-between;
+			}
+		}
 	}
 
 	/* ── Contributors Footer ── */
 	.contributors-footer {
+		margin-top: auto;
 		display: flex;
 		flex-direction: column;
 		align-items: center;
