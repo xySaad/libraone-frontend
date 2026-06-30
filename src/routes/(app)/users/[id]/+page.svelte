@@ -1,6 +1,5 @@
 <script lang="ts">
 	import api from '$lib/api';
-	import UserGroupsList from '$lib/components/GroupList.svelte';
 	import LockedOverlay from '$lib/components/LockedOverlay.svelte';
 	import LogtimeSection from '$lib/components/profile/LogtimeSection.svelte';
 	import NotFoundState from '$lib/components/profile/NotFoundState.svelte';
@@ -95,8 +94,6 @@
 	{:else}
 		<NotFoundState icon="⚠" title="Failed to load user data" />
 	{/if}
-
-	<UserGroupsList userId={params.id} />
 </div>
 
 <style>

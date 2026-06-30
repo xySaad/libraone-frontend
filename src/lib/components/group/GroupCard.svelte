@@ -1,73 +1,118 @@
 <script lang="ts">
-	import { type UserGroupFieldsFragment } from '$lib/graphql/generated';
-	import { projectName, projectParent } from './groupUtils';
-	import GroupCardHeader from './GroupCardHeader.svelte';
-	import MembersRow from './MembersRow.svelte';
-	import AuditSection from './AuditSection.svelte';
+	import GroupsIcon from '$lib/assets/svg/groups.svelte';
+	import Card from '$lib/components/ui/Card.svelte';
+	import Badge from '$lib/components/ui/Badge.svelte';
+	import Icon from '$lib/components/shared/Icon.svelte';
+	import Divider from '$lib/components/shared/Divider.svelte';
+	import UserAvatar from '$lib/components/image/UserAvatar.svelte';
+	import type { GetObjectGroupsQuery } from '$lib/graphql/generated';
 
 	interface Props {
-		userGroup: UserGroupFieldsFragment;
-		intraUserId: number | undefined;
+		group: GetObjectGroupsQuery['object'][number]['groups'][number];
+		index: number;
 	}
-	const { userGroup, intraUserId }: Props = $props();
 
-	const name = $derived(projectName(userGroup.group.path));
-	const parent = $derived(projectParent(userGroup.group.path));
-	const isCaptain = $derived(userGroup.group.captainId === userGroup.userId);
-
-	const isTeammate = $derived(
-		userGroup.userId !== intraUserId &&
-			userGroup.group.members.some((m) => m.user?.id === intraUserId)
-	);
+	const { group, index }: Props = $props();
 </script>
 
-<article class="group-card">
-	<div class="accent-bar"></div>
+<Card>
+	<header>
+		<Icon>
+			<GroupsIcon />
+		</Icon>
+		<div class="group-info">
+			<h3 class="group-title">Group #{index + 1}</h3>
+			<span class="member-count">{group.members.length} members</span>
+		</div>
+	</header>
 
-	<div class="card-body">
-		<GroupCardHeader
-			{name}
-			{parent}
-			{isCaptain}
-			{isTeammate}
-			id={userGroup.groupId}
-			status={userGroup.group.status}
-		/>
-		<MembersRow members={userGroup.group.members} captainId={userGroup.group.captainId} />
+	<Divider />
 
-		<AuditSection group={userGroup.group} />
+	<div class="members">
+		{#each group.members as { user } (user?.id)}
+			{#if user}
+				<div class="member" class:captain={user.id === group.captainId}>
+					<div class="avatar-wrap">
+						<UserAvatar
+							avatarUrl={user.avatarUrl}
+							userLogin={user.login}
+							banned={!user.canAccessPlatform}
+							allowSwitch={false}
+						/>
+					</div>
+					<div class="member-meta">
+						<span class="login">{user.login}</span>
+						{#if user.id === group.captainId}
+							<Badge>captain</Badge>
+						{/if}
+					</div>
+				</div>
+			{/if}
+		{/each}
 	</div>
-</article>
+</Card>
 
 <style>
-	.group-card {
-		position: relative;
+	header {
 		display: flex;
-		border-radius: var(--border-radius-lg, 12px);
-		border: 1px solid hsl(213, 40%, 18%);
-		background: hsl(213, 60%, 10%);
-		transition:
-			border-color 0.15s,
-			background 0.15s;
+		align-items: center;
+		gap: 12px;
+		width: 100%;
+
+		.group-info {
+			display: flex;
+			flex-direction: column;
+			gap: 2px;
+
+			.group-title {
+				font-size: 1rem;
+				font-weight: 600;
+				color: var(--text-title);
+			}
+
+			.member-count {
+				font-size: var(--subtitle-font-size);
+				color: var(--text-muted);
+			}
+		}
 	}
 
-	.group-card:hover {
-		background: hsl(213, 60%, 12%);
-		border-color: hsl(213, 40%, 24%);
-	}
-
-	.accent-bar {
-		width: 3px;
-		flex-shrink: 0;
-		background: hsl(213, 40%, 28%);
-	}
-
-	.card-body {
-		flex: 1;
-		padding: 14px 16px;
+	.members {
 		display: flex;
 		flex-direction: column;
 		gap: 10px;
-		min-width: 0;
+		width: 100%;
+
+		.member {
+			display: flex;
+			align-items: center;
+			gap: 12px;
+
+			.avatar-wrap {
+				width: 36px;
+				flex-shrink: 0;
+				overflow: hidden;
+			}
+
+			.member-meta {
+				display: flex;
+				flex-direction: column;
+				gap: 4px;
+				min-width: 0;
+			}
+
+			.login {
+				font-size: 0.875rem;
+				font-weight: 500;
+				color: var(--text-value);
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
+			}
+
+			&.captain .login {
+				color: var(--text-title);
+			}
+		}
 	}
 </style>

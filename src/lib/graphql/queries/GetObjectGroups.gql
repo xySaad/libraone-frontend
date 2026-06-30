@@ -1,0 +1,15 @@
+query GetObjectGroups($objectId: Int) {
+	object(where: { id: { _eq: $objectId } }) {
+		groups {
+			captainId
+			members(where: { accepted: { _eq: true } }) {
+				user {
+					id
+					login
+					avatarUrl
+					canAccessPlatform
+				}
+			}
+		}
+	}
+}

@@ -13,4 +13,9 @@ fragment ObjectOverview on object {
 			count
 		}
 	}
+	groups_aggregate {
+		aggregate {
+			count
+		}
+	}
 }
