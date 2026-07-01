@@ -51,9 +51,10 @@
 
 <style>
 	a {
+		display: block;
+		height: 100%;
 		width: 100%;
 		&:hover {
-			display: block;
 			border-radius: var(--card-radius);
 			background: var(--primary);
 		}

@@ -1,10 +1,10 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 
-	const { children }: { children?: Snippet } = $props();
+	const { children, margin }: { children?: Snippet; margin?: string } = $props();
 </script>
 
-<div class={{ empty: !children }}>
+<div class={{ empty: !children }} style:margin>
 	{@render children?.()}
 </div>
 

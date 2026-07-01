@@ -1,0 +1,15 @@
+fragment Group on group {
+	id
+	captain {
+		id
+		login
+	}
+	members(where: { accepted: { _eq: true } }) {
+		user {
+			id
+			login
+			avatarUrl
+			canAccessPlatform
+		}
+	}
+}

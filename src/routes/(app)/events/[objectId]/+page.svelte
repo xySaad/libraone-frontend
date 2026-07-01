@@ -2,6 +2,7 @@
 	import EventCard from '$lib/components/activity/EventCard.svelte';
 	import ObjectCardList from '$lib/components/activity/ObjectCardList.svelte';
 	import ObjectHeader from '$lib/components/activity/ObjectHeader.svelte';
+	import GroupsList from '$lib/components/group/GroupsList.svelte';
 	import Suspend from '$lib/components/shared/Suspend.svelte';
 	import Badge from '$lib/components/ui/Badge.svelte';
 	import FlexContainer from '$lib/components/ui/Flex/FlexContainer.svelte';
@@ -11,6 +12,7 @@
 	import {
 		GetObjectChildrenDocument,
 		GetObjectEventsDocument,
+		GetObjectGroupsDocument,
 		GetObjectOverviewDocument
 	} from '$lib/graphql/generated';
 	import type { PageProps } from './$types';
@@ -30,6 +32,12 @@
 		return object[0].childrenRelation.map((o) => o.child);
 	};
 
+	const getObjectData = async () => {
+		const overview = await getObjectOverview();
+		const children = await getObjectChildren();
+		return { overview, children };
+	};
+
 	const getObjectEvents = async () => {
 		const { object } = await Client.request(GetObjectEventsDocument, {
 			objectId: +params.objectId
@@ -37,18 +45,20 @@
 		return object[0].events;
 	};
 
-	const getObjectData = async () => {
-		const overview = await getObjectOverview();
-		const children = await getObjectChildren();
-		return { overview, children };
+	const getObjectGroup = async () => {
+		const { object } = await Client.request(GetObjectGroupsDocument, {
+			objectId: +params.objectId
+		});
+		return object[0].groups;
 	};
 </script>
 
 <article>
 	<Suspend data={getObjectData()} loading="kerby">
 		{#snippet children({ children, overview })}
-			{@const { type, name, campus, events_aggregate } = overview}
+			{@const { type, name, campus, events_aggregate, groups_aggregate } = overview}
 			{@const eventsCount = events_aggregate.aggregate?.count}
+			{@const groupsCount = groups_aggregate.aggregate?.count}
 
 			<section>
 				<ObjectHeader {campus} {name} {type} />
@@ -81,6 +91,18 @@
 							{/snippet}
 						</Suspend>
 					</div>
+				{/snippet}
+
+				{#snippet NavGroups()}
+					groups
+					<Badge>{groupsCount}</Badge>
+				{/snippet}
+				{#snippet Groups()}
+					<Suspend data={getObjectGroup()}>
+						{#snippet children(groups)}
+							<GroupsList {groups} title={(g) => `${g.captain?.login}'s group`} />
+						{/snippet}
+					</Suspend>
 				{/snippet}
 			</TabsContainer>
 		{/snippet}

@@ -1,16 +1,18 @@
 <script lang="ts">
 	import api from '$lib/api';
-	import UserGroupsList from '$lib/components/GroupList.svelte';
+	import GroupsList from '$lib/components/group/GroupsList.svelte';
 	import LockedOverlay from '$lib/components/LockedOverlay.svelte';
 	import LogtimeSection from '$lib/components/profile/LogtimeSection.svelte';
 	import NotFoundState from '$lib/components/profile/NotFoundState.svelte';
 	import ProfileHero from '$lib/components/profile/ProfileHero.svelte';
 	import ProfileStats from '$lib/components/profile/profileStats.svelte';
 	import SkeletonLoader from '$lib/components/profile/SkeletonLoader.svelte';
+	import Suspend from '$lib/components/shared/Suspend.svelte';
 	import { Client } from '$lib/graphql/client';
 	import {
 		GetUserByIdDocument,
 		GetUserByLoginDocument,
+		GetUserGroupsDocument,
 		type PublicUserFieldsFragment
 	} from '$lib/graphql/generated';
 	import { fakeLogtime, fakeProfile } from '$lib/mock/mapl';
@@ -68,6 +70,11 @@
 	$effect(() => {
 		mount();
 	});
+
+	const getUserGroups = async () => {
+		const { group } = await Client.request(GetUserGroupsDocument, { userLogin: params.id });
+		return group;
+	};
 </script>
 
 <div class="profile-root">
@@ -95,8 +102,11 @@
 	{:else}
 		<NotFoundState icon="⚠" title="Failed to load user data" />
 	{/if}
-
-	<UserGroupsList userId={params.id} />
+	<Suspend data={getUserGroups()}>
+		{#snippet children(groups)}
+			<GroupsList {groups} title={(g) => g.object.name ?? `${g.captain?.login}'s group`} />
+		{/snippet}
+	</Suspend>
 </div>
 
 <style>
