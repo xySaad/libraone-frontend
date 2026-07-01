@@ -10,22 +10,33 @@
 	<div class="orb orb-2" aria-hidden="true"></div>
 
 	<div class="grid-overlay" aria-hidden="true"></div>
-	<Card maxWidth="600px">
-		<Wordmark>Login</Wordmark>
-		<LoginAnchor type="gitea" subtitle="Login via OAuth">
-			<Gitea />
-		</LoginAnchor>
-	</Card>
+	<div class="card">
+		<Card maxWidth="600px">
+			<Wordmark>Login</Wordmark>
+			<LoginAnchor type="gitea" subtitle="Login via OAuth">
+				<Gitea />
+			</LoginAnchor>
+		</Card>
+	</div>
 </div>
 
 <style>
 	.login-root {
 		position: relative;
 		height: 100%;
-		display: flex;
 		align-items: center;
 		justify-content: center;
 		overflow: hidden;
+		display: flex;
+
+		.card {
+			display: flex;
+			justify-content: center;
+
+			height: fit-content;
+			width: 100%;
+			margin: auto;
+		}
 	}
 
 	.orb {

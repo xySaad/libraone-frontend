@@ -58,11 +58,13 @@
 <style>
 	article {
 		position: relative;
-		height: 100%;
+		height: fit-content;
 		display: flex;
 		align-items: center;
 		justify-content: center;
 		overflow: hidden;
+		width: 100%;
+		margin: auto;
 
 		span {
 			margin: auto;
