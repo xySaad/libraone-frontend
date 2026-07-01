@@ -1,73 +1,105 @@
 <script lang="ts">
-	import { type UserGroupFieldsFragment } from '$lib/graphql/generated';
-	import { projectName, projectParent } from './groupUtils';
-	import GroupCardHeader from './GroupCardHeader.svelte';
-	import MembersRow from './MembersRow.svelte';
-	import AuditSection from './AuditSection.svelte';
+	import Crown from '$lib/assets/svg/crown.svelte';
+	import GroupsIcon from '$lib/assets/svg/groups.svelte';
+	import UserAvatar from '$lib/components/image/UserAvatar.svelte';
+	import Divider from '$lib/components/shared/Divider.svelte';
+	import Badge from '$lib/components/ui/Badge.svelte';
+	import Card from '$lib/components/ui/Card.svelte';
+	import type { GetObjectGroupsQuery } from '$lib/graphql/generated';
 
 	interface Props {
-		userGroup: UserGroupFieldsFragment;
-		intraUserId: number | undefined;
+		group: GetObjectGroupsQuery['object'][number]['groups'][number];
+		title?: string;
 	}
-	const { userGroup, intraUserId }: Props = $props();
 
-	const name = $derived(projectName(userGroup.group.path));
-	const parent = $derived(projectParent(userGroup.group.path));
-	const isCaptain = $derived(userGroup.group.captainId === userGroup.userId);
+	const { group, title }: Props = $props();
 
-	const isTeammate = $derived(
-		userGroup.userId !== intraUserId &&
-			userGroup.group.members.some((m) => m.user?.id === intraUserId)
-	);
+	const memberLabel = $derived(group.members.length === 1 ? 'member' : 'members');
 </script>
 
-<article class="group-card">
-	<div class="accent-bar"></div>
+<Card padding="sm">
+	<header>
+		<span class="icon"><GroupsIcon /></span>
+		<span class="title">{title}</span>
+		<Badge>{group.members.length} {memberLabel}</Badge>
+	</header>
 
-	<div class="card-body">
-		<GroupCardHeader
-			{name}
-			{parent}
-			{isCaptain}
-			{isTeammate}
-			id={userGroup.groupId}
-			status={userGroup.group.status}
-		/>
-		<MembersRow members={userGroup.group.members} captainId={userGroup.group.captainId} />
+	<Divider margin="0 0 0 auto" />
 
-		<AuditSection group={userGroup.group} />
+	<div class="members">
+		{#each group.members as member (member.user?.id)}
+			{@const user = member.user}
+			{@const isCaptain = user?.id === group.captain?.id}
+			<div class="member" data-tooltip={member.user?.login}>
+				{#if isCaptain}
+					<div class="crown" class:visible={isCaptain}>
+						<Crown />
+					</div>
+				{/if}
+				<div class="avatar">
+					<UserAvatar
+						avatarUrl={user?.avatarUrl}
+						userLogin={user?.login}
+						banned={!user?.canAccessPlatform}
+					/>
+				</div>
+			</div>
+		{/each}
 	</div>
-</article>
+</Card>
 
 <style>
-	.group-card {
-		position: relative;
+	header {
 		display: flex;
-		border-radius: var(--border-radius-lg, 12px);
-		border: 1px solid hsl(213, 40%, 18%);
-		background: hsl(213, 60%, 10%);
-		transition:
-			border-color 0.15s,
-			background 0.15s;
-	}
-
-	.group-card:hover {
-		background: hsl(213, 60%, 12%);
-		border-color: hsl(213, 40%, 24%);
-	}
-
-	.accent-bar {
-		width: 3px;
-		flex-shrink: 0;
-		background: hsl(213, 40%, 28%);
-	}
-
-	.card-body {
-		flex: 1;
-		padding: 14px 16px;
-		display: flex;
-		flex-direction: column;
+		align-items: center;
 		gap: 10px;
-		min-width: 0;
+		width: 100%;
+
+		.icon {
+			display: flex;
+			flex-shrink: 0;
+			width: 20px;
+			height: 20px;
+			color: var(--icon-color);
+		}
+
+		.title {
+			flex: 1;
+			min-width: 0;
+			font-size: 0.95rem;
+			font-weight: 600;
+			color: var(--text-title);
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
+	}
+
+	.members {
+		display: flex;
+		gap: 5px;
+		flex-wrap: wrap;
+
+		.member {
+			display: flex;
+			flex-direction: column;
+			justify-content: flex-end;
+			align-items: center;
+			width: fit-content;
+
+			.avatar {
+				width: 50px;
+				height: 50px;
+			}
+			.crown {
+				visibility: hidden;
+				color: var(--success);
+				display: none;
+				&.visible {
+					display: block;
+					visibility: visible;
+				}
+			}
+		}
 	}
 </style>

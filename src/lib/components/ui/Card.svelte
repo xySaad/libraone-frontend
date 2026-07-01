@@ -38,7 +38,6 @@
 		height: 100%;
 		display: flex;
 		flex-direction: column;
-		justify-content: space-between;
 		gap: 10px;
 		position: relative;
 		border-radius: var(--card-radius);

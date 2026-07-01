@@ -1,0 +1,9 @@
+query GetUserGroups($userLogin: String) {
+	group(where: { members: { userLogin: { _eq: $userLogin } } }) {
+		object {
+			id
+			name
+		}
+		...Group
+	}
+}

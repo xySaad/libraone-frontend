@@ -1,0 +1,7 @@
+query GetObjectGroups($objectId: Int) {
+	object(where: { id: { _eq: $objectId } }) {
+		groups {
+			...Group
+		}
+	}
+}
