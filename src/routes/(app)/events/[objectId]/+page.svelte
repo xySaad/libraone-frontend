@@ -1,19 +1,22 @@
 <script lang="ts">
 	import EventCard from '$lib/components/activity/EventCard.svelte';
-	import ObjectCardList from '$lib/components/activity/ObjectCardList.svelte';
+	import ObjectCard from '$lib/components/activity/ObjectCard.svelte';
 	import ObjectHeader from '$lib/components/activity/ObjectHeader.svelte';
-	import GroupsList from '$lib/components/group/GroupsList.svelte';
+	import GroupCard from '$lib/components/group/GroupCard.svelte';
 	import Suspend from '$lib/components/shared/Suspend.svelte';
 	import Badge from '$lib/components/ui/Badge.svelte';
 	import FlexContainer from '$lib/components/ui/Flex/FlexContainer.svelte';
 	import FlexItem from '$lib/components/ui/Flex/FlexItem.svelte';
+	import List from '$lib/components/ui/List.svelte';
 	import TabsContainer from '$lib/components/ui/Tabs/TabsContainer.svelte';
 	import { Client } from '$lib/graphql/client';
 	import {
 		GetObjectChildrenDocument,
 		GetObjectEventsDocument,
 		GetObjectGroupsDocument,
-		GetObjectOverviewDocument
+		GetObjectOverviewDocument,
+		type GroupFragment,
+		type ObjectOverviewFragment
 	} from '$lib/graphql/generated';
 	import type { PageProps } from './$types';
 
@@ -70,7 +73,12 @@
 					<Badge>{children.length}</Badge>
 				{/snippet}
 				{#snippet Content()}
-					<ObjectCardList objectList={children} />
+					{@const searchPredicate = (o: ObjectOverviewFragment, q: string) => o.name?.includes(q)}
+					<List items={children} {searchPredicate}>
+						{#snippet Item(object)}
+							<ObjectCard {object} />
+						{/snippet}
+					</List>
 				{/snippet}
 
 				{#snippet NavEvents()}
@@ -100,7 +108,13 @@
 				{#snippet Groups()}
 					<Suspend data={getObjectGroup()}>
 						{#snippet children(groups)}
-							<GroupsList {groups} title={(g) => `${g.captain?.login}'s group`} />
+							{@const searchPredicate = (g: GroupFragment, query: string) =>
+								g.members.findIndex((m) => m.user?.login?.includes(query)) !== -1}
+							<List items={groups} {searchPredicate}>
+								{#snippet Item(group)}
+									<GroupCard {group} title="{group.captain?.login}'s group" />
+								{/snippet}
+							</List>
 						{/snippet}
 					</Suspend>
 				{/snippet}

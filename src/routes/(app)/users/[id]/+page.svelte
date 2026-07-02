@@ -1,6 +1,6 @@
 <script lang="ts">
 	import api from '$lib/api';
-	import GroupsList from '$lib/components/group/GroupsList.svelte';
+	import GroupCard from '$lib/components/group/GroupCard.svelte';
 	import LockedOverlay from '$lib/components/LockedOverlay.svelte';
 	import LogtimeSection from '$lib/components/profile/LogtimeSection.svelte';
 	import NotFoundState from '$lib/components/profile/NotFoundState.svelte';
@@ -8,11 +8,13 @@
 	import ProfileStats from '$lib/components/profile/profileStats.svelte';
 	import SkeletonLoader from '$lib/components/profile/SkeletonLoader.svelte';
 	import Suspend from '$lib/components/shared/Suspend.svelte';
+	import List from '$lib/components/ui/List.svelte';
 	import { Client } from '$lib/graphql/client';
 	import {
 		GetUserByIdDocument,
 		GetUserByLoginDocument,
 		GetUserGroupsDocument,
+		type GetUserGroupsQuery,
 		type PublicUserFieldsFragment
 	} from '$lib/graphql/generated';
 	import { fakeLogtime, fakeProfile } from '$lib/mock/mapl';
@@ -21,6 +23,7 @@
 	import { formatDateInput } from '$lib/utils/time';
 	import type { PageProps } from './$types';
 
+	type Group = GetUserGroupsQuery['group'][number];
 	const { params }: PageProps = $props();
 	const profileState = $derived($profileUserState);
 
@@ -104,7 +107,15 @@
 	{/if}
 	<Suspend data={getUserGroups()}>
 		{#snippet children(groups)}
-			<GroupsList {groups} title={(g) => g.object.name ?? `${g.captain?.login}'s group`} />
+			{@const searchPredicate = (g: Group, query: string) =>
+				g.object.name?.includes(query) ||
+				g.members.findIndex((m) => m.user?.login?.includes(query)) !== -1}
+
+			<List items={groups} {searchPredicate}>
+				{#snippet Item(group)}
+					<GroupCard {group} title={group.object?.name ?? '-'} />
+				{/snippet}
+			</List>
 		{/snippet}
 	</Suspend>
 </div>
