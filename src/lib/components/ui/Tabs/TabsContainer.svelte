@@ -1,5 +1,7 @@
 <script lang="ts" generics="T extends string">
 	import type { Snippet } from 'svelte';
+	import FlexContainer from '../Flex/FlexContainer.svelte';
+	import FlexItem from '../Flex/FlexItem.svelte';
 	type PrefixKey<P extends string, T extends string> = T extends `${P}${string}` ? T : never;
 	type ExcludePrefixKey<P extends string, T extends string> = T extends `${P}${string}` ? never : T;
 
@@ -29,12 +31,16 @@
 </script>
 
 <nav>
-	{#each tabKeys as key (key)}
-		{@const active = activeTab === key}
-		<button class:active onclick={() => (activeTab = key)}>
-			{@render navSnippets[`Nav${key}`]()}
-		</button>
-	{/each}
+	<FlexContainer minWidth={200} gap="5px">
+		{#each tabKeys as key (key)}
+			{@const active = activeTab === key}
+			<FlexItem>
+				<button class:active onclick={() => (activeTab = key)}>
+					{@render navSnippets[`Nav${key}`]()}
+				</button>
+			</FlexItem>
+		{/each}
+	</FlexContainer>
 </nav>
 
 {#each tabKeys as key (key)}
@@ -58,9 +64,14 @@
 		background: var(--primary);
 		border: 1px solid var(--card-border);
 		border-radius: calc(var(--surface-radius) + 4px);
-		width: fit-content;
+		width: 100%;
 
 		button {
+			width: 100%;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+
 			display: flex;
 			align-items: center;
 			gap: 6px;
