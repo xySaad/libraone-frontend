@@ -39,7 +39,7 @@
 <button {type} class={className} disabled={disabled || loading} onclick={handleClick}>
 	<span class="btn-inner">
 		{#if loading}
-			<span class="spinner-wrap"><Spinner /></span>
+			<span class="spinner-wrap"><Spinner size="14px" /></span>
 		{/if}
 
 		<span class:loading-label={loading}>
