@@ -14,7 +14,6 @@
 		GetUserByIdDocument,
 		GetUserByLoginDocument,
 		GetUserGroupsDocument,
-		type GetUserGroupsQuery,
 		type PublicUserFieldsFragment
 	} from '$lib/graphql/generated';
 	import { fakeLogtime, fakeProfile } from '$lib/mock/mapl';
@@ -23,7 +22,6 @@
 	import { formatDateInput } from '$lib/utils/time';
 	import type { PageProps } from './$types';
 
-	type Group = GetUserGroupsQuery['group'][number];
 	const { params }: PageProps = $props();
 	const profileState = $derived($profileUserState);
 
@@ -107,11 +105,7 @@
 	{/if}
 	<Suspend data={getUserGroups()}>
 		{#snippet children(groups)}
-			{@const searchPredicate = (g: Group, query: string) =>
-				g.object.name?.includes(query) ||
-				g.members.findIndex((m) => m.user?.login?.includes(query)) !== -1}
-
-			<List items={groups} {searchPredicate}>
+			<List items={groups}>
 				{#snippet Item(group)}
 					<GroupCard {group} title={group.object?.name ?? '-'} />
 				{/snippet}

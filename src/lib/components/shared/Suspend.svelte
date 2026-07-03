@@ -28,7 +28,7 @@
 
 <style>
 	.loading {
-		margin: auto;
+		margin: 0 auto;
 	}
 	.error {
 		color: var(--error);

@@ -14,9 +14,7 @@
 		GetObjectChildrenDocument,
 		GetObjectEventsDocument,
 		GetObjectGroupsDocument,
-		GetObjectOverviewDocument,
-		type GroupFragment,
-		type ObjectOverviewFragment
+		GetObjectOverviewDocument
 	} from '$lib/graphql/generated';
 	import type { PageProps } from './$types';
 
@@ -73,8 +71,7 @@
 					<Badge>{children.length}</Badge>
 				{/snippet}
 				{#snippet Content()}
-					{@const searchPredicate = (o: ObjectOverviewFragment, q: string) => o.name?.includes(q)}
-					<List items={children} {searchPredicate}>
+					<List items={children}>
 						{#snippet Item(object)}
 							<ObjectCard {object} />
 						{/snippet}
@@ -108,9 +105,7 @@
 				{#snippet Groups()}
 					<Suspend data={getObjectGroup()}>
 						{#snippet children(groups)}
-							{@const searchPredicate = (g: GroupFragment, query: string) =>
-								g.members.findIndex((m) => m.user?.login?.includes(query)) !== -1}
-							<List items={groups} {searchPredicate}>
+							<List items={groups}>
 								{#snippet Item(group)}
 									<GroupCard {group} title="{group.captain?.login}'s group" />
 								{/snippet}

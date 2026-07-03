@@ -3,7 +3,7 @@
 	import Suspend from '$lib/components/shared/Suspend.svelte';
 	import List from '$lib/components/ui/List.svelte';
 	import { Client } from '$lib/graphql/client';
-	import { GetRootObjectsDocument, type ObjectOverviewFragment } from '$lib/graphql/generated';
+	import { GetRootObjectsDocument } from '$lib/graphql/generated';
 
 	const getRootEvents = async () => {
 		const { rootEvents } = await Client.request(GetRootObjectsDocument);
@@ -14,8 +14,7 @@
 <article>
 	<Suspend data={getRootEvents()} loading="kerby">
 		{#snippet children(objectList)}
-			{@const searchPredicate = (o: ObjectOverviewFragment, q: string) => o.name?.includes(q)}
-			<List items={objectList} {searchPredicate}>
+			<List items={objectList}>
 				{#snippet Item(object)}
 					<ObjectCard {object} />
 				{/snippet}
