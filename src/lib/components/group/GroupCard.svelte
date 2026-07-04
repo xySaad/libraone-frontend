@@ -3,26 +3,33 @@
 	import GroupsIcon from '$lib/assets/svg/groups.svelte';
 	import UserAvatar from '$lib/components/image/UserAvatar.svelte';
 	import Divider from '$lib/components/shared/Divider.svelte';
-	import Badge from '$lib/components/ui/Badge.svelte';
 	import Card from '$lib/components/ui/Card.svelte';
 	import type { GetObjectGroupsQuery } from '$lib/graphql/generated';
+	import CardHeader from '../Card/CardHeader.svelte';
+	import Badge from '../ui/Badge.svelte';
 
 	interface Props {
 		group: GetObjectGroupsQuery['object'][number]['groups'][number];
 		title?: string;
 	}
 
-	const { group, title }: Props = $props();
+	const { group, title: groupTitle }: Props = $props();
 
 	const memberLabel = $derived(group.members.length === 1 ? 'member' : 'members');
 </script>
 
 <Card padding="sm">
-	<header>
-		<span class="icon"><GroupsIcon /></span>
-		<span class="title">{title}</span>
-		<Badge>{group.members.length} {memberLabel}</Badge>
-	</header>
+	<CardHeader>
+		{#snippet icon()}
+			<GroupsIcon />
+		{/snippet}
+		{#snippet title()}
+			<div class="title">
+				{groupTitle}
+				<Badge>{group.members.length} {memberLabel}</Badge>
+			</div>
+		{/snippet}
+	</CardHeader>
 
 	<Divider margin="0 0 0 auto" />
 
@@ -49,32 +56,12 @@
 </Card>
 
 <style>
-	header {
+	.title {
 		display: flex;
-		align-items: center;
+		justify-content: space-between;
+		flex-wrap: wrap;
 		gap: 10px;
-		width: 100%;
-
-		.icon {
-			display: flex;
-			flex-shrink: 0;
-			width: 20px;
-			height: 20px;
-			color: var(--icon-color);
-		}
-
-		.title {
-			flex: 1;
-			min-width: 0;
-			font-size: 0.95rem;
-			font-weight: 600;
-			color: var(--text-title);
-			white-space: nowrap;
-			overflow: hidden;
-			text-overflow: ellipsis;
-		}
 	}
-
 	.members {
 		display: flex;
 		gap: 5px;
