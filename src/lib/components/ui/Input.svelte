@@ -1,10 +1,11 @@
 <script lang="ts">
 	import Eye from '$lib/assets/svg/eye-on.svelte';
 	import EyeOff from '$lib/assets/svg/eye-off.svelte';
+	import type { HTMLInputAttributes } from 'svelte/elements';
 
 	interface Props {
 		label?: string;
-		type?: 'text' | 'email' | 'password';
+		type?: HTMLInputAttributes['type'];
 		name: string;
 		placeholder?: string;
 		value?: string;
