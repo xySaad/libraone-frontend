@@ -1,13 +1,14 @@
 <script lang="ts" generics="T extends {id: unknown}">
 	import FlexContainer from '$lib/components/ui/Flex/FlexContainer.svelte';
 	import FlexItem from '$lib/components/ui/Flex/FlexItem.svelte';
+	import type { ResultItem, SearchResult } from '$lib/workers/search.worker';
+	import SearchWorker from '$lib/workers/search.worker.ts?worker';
 	import { onDestroy, type Snippet } from 'svelte';
 	import Divider from '../shared/Divider.svelte';
 	import Suspend from '../shared/Suspend.svelte';
 	import Wordmark from '../shared/Wordmark.svelte';
 	import Input from '../ui/Input.svelte';
 	import Badge from './Badge.svelte';
-	import SearchWorker from '$lib/workers/search.worker.ts?worker';
 	interface Props {
 		items: T[];
 		Item: Snippet<[T]>;
@@ -16,39 +17,59 @@
 	const { items, Item }: Props = $props();
 
 	let searchQuery = $state('');
+	let filterValue = $state('all');
+	let filterOptions: string[] = $state([]);
+	const filterItemsByKey = (items: ResultItem<T>[], key: string) =>
+		items.filter((v) => v.keys.includes(key));
 
 	const worker = new SearchWorker();
-	$effect.pre(() => {
-		worker.postMessage({ type: 'items', items });
-	});
+	$effect.pre(() => worker.postMessage({ type: 'items', items }));
 	onDestroy(() => worker.terminate());
-
-	const search = (query: string): Promise<T[]> =>
+	const search = (query: string): Promise<ResultItem<T>[]> =>
 		new Promise((resolve) => {
 			const channel = new MessageChannel();
-			channel.port1.onmessage = (event: MessageEvent<T[]>) => resolve(event.data);
+			channel.port1.onmessage = (event: MessageEvent<SearchResult<T>>) => {
+				resolve(event.data.items);
+				filterOptions = Array.from(event.data.keys);
+				if (filterValue !== 'all' && !filterOptions.includes(filterValue)) filterValue = 'all';
+			};
 			worker.postMessage({ type: 'search', query }, [channel.port2]);
 		});
 </script>
 
 <div class="list">
-	<Divider>
-		<Wordmark>Search</Wordmark>
-	</Divider>
+	{#if items.length > 3}
+		<Divider>
+			<Wordmark>Search</Wordmark>
+		</Divider>
 
-	<span>
-		<Input name="search" type="text" placeholder="srm, go-reloaded" bind:value={searchQuery} />
-	</span>
-
+		<section class="search-filter">
+			{#if filterOptions.length > 1}
+				<select name="search-filter" id="search-filter" bind:value={filterValue}>
+					<option value="all">all</option>
+					{#each filterOptions as option (option)}
+						<option value={option}>
+							{option}
+						</option>
+					{/each}
+				</select>
+			{/if}
+			<div class="input">
+				<Input name="search" type="text" placeholder="srm, go-reloaded" bind:value={searchQuery} />
+			</div>
+		</section>
+	{/if}
 	<Suspend data={search(searchQuery)} size="24px">
 		{#snippet children(results)}
+			{@const filtredItems =
+				filterValue === 'all' ? results : filterItemsByKey(results, filterValue)}
 			<Divider>
-				<Badge>{results.length} result</Badge>
+				<Badge>{filtredItems.length} result</Badge>
 			</Divider>
 			<FlexContainer minWidth={300} gap="16px" justifyContent="center">
-				{#each results as item (item.id)}
+				{#each filtredItems as item (item.value.id)}
 					<FlexItem>
-						{@render Item(item)}
+						{@render Item(item.value)}
 					</FlexItem>
 				{/each}
 			</FlexContainer>
@@ -63,9 +84,20 @@
 		gap: 20px;
 		min-height: 100svh;
 
-		span {
-			width: clamp(280px, 80%, 600px);
+		.search-filter {
 			margin: 0 auto;
+			display: flex;
+			justify-content: center;
+			gap: 10px;
+			width: 100%;
+
+			select {
+				background: var(--primary);
+				border-radius: 8px;
+			}
+			.input {
+				width: clamp(280px, 80%, 600px);
+			}
 		}
 	}
 </style>
