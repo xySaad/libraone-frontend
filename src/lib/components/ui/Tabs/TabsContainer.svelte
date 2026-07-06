@@ -1,42 +1,45 @@
-<script lang="ts" generics="T extends string">
+<script lang="ts" generics="T extends Record<string, unknown>">
 	import type { Snippet } from 'svelte';
 	import FlexContainer from '../Flex/FlexContainer.svelte';
 	import FlexItem from '../Flex/FlexItem.svelte';
-	type PrefixKey<P extends string, T extends string> = T extends `${P}${string}` ? T : never;
-	type ExcludePrefixKey<P extends string, T extends string> = T extends `${P}${string}` ? never : T;
+	const objectKeys = <T extends object>(o: T) => Object.keys(o) as (keyof T)[];
 
-	type RequireCoupled<P extends string, T extends string, V> = Record<T, Snippet> &
-		Record<PrefixKey<P, T>, V> &
-		Record<ExcludePrefixKey<P, T>, V> &
-		Record<`${P}${ExcludePrefixKey<P, T>}`, V> &
-		Record<PrefixKey<P, T> extends `${P}${infer S}` ? S : never, V>;
+	type Props = {
+		active?: TabKey;
+		hidden?: Partial<Record<TabKey, boolean>>;
+	};
 
 	const Prefix = 'Nav';
 	type Prefix = typeof Prefix;
-	type NavKey = `${Prefix}${string}`;
-	type TabKey = ExcludePrefixKey<Prefix, T>;
 
-	const isTab = (k: string): k is TabKey => !k.startsWith(Prefix);
+	type GetBaseName<Key> = Key extends `${Prefix}${infer Name}` ? Name : Key;
+	type SnippetKeys = Exclude<keyof T, keyof Props>;
+	type TabKey = GetBaseName<SnippetKeys> & string;
+	type TabSnippets = Record<TabKey, Snippet>;
 
-	type bindable = typeof $bindable;
-	type Props = { active?: ReturnType<bindable> } & RequireCoupled<Prefix, T, Snippet>;
+	type NavKey = `${Prefix}${TabKey}`;
+	type NavSnippets = Record<NavKey, Snippet>;
+	type SnippetProps = T & TabSnippets & NavSnippets;
 
-	const props: Props = $props();
-	const navSnippets: Record<NavKey, Snippet> = $derived(props);
-	const tabSnippets: Record<TabKey, Snippet> = $derived(props);
-	// const navKeys = $derived(Object.keys(props).filter(isNav));
-	const tabKeys = $derived(Object.keys(props).filter(isTab));
+	const props: Props & SnippetProps = $props();
+	const isTabKey = (k: string): k is TabKey =>
+		props[k] !== undefined && props[`${Prefix}${k}`] !== undefined;
+	const { active, hidden } = $derived(props);
+	const navSnippets: NavSnippets = $derived(props);
+	const tabSnippets: TabSnippets = $derived(props);
 
-	let activeTab = $derived(props.active || tabKeys[0]);
+	const tabKeys = $derived(objectKeys(tabSnippets).filter((k) => isTabKey(k) && !hidden?.[k]));
+
+	let activeNav = $derived(active && hidden?.[active] !== true ? active : tabKeys[0]);
 </script>
 
 <nav>
 	<FlexContainer minWidth={200} gap="5px">
 		{#each tabKeys as key (key)}
-			{@const active = activeTab === key}
+			{@const active = activeNav === key}
 			<FlexItem>
-				<button class:active onclick={() => (activeTab = key)}>
-					{@render navSnippets[`Nav${key}`]()}
+				<button class:active onclick={() => (activeNav = key)}>
+					{@render navSnippets[`${Prefix}${key}`]()}
 				</button>
 			</FlexItem>
 		{/each}
@@ -44,7 +47,7 @@
 </nav>
 
 {#each tabKeys as key (key)}
-	{@const active = activeTab === key}
+	{@const active = activeNav === key}
 	<section class:active>
 		{@render tabSnippets[key]()}
 	</section>

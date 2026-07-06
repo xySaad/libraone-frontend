@@ -58,14 +58,20 @@
 	<Suspend data={getObjectData()} loading="kerby">
 		{#snippet children({ children, overview })}
 			{@const { type, name, campus, events_aggregate, groups_aggregate } = overview}
-			{@const eventsCount = events_aggregate.aggregate?.count}
-			{@const groupsCount = groups_aggregate.aggregate?.count}
+			{@const eventsCount = events_aggregate.aggregate?.count ?? 0}
+			{@const groupsCount = groups_aggregate.aggregate?.count ?? 0}
 
 			<section>
 				<ObjectHeader {campus} {name} {type} />
 			</section>
 
-			<TabsContainer>
+			<TabsContainer
+				hidden={{
+					Content: children.length < 1,
+					Events: eventsCount < 1,
+					Groups: groupsCount < 1
+				}}
+			>
 				{#snippet NavContent()}
 					content
 					<Badge>{children.length}</Badge>
