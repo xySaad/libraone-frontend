@@ -22,8 +22,8 @@
 	</div>
 {:then d}
 	{@render children?.(d)}
-{:catch}
-	<p class="error">Failed to load events.</p>
+{:catch e}
+	<p class="error">{e}</p>
 {/await}
 
 <style>
