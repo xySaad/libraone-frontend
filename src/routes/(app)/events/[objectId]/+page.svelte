@@ -1,4 +1,5 @@
 <script lang="ts">
+	import api from '$lib/api';
 	import EventCard from '$lib/components/activity/EventCard.svelte';
 	import ObjectCard from '$lib/components/activity/ObjectCard.svelte';
 	import ObjectHeader from '$lib/components/activity/ObjectHeader.svelte';
@@ -16,7 +17,9 @@
 		GetObjectGroupsDocument,
 		GetObjectOverviewDocument
 	} from '$lib/graphql/generated';
+	import { ObjectAttrsSchema } from '$lib/types/object/attrs';
 	import type { PageProps } from './$types';
+	import ProjectDetails from './ProjectDetails.svelte';
 
 	const { params }: PageProps = $props();
 
@@ -52,6 +55,11 @@
 		});
 		return object[0].groups;
 	};
+
+	const getObjectAttrs = async (path: string) => {
+		const attrs = await api.PROXIED_INTRA.object(path);
+		return ObjectAttrsSchema.parse(attrs);
+	};
 </script>
 
 <article>
@@ -69,9 +77,23 @@
 				hidden={{
 					Content: children.length < 1,
 					Events: eventsCount < 1,
-					Groups: groupsCount < 1
+					Groups: groupsCount < 1,
+					Details: type !== 'project'
 				}}
 			>
+				{#snippet NavDetails()}
+					details
+				{/snippet}
+				{#snippet Details()}
+					<Suspend data={getObjectAttrs(overview.paths[0].path)}>
+						{#snippet children(o)}
+							{#if o.type === 'project'}
+								<ProjectDetails details={o.attrs} name={overview.name ?? overview.id.toString()} />
+							{/if}
+						{/snippet}
+					</Suspend>
+				{/snippet}
+
 				{#snippet NavContent()}
 					content
 					<Badge>{children.length}</Badge>

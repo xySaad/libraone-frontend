@@ -3,6 +3,9 @@ fragment ObjectOverview on object {
 	name
 	type
 	campus
+	paths {
+		path
+	}
 	language: attrs(path: "language")
 	groups_aggregate {
 		aggregate {
