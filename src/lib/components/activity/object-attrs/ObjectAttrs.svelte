@@ -36,7 +36,7 @@
 		{@const details = attrs.attrs}
 		<article>
 			<ObjectOverview {attrs} />
-			<section class="forms">
+			<section class="validation">
 				{#if isValidationVisible}
 					{#each details.validations as validation (validation)}
 						<Validation {validation} fileName="{name}-audit.md" {Title} />
@@ -59,7 +59,7 @@
 		flex-direction: column;
 		gap: 20px;
 
-		.forms {
+		.validation {
 			width: 100%;
 			margin: auto;
 
