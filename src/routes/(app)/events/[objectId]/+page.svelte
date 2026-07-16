@@ -1,5 +1,5 @@
 <script lang="ts">
-	import api from '$lib/api';
+	import ObjectDetails from '$lib/components/activity/object-attrs/ObjectAttrs.svelte';
 	import EventCard from '$lib/components/activity/EventCard.svelte';
 	import ObjectCard from '$lib/components/activity/ObjectCard.svelte';
 	import ObjectHeader from '$lib/components/activity/ObjectHeader.svelte';
@@ -17,9 +17,8 @@
 		GetObjectGroupsDocument,
 		GetObjectOverviewDocument
 	} from '$lib/graphql/generated';
-	import { ObjectAttrsSchema } from '$lib/types/object/attrs';
+	import { ObjectAttrsType } from '$lib/types/object/attrs';
 	import type { PageProps } from './$types';
-	import ProjectDetails from './ProjectDetails.svelte';
 
 	const { params }: PageProps = $props();
 
@@ -55,11 +54,6 @@
 		});
 		return object[0].groups;
 	};
-
-	const getObjectAttrs = async (path: string) => {
-		const attrs = await api.PROXIED_INTRA.object(path);
-		return ObjectAttrsSchema.parse(attrs);
-	};
 </script>
 
 <article>
@@ -72,26 +66,20 @@
 			<section>
 				<ObjectHeader {campus} {name} {type} />
 			</section>
-
 			<TabsContainer
 				hidden={{
 					Content: children.length < 1,
 					Events: eventsCount < 1,
 					Groups: groupsCount < 1,
-					Details: type !== 'project'
+					Details: !ObjectAttrsType.some((v) => v === type)
 				}}
 			>
-				{#snippet NavDetails()}
-					details
-				{/snippet}
+				{#snippet NavDetails()}details{/snippet}
 				{#snippet Details()}
-					<Suspend data={getObjectAttrs(overview.paths[0].path)}>
-						{#snippet children(o)}
-							{#if o.type === 'project'}
-								<ProjectDetails details={o.attrs} name={overview.name ?? overview.id.toString()} />
-							{/if}
-						{/snippet}
-					</Suspend>
+					<ObjectDetails
+						path={overview.paths[0].path}
+						name={overview.name ?? overview.id.toString()}
+					/>
 				{/snippet}
 
 				{#snippet NavContent()}
