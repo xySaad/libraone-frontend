@@ -1,6 +1,8 @@
-query GetObjectChildren($objectId: Int) {
-	object(where: { id: { _eq: $objectId } }) {
-		childrenRelation {
+query GetObjectChildren($objectId: Int!) {
+	object_by_pk(id: $objectId) {
+		childrenRelation(order_by: { index: asc }) {
+			id
+			index
 			child {
 				...ObjectOverview
 			}

@@ -11,9 +11,11 @@
 
 	interface Props {
 		object: GetRootObjectsQuery['rootEvents'][number]['object'];
+		relation?: number;
 	}
 
-	const { object }: Props = $props();
+	const { object, relation: relationId }: Props = $props();
+	const relationParam = $derived(relationId ? `relation=${relationId}` : '');
 	const { type, campus, name } = $derived(object);
 	const states = $derived([
 		{
@@ -29,7 +31,11 @@
 	]);
 </script>
 
-<a href={resolve('/(app)/events/[objectId]', { objectId: object.id.toString() })}>
+<a
+	href={resolve(`/(app)/events/[objectId]?${relationParam}`, {
+		objectId: object.id.toString()
+	})}
+>
 	<Card glow>
 		<ObjectHeader {type} {campus} {name} />
 		<Divider />
