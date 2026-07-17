@@ -1,8 +1,7 @@
 <script lang="ts" generics="T extends Record<string, unknown>">
 	import MoreVert from '$lib/assets/svg/more-vert.svelte';
 	import RuleSettings from '$lib/assets/svg/rule-settings.svelte';
-	import SvelteMarkdown from '@humanspeak/svelte-markdown';
-	import DOMPurify from 'dompurify';
+	import { marked } from 'marked';
 	import 'github-markdown-css/github-markdown.css';
 	import type { Snippet } from 'svelte';
 	import CopyButton from './CopyButton.svelte';
@@ -11,6 +10,7 @@
 	import Input from './ui/Input.svelte';
 	import PopoverMenu from './ui/PopoverMenu.svelte';
 	import VisibilityToggle from './ui/VisibilityToggle.svelte';
+	import SafeHtml from './shared/SafeHtml.svelte';
 
 	type Props = {
 		fileName?: string;
@@ -24,11 +24,13 @@
 	const url = $derived(inputURL ?? URL.createObjectURL(new Blob([raw])));
 	const fetchMarkdown = async (url: string) => {
 		const resp = await fetch(url);
-		const text = await resp.text();
-		return DOMPurify.sanitize(text);
+		return await resp.text();
 	};
 
-	const markdown = $derived(raw ?? fetchMarkdown(url));
+	const markdown = $derived.by(async () => {
+		const rawSource = raw ?? (await fetchMarkdown(url));
+		return marked.parse(rawSource);
+	});
 	let maxWidth = $state(100);
 	let isRangeResize = $state(true);
 </script>
@@ -79,7 +81,7 @@
 		{#await markdown}
 			Loading markdown...
 		{:then source}
-			<SvelteMarkdown {source} />
+			<SafeHtml html={source} />
 		{:catch}
 			Failed to load markdown.
 		{/await}
