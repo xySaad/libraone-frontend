@@ -3,26 +3,20 @@
 	import EyeOff from '$lib/assets/svg/eye-off.svelte';
 	import type { HTMLInputAttributes } from 'svelte/elements';
 
-	interface Props {
+	type Props = {
 		label?: string;
-		type?: HTMLInputAttributes['type'];
-		name: string;
-		placeholder?: string;
-		value?: string;
 		error?: string;
-		disabled?: boolean;
-		id?: string;
-	}
+	} & HTMLInputAttributes;
 
 	let {
 		label,
 		type = 'text',
 		name,
-		placeholder,
 		value = $bindable(''),
 		error,
-		disabled = false,
-		id = name
+		disabled,
+		id = name,
+		...attrs
 	}: Props = $props();
 
 	let showPassword = $state(false);
@@ -34,7 +28,7 @@
 		<label for={id}>{label}</label>
 	{/if}
 	<div class="input-wrap" class:has-error={!!error} class:disabled>
-		<input {id} {name} type={inputType} {placeholder} {disabled} bind:value />
+		<input type={inputType} bind:value {...attrs} />
 		{#if type === 'password'}
 			<button
 				type="button"
@@ -117,6 +111,16 @@
 
 		&:disabled {
 			cursor: not-allowed;
+		}
+
+		&[type='number'] {
+			appearance: textfield;
+			-moz-appearance: textfield;
+			&::-webkit-outer-spin-button,
+			&::-webkit-inner-spin-button {
+				-webkit-appearance: none;
+				margin: 0;
+			}
 		}
 	}
 

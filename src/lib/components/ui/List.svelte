@@ -9,6 +9,8 @@
 	import Wordmark from '../shared/Wordmark.svelte';
 	import Input from '../ui/Input.svelte';
 	import Badge from './Badge.svelte';
+	import Select from './Select.svelte';
+	import { ctrlAltF } from '$lib/actions/shortcuts';
 	interface Props {
 		items: T[];
 		Item: Snippet<[T]>;
@@ -43,19 +45,19 @@
 			<Wordmark>Search</Wordmark>
 		</Divider>
 
-		<section class="search-filter">
+		<section class="search-filter" use:ctrlAltF>
 			{#if filterOptions.length > 1}
-				<select name="search-filter" id="search-filter" bind:value={filterValue}>
-					<option value="all">all</option>
-					{#each filterOptions as option (option)}
-						<option value={option}>
-							{option}
-						</option>
-					{/each}
-				</select>
+				{@const options = filterOptions.map((o) => ({ value: o, text: o }))}
+				<Select bind:value={filterValue} options={[{ text: 'all', value: 'all' }, ...options]} />
 			{/if}
 			<div class="input">
-				<Input name="search" type="text" placeholder="srm, go-reloaded" bind:value={searchQuery} />
+				<Input
+					// use:ctrlAltF
+					name="search"
+					type="text"
+					placeholder="srm, go-reloaded"
+					bind:value={searchQuery}
+				/>
 			</div>
 		</section>
 	{/if}
@@ -91,10 +93,6 @@
 			gap: 10px;
 			width: 100%;
 
-			select {
-				background: var(--primary);
-				border-radius: 8px;
-			}
 			.input {
 				width: clamp(280px, 80%, 600px);
 			}

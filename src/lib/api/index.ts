@@ -12,6 +12,9 @@ export const api = {
 		ORIGIN: 'https://libraone.undo.it/api',
 		candidate(login?: string) {
 			return endpoint<ProfileCreds>('GET', `/candidate/${login ?? ''}`).call(this);
+		},
+		object(path: string = '') {
+			return endpoint<GraphQLObject>('GET', `/object${path}`).call(this);
 		}
 	}),
 	CAMPUS: config({
@@ -37,7 +40,9 @@ export const api = {
 	}),
 	PROXIED_INTRA: config({
 		ORIGIN: 'https://cors.lil-hacker.workers.dev/proxy?url=https://learn.zone01oujda.ma/api',
-		object: endpoint<GraphQLObject>('GET', '/object/oujda')
+		object(path: string = '') {
+			return endpoint<GraphQLObject>('GET', `/object/${path}`).call(this);
+		}
 	})
 };
 

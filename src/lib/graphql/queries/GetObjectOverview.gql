@@ -1,5 +1,18 @@
-query GetObjectOverview($objectId: Int) {
-	object(where: { id: { _eq: $objectId } }) {
+query GetObjectOverview($objectId: Int!, $relationId: Int!) {
+	overview: object_by_pk(id: $objectId) {
 		...ObjectOverview
+	}
+	siblings: object_child_by_pk(id: $relationId) {
+		index
+		parent {
+			childrenRelation {
+				index
+				id
+				child {
+					id
+					name
+				}
+			}
+		}
 	}
 }

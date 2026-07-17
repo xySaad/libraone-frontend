@@ -1,0 +1,8 @@
+query GetValidationMarkdowns($pre: [String!]!, $post: [String!]!) {
+	pre: markdown(where: { name: { _in: $pre } }) {
+		content
+	}
+	post: markdown(where: { name: { _in: $post } }) {
+		content
+	}
+}

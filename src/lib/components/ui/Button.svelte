@@ -1,27 +1,17 @@
-<script lang="ts">
-	import type { Snippet } from 'svelte';
+<script lang="ts" generics="T">
 	import Spinner from '$lib/components/ui/Spinner.svelte';
+	import type { Snippet } from 'svelte';
 	import type { HTMLButtonAttributes } from 'svelte/elements';
 
-	interface Props {
-		type?: HTMLButtonAttributes['type'];
-		disabled?: boolean;
+	type Props = {
 		/** Text shown in place of children while loading */
 		loadingLabel?: string;
-		class?: string;
 		/** Async onclick handler — Button manages its own loading state around it */
-		onclick?: () => void | Promise<void>;
+		onclick?: () => T | Promise<T>;
 		children: Snippet;
-	}
+	} & HTMLButtonAttributes;
 
-	const {
-		type = 'button',
-		disabled = false,
-		loadingLabel,
-		class: className = '',
-		onclick,
-		children
-	}: Props = $props();
+	const { type = 'button', disabled, loadingLabel, onclick, children, ...attrs }: Props = $props();
 
 	let loading = $state(false);
 
@@ -36,7 +26,7 @@
 	}
 </script>
 
-<button {type} class={className} disabled={disabled || loading} onclick={handleClick}>
+<button {type} disabled={disabled || loading} onclick={handleClick} {...attrs}>
 	<span class="btn-inner">
 		{#if loading}
 			<span class="spinner-wrap"><Spinner size="14px" /></span>
