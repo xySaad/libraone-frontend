@@ -15,7 +15,7 @@
 	let isValidationVisible = $state(false);
 
 	const getObjectAttrs = async (path: string) => {
-		const attrs = await api.PROXIED_INTRA.object(path);
+		const attrs = await api.LIBRAONE.object(path);
 		return ObjectAttrsSchema.parse(attrs);
 	};
 </script>

@@ -12,6 +12,9 @@ export const api = {
 		ORIGIN: 'https://libraone.undo.it/api',
 		candidate(login?: string) {
 			return endpoint<ProfileCreds>('GET', `/candidate/${login ?? ''}`).call(this);
+		},
+		object(path: string = '') {
+			return endpoint<GraphQLObject>('GET', `/object${path}`).call(this);
 		}
 	}),
 	CAMPUS: config({
