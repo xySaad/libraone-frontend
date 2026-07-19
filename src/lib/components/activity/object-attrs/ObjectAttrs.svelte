@@ -1,7 +1,7 @@
 <script lang="ts">
 	import api from '$lib/api';
 	import CompareArrows from '$lib/assets/svg/compare-arrows.svelte';
-	import Markdown from '$lib/components/Markdown.svelte';
+	import Markdown from '$lib/components/ui/Markdown/Markdown.svelte';
 	import Suspend from '$lib/components/shared/Suspend.svelte';
 	import Wordmark from '$lib/components/shared/Wordmark.svelte';
 	import { ObjectAttrsSchema } from '$lib/types/object/attrs';
@@ -44,7 +44,7 @@
 				{:else}
 					<Markdown
 						fileName="{name}.md"
-						url={`https://learn.zone01oujda.ma${details.subject}`}
+						src={{ url: `https://learn.zone01oujda.ma${details.subject}` }}
 						{Title}
 					/>
 				{/if}
