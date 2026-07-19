@@ -1,7 +1,8 @@
 <script lang="ts" generics="T extends Record<string, unknown>">
 	import MoreVert from '$lib/assets/svg/more-vert.svelte';
 	import RuleSettings from '$lib/assets/svg/rule-settings.svelte';
-	import { marked } from 'marked';
+	import { Marked } from 'marked';
+	import markedKatex from 'marked-katex-extension';
 	import 'github-markdown-css/github-markdown.css';
 	import type { Snippet } from 'svelte';
 	import CopyButton from './CopyButton.svelte';
@@ -11,6 +12,7 @@
 	import PopoverMenu from './ui/PopoverMenu.svelte';
 	import VisibilityToggle from './ui/VisibilityToggle.svelte';
 	import SafeHtml from './shared/SafeHtml.svelte';
+	const markdownParser = new Marked(markedKatex({ throwOnError: false }));
 
 	type Props = {
 		fileName?: string;
@@ -29,7 +31,7 @@
 
 	const markdown = $derived.by(async () => {
 		const rawSource = raw ?? (await fetchMarkdown(url));
-		return marked.parse(rawSource);
+		return markdownParser.parse(rawSource);
 	});
 	let maxWidth = $state(100);
 	let isRangeResize = $state(true);
