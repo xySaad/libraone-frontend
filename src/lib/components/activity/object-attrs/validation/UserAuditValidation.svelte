@@ -1,5 +1,5 @@
 <script lang="ts">
-	import Markdown from '$lib/components/Markdown.svelte';
+	import Markdown from '$lib/components/ui/Markdown/Markdown.svelte';
 	import Suspend from '$lib/components/shared/Suspend.svelte';
 	import { Client } from '$lib/graphql/client';
 	import { GetValidationMarkdownsDocument } from '$lib/graphql/generated';
@@ -36,6 +36,6 @@
 
 <Suspend data={generateMarkdownData(validation)}>
 	{#snippet children(markdown)}
-		<Markdown {fileName} raw={markdown} {Title} />
+		<Markdown {fileName} src={{ raw: markdown }} {Title} />
 	{/snippet}
 </Suspend>
