@@ -1,11 +1,12 @@
 <script lang="ts" generics="T extends Record<string, unknown>">
+	import SafeHtml from '$lib/components/shared/SafeHtml.svelte';
+	import Suspend from '$lib/components/shared/Suspend.svelte';
+	import 'github-markdown-css/github-markdown.css';
 	import { Marked } from 'marked';
 	import markedKatex from 'marked-katex-extension';
-	import 'github-markdown-css/github-markdown.css';
 	import type { Snippet } from 'svelte';
-	import SafeHtml from '$lib/components/shared/SafeHtml.svelte';
+	import { relativeUrlResolver } from './markdown';
 	import MarkdownMenu, { type Options } from './MarkdownMenu.svelte';
-	import Suspend from '$lib/components/shared/Suspend.svelte';
 	const markdownParser = new Marked(markedKatex({ throwOnError: false }));
 
 	type Props = {
@@ -24,7 +25,8 @@
 
 	const markdown = $derived.by(async () => {
 		const rawSource = raw ?? (await fetchMarkdown(url));
-		return markdownParser.parse(rawSource);
+		const walkTokens = inputURL ? relativeUrlResolver(inputURL) : null;
+		return markdownParser.parse(rawSource, { walkTokens });
 	});
 	let maxWidth = $state(100);
 </script>
