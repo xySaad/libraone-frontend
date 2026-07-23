@@ -23,7 +23,7 @@ export function relativeUrlResolver(baseUrl: string) {
 		if (token.type === 'html') {
 			const parsedDocument = parser.parseFromString(token.raw, 'text/html');
 			const elementsList = parsedDocument.body.querySelectorAll('img,a');
-			const changes = elementsList.values().map((node) => {
+			const changes = [...elementsList].map((node) => {
 				if (node instanceof HTMLImageElement) {
 					const src = node.getAttribute('src');
 					if (src) node.src = resolveIfRelative(src, baseUrl);
