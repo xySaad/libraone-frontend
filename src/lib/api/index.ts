@@ -5,7 +5,8 @@ import type { GraphQLObject } from '$lib/types/object';
 import type { LeaderboardUser, LogtimeData, MaplProfile, ProfileCreds } from '$lib/types/profile';
 
 const handleUnAuthorized = (status: number) =>
-	status === 401 && goto(resolve(`/login/gitea?from=${location.pathname}`), { replaceState: true });
+	status === 401 &&
+	goto(resolve(`/accounts/gitea?from=${location.pathname}`), { replaceState: true });
 
 export const api = {
 	LIBRAONE: config({

@@ -22,7 +22,7 @@
 		{/await}
 	</a>
 {:else}
-	<button class="btn blue" onclick={() => goto(resolve('/login'))}> Login </button>
+	<button class="btn blue" onclick={() => goto(resolve('/accounts/gitea'))}> Login </button>
 {/if}
 
 <style>

@@ -3,7 +3,8 @@
 	import type { RouteId } from '$app/types';
 	import type { Snippet } from 'svelte';
 
-	type LoginType = Extract<RouteId, `/login/${string}`> extends `/login/${infer T}` ? T : never;
+	type LoginType =
+		Extract<RouteId, `/accounts/${string}`> extends `/accounts/${infer T}` ? T : never;
 	interface Props {
 		children: Snippet;
 		subtitle: string;
@@ -16,7 +17,7 @@
 </script>
 
 <a
-	href={resolve(`/login/${type}`)}
+	href={resolve(`/accounts/${type}`)}
 	aria-disabled={disabled}
 	onclick={(e) => disabled && e.preventDefault()}
 >

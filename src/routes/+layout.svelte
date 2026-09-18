@@ -1,13 +1,13 @@
 <script lang="ts">
-	import type { Pathname } from '$app/types';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
+	import type { Pathname } from '$app/types';
 	import { locales, localizeHref } from '$lib/paraglide/runtime';
-	import './layout.css';
-	import '$lib/styles/embla.css';
-	import '$lib/styles/tooltip.css';
-	import '$lib/styles/scroll.css';
 	import '$lib/styles/animation.css';
+	import '$lib/styles/embla.css';
+	import '$lib/styles/scroll.css';
+	import '$lib/styles/tooltip.css';
+	import './layout.css';
 
 	import favicon from '$lib/assets/favicon.svg';
 
