@@ -8,6 +8,9 @@
 	import UserAvatar from '../image/UserAvatar.svelte';
 	import OnlineDot from '../OnlineDot.svelte';
 	import Card from '$lib/components/ui/Card.svelte';
+	import ManageAccounts from '$lib/assets/svg/manage-accounts.svelte';
+	import { resolve } from '$app/paths';
+	import { profileUserState } from '$lib/stores/user.svelte';
 
 	interface Props {
 		active?: boolean | null;
@@ -47,6 +50,9 @@
 			{user.lastName}
 			<p class="login">@{user.login} #{user.id}</p>
 		</h1>
+		{#if $profileUserState?.id == user.githubId}
+			<a class="manage-accounts" href={resolve('/accounts')}><ManageAccounts /></a>
+		{/if}
 	</header>
 	<div class="card-info">
 		<div class="badges">
@@ -77,13 +83,6 @@
 </Card>
 
 <style>
-	:global(.card) {
-		display: flex;
-		flex-wrap: wrap;
-		align-items: flex-start;
-		gap: 20px;
-	}
-
 	.online-dot {
 		position: absolute;
 		bottom: -5px;
@@ -108,6 +107,12 @@
 			color: var(--text-muted);
 			margin: 0 0 10px;
 			font-family: 'SF Mono', 'Fira Code', monospace;
+		}
+		.manage-accounts {
+			display: block;
+			height: fit-content;
+			width: fit-content;
+			margin-left: auto;
 		}
 	}
 	.avatar-wrap {

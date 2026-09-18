@@ -14,7 +14,8 @@
 	let {
 		children,
 		message = 'Login to view details',
-		onclick = () => goto(resolve(`/login/gitea?from=${location.pathname}`), { replaceState: true })
+		onclick = () =>
+			goto(resolve(`/accounts/gitea?from=${location.pathname}`), { replaceState: true })
 	}: Props = $props();
 </script>
 

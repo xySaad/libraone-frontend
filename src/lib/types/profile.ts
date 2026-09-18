@@ -5,9 +5,12 @@ export interface LoginReq {
 
 export interface ProfileCreds {
 	id: number;
+	gitea_login: string;
 	graphql_login: string;
 	graphql_id: number;
 	role: string;
+	avatar_url: string;
+	campus: string;
 }
 
 export type LastSession = {

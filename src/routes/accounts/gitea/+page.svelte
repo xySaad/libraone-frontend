@@ -23,17 +23,15 @@
 		}
 
 		const oauthWindow = window.open(
-			'https://libraone.undo.it/api/oauth/gitea',
+			'https://libraone.undo.it/api/v2/oauth/gitea',
 			'_blank',
 			'popup,width=600,height=700'
 		);
 		if (!oauthWindow) return;
-
 		const closeHandler = async (event: MessageEvent) => {
 			if (event.origin !== window.origin) return;
 			if (event.data === CLOSE_MESSAGE) oauthWindow.close();
 			$profileUserState = await api.LIBRAONE.candidate();
-			// eslint-disable-next-line svelte/no-navigation-without-resolve
 			goto(from ?? '/', { replaceState: true });
 		};
 		addEventListener('message', closeHandler);

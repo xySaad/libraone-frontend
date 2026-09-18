@@ -4,3 +4,4 @@ import { writable } from 'svelte/store';
 
 const profileCreds = await api.LIBRAONE.candidate().catch(() => null);
 export const profileUserState = writable<ProfileCreds | null>(profileCreds);
+export const intraCreds = writable<string | null>(null);
