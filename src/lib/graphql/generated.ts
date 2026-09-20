@@ -632,6 +632,10 @@ export type Event = {
   registrations_aggregate: Registration_Aggregate;
   /** An array relationship */
   results: Array<Result>;
+  /** An array relationship */
+  resultsOnPath: Array<Result>;
+  /** An aggregate relationship */
+  resultsOnPath_aggregate: Result_Aggregate;
   /** An aggregate relationship */
   results_aggregate: Result_Aggregate;
   startAt: Scalars['timestamptz']['output'];
@@ -821,6 +825,26 @@ export type EventResultsArgs = {
 
 
 /** columns and relationships of "event" */
+export type EventResultsOnPathArgs = {
+  distinct_on?: InputMaybe<Array<Result_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Result_Order_By>>;
+  where?: InputMaybe<Result_Bool_Exp>;
+};
+
+
+/** columns and relationships of "event" */
+export type EventResultsOnPath_AggregateArgs = {
+  distinct_on?: InputMaybe<Array<Result_Select_Column>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Result_Order_By>>;
+  where?: InputMaybe<Result_Bool_Exp>;
+};
+
+
+/** columns and relationships of "event" */
 export type EventResults_AggregateArgs = {
   distinct_on?: InputMaybe<Array<Result_Select_Column>>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -994,6 +1018,8 @@ export type Event_Bool_Exp = {
   registrations?: InputMaybe<Registration_Bool_Exp>;
   registrations_aggregate?: InputMaybe<Registration_Aggregate_Bool_Exp>;
   results?: InputMaybe<Result_Bool_Exp>;
+  resultsOnPath?: InputMaybe<Result_Bool_Exp>;
+  resultsOnPath_aggregate?: InputMaybe<Result_Aggregate_Bool_Exp>;
   results_aggregate?: InputMaybe<Result_Aggregate_Bool_Exp>;
   startAt?: InputMaybe<Timestamptz_Comparison_Exp>;
   tasks?: InputMaybe<Task_Bool_Exp>;
@@ -1084,6 +1110,7 @@ export type Event_Order_By = {
   progressesByEventid_aggregate?: InputMaybe<Progress_Aggregate_Order_By>;
   progresses_aggregate?: InputMaybe<Progress_Aggregate_Order_By>;
   registrations_aggregate?: InputMaybe<Registration_Aggregate_Order_By>;
+  resultsOnPath_aggregate?: InputMaybe<Result_Aggregate_Order_By>;
   results_aggregate?: InputMaybe<Result_Aggregate_Order_By>;
   startAt?: InputMaybe<Order_By>;
   tasks_aggregate?: InputMaybe<Task_Aggregate_Order_By>;
@@ -3758,6 +3785,84 @@ export type Label_Variance_Order_By = {
   id?: InputMaybe<Order_By>;
 };
 
+export type Latest_Progress = {
+  __typename?: 'latest_progress';
+  campus?: Maybe<Scalars['String']['output']>;
+  createdAt: Scalars['timestamptz']['output'];
+  eventId?: Maybe<Scalars['Int']['output']>;
+  grade?: Maybe<Scalars['numeric']['output']>;
+  id: Scalars['bigint']['output'];
+  isDone: Scalars['Boolean']['output'];
+  parentId?: Maybe<Scalars['Int']['output']>;
+  path: Scalars['String']['output'];
+  updatedAt: Scalars['timestamptz']['output'];
+  userId: Scalars['Int']['output'];
+  version?: Maybe<Scalars['String']['output']>;
+};
+
+/** latest_progressNative Query Arguments */
+export type Latest_Progress_Arguments = {
+  userId: Scalars['Int']['input'];
+};
+
+/** Boolean expression to filter rows from the logical model for "latest_progress". All fields are combined with a logical 'AND'. */
+export type Latest_Progress_Bool_Exp_Bool_Exp = {
+  _and?: InputMaybe<Array<Latest_Progress_Bool_Exp_Bool_Exp>>;
+  _not?: InputMaybe<Latest_Progress_Bool_Exp_Bool_Exp>;
+  _or?: InputMaybe<Array<Latest_Progress_Bool_Exp_Bool_Exp>>;
+  campus?: InputMaybe<String_Comparison_Exp>;
+  createdAt?: InputMaybe<Timestamptz_Comparison_Exp>;
+  eventId?: InputMaybe<Int_Comparison_Exp>;
+  grade?: InputMaybe<Numeric_Comparison_Exp>;
+  id?: InputMaybe<Bigint_Comparison_Exp>;
+  isDone?: InputMaybe<Boolean_Comparison_Exp>;
+  parentId?: InputMaybe<Int_Comparison_Exp>;
+  path?: InputMaybe<String_Comparison_Exp>;
+  updatedAt?: InputMaybe<Timestamptz_Comparison_Exp>;
+  userId?: InputMaybe<Int_Comparison_Exp>;
+  version?: InputMaybe<String_Comparison_Exp>;
+};
+
+export enum Latest_Progress_Enum_Name {
+  /** column name */
+  Campus = 'campus',
+  /** column name */
+  CreatedAt = 'createdAt',
+  /** column name */
+  EventId = 'eventId',
+  /** column name */
+  Grade = 'grade',
+  /** column name */
+  Id = 'id',
+  /** column name */
+  IsDone = 'isDone',
+  /** column name */
+  ParentId = 'parentId',
+  /** column name */
+  Path = 'path',
+  /** column name */
+  UpdatedAt = 'updatedAt',
+  /** column name */
+  UserId = 'userId',
+  /** column name */
+  Version = 'version'
+}
+
+/** Ordering options when selecting data from "latest_progress". */
+export type Latest_Progress_Order_By = {
+  campus?: InputMaybe<Order_By>;
+  createdAt?: InputMaybe<Order_By>;
+  eventId?: InputMaybe<Order_By>;
+  grade?: InputMaybe<Order_By>;
+  id?: InputMaybe<Order_By>;
+  isDone?: InputMaybe<Order_By>;
+  parentId?: InputMaybe<Order_By>;
+  path?: InputMaybe<Order_By>;
+  updatedAt?: InputMaybe<Order_By>;
+  userId?: InputMaybe<Order_By>;
+  version?: InputMaybe<Order_By>;
+};
+
 /** columns and relationships of "markdown" */
 export type Markdown = {
   __typename?: 'markdown';
@@ -4404,10 +4509,6 @@ export type Mutation_Root = {
   insert_match?: Maybe<Match_Mutation_Response>;
   /** insert a single row into the table: "match" */
   insert_match_one?: Maybe<Match>;
-  /** insert data into the table: "registration_user" */
-  insert_registration_user?: Maybe<Registration_User_Mutation_Response>;
-  /** insert a single row into the table: "registration_user" */
-  insert_registration_user_one?: Maybe<Registration_User>;
   /** insert data into the table: "result" */
   insert_result?: Maybe<Result_Mutation_Response>;
   /** insert a single row into the table: "result" */
@@ -4580,20 +4681,6 @@ export type Mutation_RootInsert_MatchArgs = {
 export type Mutation_RootInsert_Match_OneArgs = {
   object: Match_Insert_Input;
   on_conflict?: InputMaybe<Match_On_Conflict>;
-};
-
-
-/** mutation root */
-export type Mutation_RootInsert_Registration_UserArgs = {
-  objects: Array<Registration_User_Insert_Input>;
-  on_conflict?: InputMaybe<Registration_User_On_Conflict>;
-};
-
-
-/** mutation root */
-export type Mutation_RootInsert_Registration_User_OneArgs = {
-  object: Registration_User_Insert_Input;
-  on_conflict?: InputMaybe<Registration_User_On_Conflict>;
 };
 
 
@@ -7335,6 +7422,7 @@ export type Progress = {
   event?: Maybe<Event>;
   eventId?: Maybe<Scalars['Int']['output']>;
   grade?: Maybe<Scalars['numeric']['output']>;
+  gradedAt?: Maybe<Scalars['timestamptz']['output']>;
   /** An object relationship */
   group?: Maybe<Group>;
   groupId?: Maybe<Scalars['Int']['output']>;
@@ -7481,6 +7569,7 @@ export type Progress_Bool_Exp = {
   event?: InputMaybe<Event_Bool_Exp>;
   eventId?: InputMaybe<Int_Comparison_Exp>;
   grade?: InputMaybe<Numeric_Comparison_Exp>;
+  gradedAt?: InputMaybe<Timestamptz_Comparison_Exp>;
   group?: InputMaybe<Group_Bool_Exp>;
   groupId?: InputMaybe<Int_Comparison_Exp>;
   id?: InputMaybe<Bigint_Comparison_Exp>;
@@ -7887,6 +7976,7 @@ export type Progress_Max_Fields = {
   createdAt?: Maybe<Scalars['timestamptz']['output']>;
   eventId?: Maybe<Scalars['Int']['output']>;
   grade?: Maybe<Scalars['numeric']['output']>;
+  gradedAt?: Maybe<Scalars['timestamptz']['output']>;
   groupId?: Maybe<Scalars['Int']['output']>;
   id?: Maybe<Scalars['bigint']['output']>;
   objectId?: Maybe<Scalars['Int']['output']>;
@@ -7903,6 +7993,7 @@ export type Progress_Max_Order_By = {
   createdAt?: InputMaybe<Order_By>;
   eventId?: InputMaybe<Order_By>;
   grade?: InputMaybe<Order_By>;
+  gradedAt?: InputMaybe<Order_By>;
   groupId?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   objectId?: InputMaybe<Order_By>;
@@ -7919,6 +8010,7 @@ export type Progress_Min_Fields = {
   createdAt?: Maybe<Scalars['timestamptz']['output']>;
   eventId?: Maybe<Scalars['Int']['output']>;
   grade?: Maybe<Scalars['numeric']['output']>;
+  gradedAt?: Maybe<Scalars['timestamptz']['output']>;
   groupId?: Maybe<Scalars['Int']['output']>;
   id?: Maybe<Scalars['bigint']['output']>;
   objectId?: Maybe<Scalars['Int']['output']>;
@@ -7935,6 +8027,7 @@ export type Progress_Min_Order_By = {
   createdAt?: InputMaybe<Order_By>;
   eventId?: InputMaybe<Order_By>;
   grade?: InputMaybe<Order_By>;
+  gradedAt?: InputMaybe<Order_By>;
   groupId?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   objectId?: InputMaybe<Order_By>;
@@ -7951,6 +8044,7 @@ export type Progress_Order_By = {
   event?: InputMaybe<Event_Order_By>;
   eventId?: InputMaybe<Order_By>;
   grade?: InputMaybe<Order_By>;
+  gradedAt?: InputMaybe<Order_By>;
   group?: InputMaybe<Group_Order_By>;
   groupId?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
@@ -7977,6 +8071,8 @@ export enum Progress_Select_Column {
   EventId = 'eventId',
   /** column name */
   Grade = 'grade',
+  /** column name */
+  GradedAt = 'gradedAt',
   /** column name */
   GroupId = 'groupId',
   /** column name */
@@ -8084,6 +8180,7 @@ export type Progress_Stream_Cursor_Value_Input = {
   createdAt?: InputMaybe<Scalars['timestamptz']['input']>;
   eventId?: InputMaybe<Scalars['Int']['input']>;
   grade?: InputMaybe<Scalars['numeric']['input']>;
+  gradedAt?: InputMaybe<Scalars['timestamptz']['input']>;
   groupId?: InputMaybe<Scalars['Int']['input']>;
   id?: InputMaybe<Scalars['bigint']['input']>;
   isDone?: InputMaybe<Scalars['Boolean']['input']>;
@@ -8228,6 +8325,7 @@ export type Query_Root = {
   label_user_aggregate: Label_User_Aggregate;
   /** fetch data from the table: "label_user" using primary key columns */
   label_user_by_pk?: Maybe<Label_User>;
+  latest_progress: Array<Latest_Progress>;
   /** fetch data from the table: "markdown" */
   markdown: Array<Markdown>;
   /** fetch data from the table: "markdown" using primary key columns */
@@ -8584,6 +8682,16 @@ export type Query_RootLabel_User_AggregateArgs = {
 
 export type Query_RootLabel_User_By_PkArgs = {
   id: Scalars['Int']['input'];
+};
+
+
+export type Query_RootLatest_ProgressArgs = {
+  args: Latest_Progress_Arguments;
+  distinct_on?: InputMaybe<Array<Latest_Progress_Enum_Name>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Latest_Progress_Order_By>>;
+  where?: InputMaybe<Latest_Progress_Bool_Exp_Bool_Exp>;
 };
 
 
@@ -10129,6 +10237,7 @@ export type Registration_User = {
   __typename?: 'registration_user';
   createdAt: Scalars['timestamptz']['output'];
   id: Scalars['Int']['output'];
+  position?: Maybe<Scalars['Int']['output']>;
   /** An object relationship */
   registration: Registration;
   registrationId: Scalars['Int']['output'];
@@ -10198,6 +10307,7 @@ export type Registration_User_Aggregate_Order_By = {
 export type Registration_User_Avg_Fields = {
   __typename?: 'registration_user_avg_fields';
   id?: Maybe<Scalars['Float']['output']>;
+  position?: Maybe<Scalars['Int']['output']>;
   registrationId?: Maybe<Scalars['Float']['output']>;
   userId?: Maybe<Scalars['Float']['output']>;
 };
@@ -10216,6 +10326,7 @@ export type Registration_User_Bool_Exp = {
   _or?: InputMaybe<Array<Registration_User_Bool_Exp>>;
   createdAt?: InputMaybe<Timestamptz_Comparison_Exp>;
   id?: InputMaybe<Int_Comparison_Exp>;
+  position?: InputMaybe<Int_Comparison_Exp>;
   registration?: InputMaybe<Registration_Bool_Exp>;
   registrationId?: InputMaybe<Int_Comparison_Exp>;
   user?: InputMaybe<User_Bool_Exp>;
@@ -10223,24 +10334,12 @@ export type Registration_User_Bool_Exp = {
   userLogin?: InputMaybe<String_Comparison_Exp>;
 };
 
-/** unique or primary key constraints on table "registration_user" */
-export enum Registration_User_Constraint {
-  /** unique or primary key constraint on columns "id" */
-  RegistrationUserPkey = 'registration_user_pkey',
-  /** unique or primary key constraint on columns "userId", "registrationId" */
-  RegistrationUserUserIdRegistrationIdKey = 'registration_user_userId_registrationId_key'
-}
-
-/** input type for inserting data into table "registration_user" */
-export type Registration_User_Insert_Input = {
-  registrationId?: InputMaybe<Scalars['Int']['input']>;
-};
-
 /** aggregate max on columns */
 export type Registration_User_Max_Fields = {
   __typename?: 'registration_user_max_fields';
   createdAt?: Maybe<Scalars['timestamptz']['output']>;
   id?: Maybe<Scalars['Int']['output']>;
+  position?: Maybe<Scalars['Int']['output']>;
   registrationId?: Maybe<Scalars['Int']['output']>;
   userId?: Maybe<Scalars['Int']['output']>;
   userLogin?: Maybe<Scalars['String']['output']>;
@@ -10259,6 +10358,7 @@ export type Registration_User_Min_Fields = {
   __typename?: 'registration_user_min_fields';
   createdAt?: Maybe<Scalars['timestamptz']['output']>;
   id?: Maybe<Scalars['Int']['output']>;
+  position?: Maybe<Scalars['Int']['output']>;
   registrationId?: Maybe<Scalars['Int']['output']>;
   userId?: Maybe<Scalars['Int']['output']>;
   userLogin?: Maybe<Scalars['String']['output']>;
@@ -10281,17 +10381,11 @@ export type Registration_User_Mutation_Response = {
   returning: Array<Registration_User>;
 };
 
-/** on_conflict condition type for table "registration_user" */
-export type Registration_User_On_Conflict = {
-  constraint: Registration_User_Constraint;
-  update_columns?: Array<Registration_User_Update_Column>;
-  where?: InputMaybe<Registration_User_Bool_Exp>;
-};
-
 /** Ordering options when selecting data from "registration_user". */
 export type Registration_User_Order_By = {
   createdAt?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
+  position?: InputMaybe<Order_By>;
   registration?: InputMaybe<Registration_Order_By>;
   registrationId?: InputMaybe<Order_By>;
   user?: InputMaybe<User_Order_By>;
@@ -10315,6 +10409,7 @@ export enum Registration_User_Select_Column {
 export type Registration_User_Stddev_Fields = {
   __typename?: 'registration_user_stddev_fields';
   id?: Maybe<Scalars['Float']['output']>;
+  position?: Maybe<Scalars['Int']['output']>;
   registrationId?: Maybe<Scalars['Float']['output']>;
   userId?: Maybe<Scalars['Float']['output']>;
 };
@@ -10330,6 +10425,7 @@ export type Registration_User_Stddev_Order_By = {
 export type Registration_User_Stddev_Pop_Fields = {
   __typename?: 'registration_user_stddev_pop_fields';
   id?: Maybe<Scalars['Float']['output']>;
+  position?: Maybe<Scalars['Int']['output']>;
   registrationId?: Maybe<Scalars['Float']['output']>;
   userId?: Maybe<Scalars['Float']['output']>;
 };
@@ -10345,6 +10441,7 @@ export type Registration_User_Stddev_Pop_Order_By = {
 export type Registration_User_Stddev_Samp_Fields = {
   __typename?: 'registration_user_stddev_samp_fields';
   id?: Maybe<Scalars['Float']['output']>;
+  position?: Maybe<Scalars['Int']['output']>;
   registrationId?: Maybe<Scalars['Float']['output']>;
   userId?: Maybe<Scalars['Float']['output']>;
 };
@@ -10376,6 +10473,7 @@ export type Registration_User_Stream_Cursor_Value_Input = {
 export type Registration_User_Sum_Fields = {
   __typename?: 'registration_user_sum_fields';
   id?: Maybe<Scalars['Int']['output']>;
+  position?: Maybe<Scalars['Int']['output']>;
   registrationId?: Maybe<Scalars['Int']['output']>;
   userId?: Maybe<Scalars['Int']['output']>;
 };
@@ -10387,16 +10485,11 @@ export type Registration_User_Sum_Order_By = {
   userId?: InputMaybe<Order_By>;
 };
 
-/** placeholder for update columns of table "registration_user" (current role has no relevant permissions) */
-export enum Registration_User_Update_Column {
-  /** placeholder (do not use) */
-  Placeholder = '_PLACEHOLDER'
-}
-
 /** aggregate var_pop on columns */
 export type Registration_User_Var_Pop_Fields = {
   __typename?: 'registration_user_var_pop_fields';
   id?: Maybe<Scalars['Float']['output']>;
+  position?: Maybe<Scalars['Int']['output']>;
   registrationId?: Maybe<Scalars['Float']['output']>;
   userId?: Maybe<Scalars['Float']['output']>;
 };
@@ -10412,6 +10505,7 @@ export type Registration_User_Var_Pop_Order_By = {
 export type Registration_User_Var_Samp_Fields = {
   __typename?: 'registration_user_var_samp_fields';
   id?: Maybe<Scalars['Float']['output']>;
+  position?: Maybe<Scalars['Int']['output']>;
   registrationId?: Maybe<Scalars['Float']['output']>;
   userId?: Maybe<Scalars['Float']['output']>;
 };
@@ -10427,6 +10521,7 @@ export type Registration_User_Var_Samp_Order_By = {
 export type Registration_User_Variance_Fields = {
   __typename?: 'registration_user_variance_fields';
   id?: Maybe<Scalars['Float']['output']>;
+  position?: Maybe<Scalars['Int']['output']>;
   registrationId?: Maybe<Scalars['Float']['output']>;
   userId?: Maybe<Scalars['Float']['output']>;
 };
@@ -10799,6 +10894,7 @@ export type Result = {
   event?: Maybe<Event>;
   eventId?: Maybe<Scalars['Int']['output']>;
   grade?: Maybe<Scalars['numeric']['output']>;
+  gradedAt?: Maybe<Scalars['timestamptz']['output']>;
   /** An object relationship */
   group?: Maybe<Group>;
   groupId?: Maybe<Scalars['Int']['output']>;
@@ -10965,6 +11061,7 @@ export type Result_Bool_Exp = {
   event?: InputMaybe<Event_Bool_Exp>;
   eventId?: InputMaybe<Int_Comparison_Exp>;
   grade?: InputMaybe<Numeric_Comparison_Exp>;
+  gradedAt?: InputMaybe<Timestamptz_Comparison_Exp>;
   group?: InputMaybe<Group_Bool_Exp>;
   groupId?: InputMaybe<Int_Comparison_Exp>;
   id?: InputMaybe<Int_Comparison_Exp>;
@@ -11021,6 +11118,7 @@ export type Result_Max_Fields = {
   createdAt?: Maybe<Scalars['timestamptz']['output']>;
   eventId?: Maybe<Scalars['Int']['output']>;
   grade?: Maybe<Scalars['numeric']['output']>;
+  gradedAt?: Maybe<Scalars['timestamptz']['output']>;
   groupId?: Maybe<Scalars['Int']['output']>;
   id?: Maybe<Scalars['Int']['output']>;
   invalidatedAt?: Maybe<Scalars['timestamptz']['output']>;
@@ -11040,6 +11138,7 @@ export type Result_Max_Order_By = {
   createdAt?: InputMaybe<Order_By>;
   eventId?: InputMaybe<Order_By>;
   grade?: InputMaybe<Order_By>;
+  gradedAt?: InputMaybe<Order_By>;
   groupId?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   invalidatedAt?: InputMaybe<Order_By>;
@@ -11059,6 +11158,7 @@ export type Result_Min_Fields = {
   createdAt?: Maybe<Scalars['timestamptz']['output']>;
   eventId?: Maybe<Scalars['Int']['output']>;
   grade?: Maybe<Scalars['numeric']['output']>;
+  gradedAt?: Maybe<Scalars['timestamptz']['output']>;
   groupId?: Maybe<Scalars['Int']['output']>;
   id?: Maybe<Scalars['Int']['output']>;
   invalidatedAt?: Maybe<Scalars['timestamptz']['output']>;
@@ -11078,6 +11178,7 @@ export type Result_Min_Order_By = {
   createdAt?: InputMaybe<Order_By>;
   eventId?: InputMaybe<Order_By>;
   grade?: InputMaybe<Order_By>;
+  gradedAt?: InputMaybe<Order_By>;
   groupId?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   invalidatedAt?: InputMaybe<Order_By>;
@@ -11115,6 +11216,7 @@ export type Result_Order_By = {
   event?: InputMaybe<Event_Order_By>;
   eventId?: InputMaybe<Order_By>;
   grade?: InputMaybe<Order_By>;
+  gradedAt?: InputMaybe<Order_By>;
   group?: InputMaybe<Group_Order_By>;
   groupId?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
@@ -11155,6 +11257,8 @@ export enum Result_Select_Column {
   EventId = 'eventId',
   /** column name */
   Grade = 'grade',
+  /** column name */
+  GradedAt = 'gradedAt',
   /** column name */
   GroupId = 'groupId',
   /** column name */
@@ -11275,6 +11379,7 @@ export type Result_Stream_Cursor_Value_Input = {
   createdAt?: InputMaybe<Scalars['timestamptz']['input']>;
   eventId?: InputMaybe<Scalars['Int']['input']>;
   grade?: InputMaybe<Scalars['numeric']['input']>;
+  gradedAt?: InputMaybe<Scalars['timestamptz']['input']>;
   groupId?: InputMaybe<Scalars['Int']['input']>;
   id?: InputMaybe<Scalars['Int']['input']>;
   invalidatedAt?: InputMaybe<Scalars['timestamptz']['input']>;
@@ -11660,6 +11765,7 @@ export type Subscription_Root = {
   label_user_by_pk?: Maybe<Label_User>;
   /** fetch data from the table in a streaming manner: "label_user" */
   label_user_stream: Array<Label_User>;
+  latest_progress: Array<Latest_Progress>;
   /** fetch data from the table: "markdown" */
   markdown: Array<Markdown>;
   /** fetch data from the table: "markdown" using primary key columns */
@@ -12145,6 +12251,16 @@ export type Subscription_RootLabel_User_StreamArgs = {
   batch_size: Scalars['Int']['input'];
   cursor: Array<InputMaybe<Label_User_Stream_Cursor_Input>>;
   where?: InputMaybe<Label_User_Bool_Exp>;
+};
+
+
+export type Subscription_RootLatest_ProgressArgs = {
+  args: Latest_Progress_Arguments;
+  distinct_on?: InputMaybe<Array<Latest_Progress_Enum_Name>>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  order_by?: InputMaybe<Array<Latest_Progress_Order_By>>;
+  where?: InputMaybe<Latest_Progress_Bool_Exp_Bool_Exp>;
 };
 
 
@@ -15121,6 +15237,7 @@ export type Transaction = {
   __typename?: 'transaction';
   amount: Scalars['numeric']['output'];
   attrs: Scalars['jsonb']['output'];
+  auditId?: Maybe<Scalars['Int']['output']>;
   campus?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['timestamptz']['output'];
   /** An object relationship */
@@ -15232,6 +15349,7 @@ export type Transaction_Aggregate_Order_By = {
 export type Transaction_Avg_Fields = {
   __typename?: 'transaction_avg_fields';
   amount?: Maybe<Scalars['Float']['output']>;
+  auditId?: Maybe<Scalars['Float']['output']>;
   eventId?: Maybe<Scalars['Float']['output']>;
   id?: Maybe<Scalars['Float']['output']>;
   objectId?: Maybe<Scalars['Float']['output']>;
@@ -15242,6 +15360,7 @@ export type Transaction_Avg_Fields = {
 /** order by avg() on columns of table "transaction" */
 export type Transaction_Avg_Order_By = {
   amount?: InputMaybe<Order_By>;
+  auditId?: InputMaybe<Order_By>;
   eventId?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   objectId?: InputMaybe<Order_By>;
@@ -15256,6 +15375,7 @@ export type Transaction_Bool_Exp = {
   _or?: InputMaybe<Array<Transaction_Bool_Exp>>;
   amount?: InputMaybe<Numeric_Comparison_Exp>;
   attrs?: InputMaybe<Jsonb_Comparison_Exp>;
+  auditId?: InputMaybe<Int_Comparison_Exp>;
   campus?: InputMaybe<String_Comparison_Exp>;
   createdAt?: InputMaybe<Timestamptz_Comparison_Exp>;
   event?: InputMaybe<Event_Bool_Exp>;
@@ -15282,6 +15402,7 @@ export type Transaction_Bool_Exp = {
 export type Transaction_Max_Fields = {
   __typename?: 'transaction_max_fields';
   amount?: Maybe<Scalars['numeric']['output']>;
+  auditId?: Maybe<Scalars['Int']['output']>;
   campus?: Maybe<Scalars['String']['output']>;
   createdAt?: Maybe<Scalars['timestamptz']['output']>;
   eventId?: Maybe<Scalars['Int']['output']>;
@@ -15299,6 +15420,7 @@ export type Transaction_Max_Fields = {
 /** order by max() on columns of table "transaction" */
 export type Transaction_Max_Order_By = {
   amount?: InputMaybe<Order_By>;
+  auditId?: InputMaybe<Order_By>;
   campus?: InputMaybe<Order_By>;
   createdAt?: InputMaybe<Order_By>;
   eventId?: InputMaybe<Order_By>;
@@ -15316,6 +15438,7 @@ export type Transaction_Max_Order_By = {
 export type Transaction_Min_Fields = {
   __typename?: 'transaction_min_fields';
   amount?: Maybe<Scalars['numeric']['output']>;
+  auditId?: Maybe<Scalars['Int']['output']>;
   campus?: Maybe<Scalars['String']['output']>;
   createdAt?: Maybe<Scalars['timestamptz']['output']>;
   eventId?: Maybe<Scalars['Int']['output']>;
@@ -15333,6 +15456,7 @@ export type Transaction_Min_Fields = {
 /** order by min() on columns of table "transaction" */
 export type Transaction_Min_Order_By = {
   amount?: InputMaybe<Order_By>;
+  auditId?: InputMaybe<Order_By>;
   campus?: InputMaybe<Order_By>;
   createdAt?: InputMaybe<Order_By>;
   eventId?: InputMaybe<Order_By>;
@@ -15350,6 +15474,7 @@ export type Transaction_Min_Order_By = {
 export type Transaction_Order_By = {
   amount?: InputMaybe<Order_By>;
   attrs?: InputMaybe<Order_By>;
+  auditId?: InputMaybe<Order_By>;
   campus?: InputMaybe<Order_By>;
   createdAt?: InputMaybe<Order_By>;
   event?: InputMaybe<Event_Order_By>;
@@ -15378,6 +15503,8 @@ export enum Transaction_Select_Column {
   Amount = 'amount',
   /** column name */
   Attrs = 'attrs',
+  /** column name */
+  AuditId = 'auditId',
   /** column name */
   Campus = 'campus',
   /** column name */
@@ -15420,6 +15547,7 @@ export enum Transaction_Select_Column_Transaction_Aggregate_Bool_Exp_Bool_Or_Arg
 export type Transaction_Stddev_Fields = {
   __typename?: 'transaction_stddev_fields';
   amount?: Maybe<Scalars['Float']['output']>;
+  auditId?: Maybe<Scalars['Float']['output']>;
   eventId?: Maybe<Scalars['Float']['output']>;
   id?: Maybe<Scalars['Float']['output']>;
   objectId?: Maybe<Scalars['Float']['output']>;
@@ -15430,6 +15558,7 @@ export type Transaction_Stddev_Fields = {
 /** order by stddev() on columns of table "transaction" */
 export type Transaction_Stddev_Order_By = {
   amount?: InputMaybe<Order_By>;
+  auditId?: InputMaybe<Order_By>;
   eventId?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   objectId?: InputMaybe<Order_By>;
@@ -15441,6 +15570,7 @@ export type Transaction_Stddev_Order_By = {
 export type Transaction_Stddev_Pop_Fields = {
   __typename?: 'transaction_stddev_pop_fields';
   amount?: Maybe<Scalars['Float']['output']>;
+  auditId?: Maybe<Scalars['Float']['output']>;
   eventId?: Maybe<Scalars['Float']['output']>;
   id?: Maybe<Scalars['Float']['output']>;
   objectId?: Maybe<Scalars['Float']['output']>;
@@ -15451,6 +15581,7 @@ export type Transaction_Stddev_Pop_Fields = {
 /** order by stddev_pop() on columns of table "transaction" */
 export type Transaction_Stddev_Pop_Order_By = {
   amount?: InputMaybe<Order_By>;
+  auditId?: InputMaybe<Order_By>;
   eventId?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   objectId?: InputMaybe<Order_By>;
@@ -15462,6 +15593,7 @@ export type Transaction_Stddev_Pop_Order_By = {
 export type Transaction_Stddev_Samp_Fields = {
   __typename?: 'transaction_stddev_samp_fields';
   amount?: Maybe<Scalars['Float']['output']>;
+  auditId?: Maybe<Scalars['Float']['output']>;
   eventId?: Maybe<Scalars['Float']['output']>;
   id?: Maybe<Scalars['Float']['output']>;
   objectId?: Maybe<Scalars['Float']['output']>;
@@ -15472,6 +15604,7 @@ export type Transaction_Stddev_Samp_Fields = {
 /** order by stddev_samp() on columns of table "transaction" */
 export type Transaction_Stddev_Samp_Order_By = {
   amount?: InputMaybe<Order_By>;
+  auditId?: InputMaybe<Order_By>;
   eventId?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   objectId?: InputMaybe<Order_By>;
@@ -15491,6 +15624,7 @@ export type Transaction_Stream_Cursor_Input = {
 export type Transaction_Stream_Cursor_Value_Input = {
   amount?: InputMaybe<Scalars['numeric']['input']>;
   attrs?: InputMaybe<Scalars['jsonb']['input']>;
+  auditId?: InputMaybe<Scalars['Int']['input']>;
   campus?: InputMaybe<Scalars['String']['input']>;
   createdAt?: InputMaybe<Scalars['timestamptz']['input']>;
   eventId?: InputMaybe<Scalars['Int']['input']>;
@@ -15509,6 +15643,7 @@ export type Transaction_Stream_Cursor_Value_Input = {
 export type Transaction_Sum_Fields = {
   __typename?: 'transaction_sum_fields';
   amount?: Maybe<Scalars['numeric']['output']>;
+  auditId?: Maybe<Scalars['Int']['output']>;
   eventId?: Maybe<Scalars['Int']['output']>;
   id?: Maybe<Scalars['Int']['output']>;
   objectId?: Maybe<Scalars['Int']['output']>;
@@ -15519,6 +15654,7 @@ export type Transaction_Sum_Fields = {
 /** order by sum() on columns of table "transaction" */
 export type Transaction_Sum_Order_By = {
   amount?: InputMaybe<Order_By>;
+  auditId?: InputMaybe<Order_By>;
   eventId?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   objectId?: InputMaybe<Order_By>;
@@ -15629,6 +15765,7 @@ export type Transaction_Type_Stream_Cursor_Value_Input = {
 export type Transaction_Var_Pop_Fields = {
   __typename?: 'transaction_var_pop_fields';
   amount?: Maybe<Scalars['Float']['output']>;
+  auditId?: Maybe<Scalars['Float']['output']>;
   eventId?: Maybe<Scalars['Float']['output']>;
   id?: Maybe<Scalars['Float']['output']>;
   objectId?: Maybe<Scalars['Float']['output']>;
@@ -15639,6 +15776,7 @@ export type Transaction_Var_Pop_Fields = {
 /** order by var_pop() on columns of table "transaction" */
 export type Transaction_Var_Pop_Order_By = {
   amount?: InputMaybe<Order_By>;
+  auditId?: InputMaybe<Order_By>;
   eventId?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   objectId?: InputMaybe<Order_By>;
@@ -15650,6 +15788,7 @@ export type Transaction_Var_Pop_Order_By = {
 export type Transaction_Var_Samp_Fields = {
   __typename?: 'transaction_var_samp_fields';
   amount?: Maybe<Scalars['Float']['output']>;
+  auditId?: Maybe<Scalars['Float']['output']>;
   eventId?: Maybe<Scalars['Float']['output']>;
   id?: Maybe<Scalars['Float']['output']>;
   objectId?: Maybe<Scalars['Float']['output']>;
@@ -15660,6 +15799,7 @@ export type Transaction_Var_Samp_Fields = {
 /** order by var_samp() on columns of table "transaction" */
 export type Transaction_Var_Samp_Order_By = {
   amount?: InputMaybe<Order_By>;
+  auditId?: InputMaybe<Order_By>;
   eventId?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   objectId?: InputMaybe<Order_By>;
@@ -15671,6 +15811,7 @@ export type Transaction_Var_Samp_Order_By = {
 export type Transaction_Variance_Fields = {
   __typename?: 'transaction_variance_fields';
   amount?: Maybe<Scalars['Float']['output']>;
+  auditId?: Maybe<Scalars['Float']['output']>;
   eventId?: Maybe<Scalars['Float']['output']>;
   id?: Maybe<Scalars['Float']['output']>;
   objectId?: Maybe<Scalars['Float']['output']>;
@@ -15681,6 +15822,7 @@ export type Transaction_Variance_Fields = {
 /** order by variance() on columns of table "transaction" */
 export type Transaction_Variance_Order_By = {
   amount?: InputMaybe<Order_By>;
+  auditId?: InputMaybe<Order_By>;
   eventId?: InputMaybe<Order_By>;
   id?: InputMaybe<Order_By>;
   objectId?: InputMaybe<Order_By>;
@@ -17171,7 +17313,6 @@ export enum User_Select_Column {
 /** input type for updating data in table "user" */
 export type User_Set_Input = {
   attrs?: InputMaybe<Scalars['jsonb']['input']>;
-  avatarUrl?: InputMaybe<Scalars['String']['input']>;
   email?: InputMaybe<Scalars['String']['input']>;
   firstName?: InputMaybe<Scalars['String']['input']>;
   lastName?: InputMaybe<Scalars['String']['input']>;
@@ -17521,7 +17662,7 @@ export type GetObjectGroupsQueryVariables = Exact<{
 }>;
 
 
-export type GetObjectGroupsQuery = { __typename?: 'query_root', object: Array<{ __typename?: 'object', groups: Array<{ __typename?: 'group', id: number, status: Group_Status_Enum, captain?: { __typename?: 'user_public_view', id?: number | null, login?: string | null } | null, members: Array<{ __typename?: 'group_user', user?: { __typename?: 'user_public_view', id?: number | null, login?: string | null, avatarUrl?: string | null, canAccessPlatform?: boolean | null } | null }> }> }> };
+export type GetObjectGroupsQuery = { __typename?: 'query_root', object: Array<{ __typename?: 'object', groups: Array<{ __typename?: 'group', id: number, status: Group_Status_Enum, captain?: { __typename?: 'user_public_view', id?: number | null, login?: string | null } | null, members: Array<{ __typename?: 'group_user', user?: { __typename?: 'user_public_view', id?: number | null, login?: string | null, avatarUrl?: string | null, canAccessPlatform?: boolean | null } | null }>, invitations: Array<{ __typename?: 'group_user', user?: { __typename?: 'user_public_view', id?: number | null, login?: string | null, avatarUrl?: string | null, canAccessPlatform?: boolean | null } | null }>, auditors: Array<{ __typename?: 'audit', grade?: any | null, closureType?: Audit_Closure_Type_Enum | null, closureMessage?: string | null, attrs: any, auditor?: { __typename?: 'user_public_view', id?: number | null, login?: string | null, avatarUrl?: string | null, canAccessPlatform?: boolean | null } | null }>, results: Array<{ __typename?: 'result', grade?: any | null, id: number, createdAt: any, audits: Array<{ __typename?: 'audit', grade?: any | null, closureType?: Audit_Closure_Type_Enum | null, closureMessage?: string | null, attrs: any, auditor?: { __typename?: 'user_public_view', id?: number | null, login?: string | null, avatarUrl?: string | null, canAccessPlatform?: boolean | null } | null }> }> }> }> };
 
 export type GetObjectOverviewQueryVariables = Exact<{
   objectId: Scalars['Int']['input'];
@@ -17573,7 +17714,7 @@ export type GetUserGroupsQueryVariables = Exact<{
 }>;
 
 
-export type GetUserGroupsQuery = { __typename?: 'query_root', group: Array<{ __typename?: 'group', id: number, status: Group_Status_Enum, object: { __typename?: 'object', id: number, name?: string | null }, captain?: { __typename?: 'user_public_view', id?: number | null, login?: string | null } | null, members: Array<{ __typename?: 'group_user', user?: { __typename?: 'user_public_view', id?: number | null, login?: string | null, avatarUrl?: string | null, canAccessPlatform?: boolean | null } | null }> }> };
+export type GetUserGroupsQuery = { __typename?: 'query_root', group: Array<{ __typename?: 'group', id: number, status: Group_Status_Enum, object: { __typename?: 'object', id: number, name?: string | null }, captain?: { __typename?: 'user_public_view', id?: number | null, login?: string | null } | null, members: Array<{ __typename?: 'group_user', user?: { __typename?: 'user_public_view', id?: number | null, login?: string | null, avatarUrl?: string | null, canAccessPlatform?: boolean | null } | null }>, invitations: Array<{ __typename?: 'group_user', user?: { __typename?: 'user_public_view', id?: number | null, login?: string | null, avatarUrl?: string | null, canAccessPlatform?: boolean | null } | null }>, auditors: Array<{ __typename?: 'audit', grade?: any | null, closureType?: Audit_Closure_Type_Enum | null, closureMessage?: string | null, attrs: any, auditor?: { __typename?: 'user_public_view', id?: number | null, login?: string | null, avatarUrl?: string | null, canAccessPlatform?: boolean | null } | null }>, results: Array<{ __typename?: 'result', grade?: any | null, id: number, createdAt: any, audits: Array<{ __typename?: 'audit', grade?: any | null, closureType?: Audit_Closure_Type_Enum | null, closureMessage?: string | null, attrs: any, auditor?: { __typename?: 'user_public_view', id?: number | null, login?: string | null, avatarUrl?: string | null, canAccessPlatform?: boolean | null } | null }> }> }> };
 
 export type GetUserGroupsByIdQueryVariables = Exact<{
   userId?: InputMaybe<Scalars['Int']['input']>;
@@ -17610,7 +17751,9 @@ export type GetValidationMarkdownsQueryVariables = Exact<{
 
 export type GetValidationMarkdownsQuery = { __typename?: 'query_root', pre: Array<{ __typename?: 'markdown', content: string }>, post: Array<{ __typename?: 'markdown', content: string }> };
 
-export type GroupFragment = { __typename?: 'group', id: number, status: Group_Status_Enum, captain?: { __typename?: 'user_public_view', id?: number | null, login?: string | null } | null, members: Array<{ __typename?: 'group_user', user?: { __typename?: 'user_public_view', id?: number | null, login?: string | null, avatarUrl?: string | null, canAccessPlatform?: boolean | null } | null }> };
+export type AuditFragment = { __typename?: 'audit', grade?: any | null, closureType?: Audit_Closure_Type_Enum | null, closureMessage?: string | null, attrs: any, auditor?: { __typename?: 'user_public_view', id?: number | null, login?: string | null, avatarUrl?: string | null, canAccessPlatform?: boolean | null } | null };
+
+export type GroupFragment = { __typename?: 'group', id: number, status: Group_Status_Enum, captain?: { __typename?: 'user_public_view', id?: number | null, login?: string | null } | null, members: Array<{ __typename?: 'group_user', user?: { __typename?: 'user_public_view', id?: number | null, login?: string | null, avatarUrl?: string | null, canAccessPlatform?: boolean | null } | null }>, invitations: Array<{ __typename?: 'group_user', user?: { __typename?: 'user_public_view', id?: number | null, login?: string | null, avatarUrl?: string | null, canAccessPlatform?: boolean | null } | null }>, auditors: Array<{ __typename?: 'audit', grade?: any | null, closureType?: Audit_Closure_Type_Enum | null, closureMessage?: string | null, attrs: any, auditor?: { __typename?: 'user_public_view', id?: number | null, login?: string | null, avatarUrl?: string | null, canAccessPlatform?: boolean | null } | null }>, results: Array<{ __typename?: 'result', grade?: any | null, id: number, createdAt: any, audits: Array<{ __typename?: 'audit', grade?: any | null, closureType?: Audit_Closure_Type_Enum | null, closureMessage?: string | null, attrs: any, auditor?: { __typename?: 'user_public_view', id?: number | null, login?: string | null, avatarUrl?: string | null, canAccessPlatform?: boolean | null } | null }> }> };
 
 export type ObjectOverviewFragment = { __typename?: 'object', id: number, name?: string | null, type: string, campus?: string | null, language: any, paths: Array<{ __typename?: 'path', path: string }>, groups_aggregate: { __typename?: 'group_aggregate', aggregate?: { __typename?: 'group_aggregate_fields', count: number } | null }, events_aggregate: { __typename?: 'event_aggregate', aggregate?: { __typename?: 'event_aggregate_fields', count: number } | null } };
 
@@ -17619,7 +17762,8 @@ export type PublicUserFieldsFragment = { __typename?: 'user_public_view', id?: n
 export type UserGroupFieldsFragment = { __typename?: 'group_user', id: number, userLogin?: string | null, userId: number, groupId: number, group: { __typename?: 'group', captainId: number, captainLogin?: string | null, path: string, status: Group_Status_Enum, members: Array<{ __typename?: 'group_user', id: number, user?: { __typename?: 'user_public_view', id?: number | null, login?: string | null, avatarUrl?: string | null, firstName?: string | null, lastName?: string | null, canBeAuditor?: boolean | null, canAccessPlatform?: boolean | null, campus?: string | null, githubId?: number | null } | null }>, auditors: Array<{ __typename?: 'audit', id: number, closedAt?: any | null, closureType?: Audit_Closure_Type_Enum | null, auditor?: { __typename?: 'user_public_view', id?: number | null, login?: string | null, avatarUrl?: string | null, firstName?: string | null, lastName?: string | null, canBeAuditor?: boolean | null, canAccessPlatform?: boolean | null, campus?: string | null, githubId?: number | null } | null }> } };
 
 export const EventFieldsFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"EventFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"event"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"path"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"startAt"}},{"kind":"Field","name":{"kind":"Name","value":"endAt"}},{"kind":"Field","name":{"kind":"Name","value":"parentId"}},{"kind":"Field","name":{"kind":"Name","value":"object"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"authorId"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}},{"kind":"Field","alias":{"kind":"Name","value":"children"},"name":{"kind":"Name","value":"children_aggregate"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","alias":{"kind":"Name","value":"count"},"name":{"kind":"Name","value":"aggregate"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","alias":{"kind":"Name","value":"total"},"name":{"kind":"Name","value":"count"}}]}}]}},{"kind":"Field","alias":{"kind":"Name","value":"users"},"name":{"kind":"Name","value":"users_aggregate"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","alias":{"kind":"Name","value":"count"},"name":{"kind":"Name","value":"aggregate"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","alias":{"kind":"Name","value":"total"},"name":{"kind":"Name","value":"count"}}]}}]}}]}}]} as unknown as DocumentNode<EventFieldsFragment, unknown>;
-export const GroupFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"Group"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"group"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"captain"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"login"}}]}},{"kind":"Field","name":{"kind":"Name","value":"members"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"where"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"accepted"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_eq"},"value":{"kind":"BooleanValue","value":true}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"user"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"login"}},{"kind":"Field","name":{"kind":"Name","value":"avatarUrl"}},{"kind":"Field","name":{"kind":"Name","value":"canAccessPlatform"}}]}}]}}]}}]} as unknown as DocumentNode<GroupFragment, unknown>;
+export const AuditFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"Audit"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"audit"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"grade"}},{"kind":"Field","name":{"kind":"Name","value":"closureType"}},{"kind":"Field","name":{"kind":"Name","value":"closureMessage"}},{"kind":"Field","name":{"kind":"Name","value":"attrs"}},{"kind":"Field","name":{"kind":"Name","value":"auditor"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"login"}},{"kind":"Field","name":{"kind":"Name","value":"avatarUrl"}},{"kind":"Field","name":{"kind":"Name","value":"canAccessPlatform"}}]}}]}}]} as unknown as DocumentNode<AuditFragment, unknown>;
+export const GroupFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"Group"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"group"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"captain"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"login"}}]}},{"kind":"Field","name":{"kind":"Name","value":"members"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"where"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"accepted"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_eq"},"value":{"kind":"BooleanValue","value":true}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"user"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"login"}},{"kind":"Field","name":{"kind":"Name","value":"avatarUrl"}},{"kind":"Field","name":{"kind":"Name","value":"canAccessPlatform"}}]}}]}},{"kind":"Field","alias":{"kind":"Name","value":"invitations"},"name":{"kind":"Name","value":"members"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"where"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"accepted"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_eq"},"value":{"kind":"BooleanValue","value":false}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"user"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"login"}},{"kind":"Field","name":{"kind":"Name","value":"avatarUrl"}},{"kind":"Field","name":{"kind":"Name","value":"canAccessPlatform"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"auditors"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"where"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"resultId"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_is_null"},"value":{"kind":"BooleanValue","value":true}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"Audit"}}]}},{"kind":"Field","name":{"kind":"Name","value":"results"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"order_by"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"createdAt"},"value":{"kind":"EnumValue","value":"desc"}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"grade"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"audits"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"Audit"}}]}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"Audit"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"audit"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"grade"}},{"kind":"Field","name":{"kind":"Name","value":"closureType"}},{"kind":"Field","name":{"kind":"Name","value":"closureMessage"}},{"kind":"Field","name":{"kind":"Name","value":"attrs"}},{"kind":"Field","name":{"kind":"Name","value":"auditor"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"login"}},{"kind":"Field","name":{"kind":"Name","value":"avatarUrl"}},{"kind":"Field","name":{"kind":"Name","value":"canAccessPlatform"}}]}}]}}]} as unknown as DocumentNode<GroupFragment, unknown>;
 export const ObjectOverviewFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"ObjectOverview"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"object"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"campus"}},{"kind":"Field","name":{"kind":"Name","value":"paths"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"path"}}]}},{"kind":"Field","alias":{"kind":"Name","value":"language"},"name":{"kind":"Name","value":"attrs"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"path"},"value":{"kind":"StringValue","value":"language","block":false}}]},{"kind":"Field","name":{"kind":"Name","value":"groups_aggregate"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"aggregate"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"count"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"events_aggregate"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"aggregate"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"count"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"groups_aggregate"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"aggregate"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"count"}}]}}]}}]}}]} as unknown as DocumentNode<ObjectOverviewFragment, unknown>;
 export const PublicUserFieldsFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"PublicUserFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"user_public_view"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"login"}},{"kind":"Field","name":{"kind":"Name","value":"avatarUrl"}},{"kind":"Field","name":{"kind":"Name","value":"firstName"}},{"kind":"Field","name":{"kind":"Name","value":"lastName"}},{"kind":"Field","name":{"kind":"Name","value":"canBeAuditor"}},{"kind":"Field","name":{"kind":"Name","value":"canAccessPlatform"}},{"kind":"Field","name":{"kind":"Name","value":"campus"}},{"kind":"Field","name":{"kind":"Name","value":"githubId"}}]}}]} as unknown as DocumentNode<PublicUserFieldsFragment, unknown>;
 export const UserGroupFieldsFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"UserGroupFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"group_user"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"userLogin"}},{"kind":"Field","name":{"kind":"Name","value":"userId"}},{"kind":"Field","name":{"kind":"Name","value":"groupId"}},{"kind":"Field","name":{"kind":"Name","value":"group"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"captainId"}},{"kind":"Field","name":{"kind":"Name","value":"captainLogin"}},{"kind":"Field","name":{"kind":"Name","value":"path"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"members"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"user"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"PublicUserFields"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"auditors"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"closedAt"}},{"kind":"Field","name":{"kind":"Name","value":"closureType"}},{"kind":"Field","name":{"kind":"Name","value":"auditor"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"PublicUserFields"}}]}}]}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"PublicUserFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"user_public_view"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"login"}},{"kind":"Field","name":{"kind":"Name","value":"avatarUrl"}},{"kind":"Field","name":{"kind":"Name","value":"firstName"}},{"kind":"Field","name":{"kind":"Name","value":"lastName"}},{"kind":"Field","name":{"kind":"Name","value":"canBeAuditor"}},{"kind":"Field","name":{"kind":"Name","value":"canAccessPlatform"}},{"kind":"Field","name":{"kind":"Name","value":"campus"}},{"kind":"Field","name":{"kind":"Name","value":"githubId"}}]}}]} as unknown as DocumentNode<UserGroupFieldsFragment, unknown>;
@@ -17627,14 +17771,14 @@ export const GetAssignedAuditsDocument = {"kind":"Document","definitions":[{"kin
 export const GetEventUsersDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetEventUsers"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"eventId"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"offset"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"limit"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"orderBy"}},"type":{"kind":"ListType","type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"event_user_order_by"}}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"search"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"firstNameSearch"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"lastNameSearch"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","alias":{"kind":"Name","value":"childEvents"},"name":{"kind":"Name","value":"event"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"where"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"id"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"eventId"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"usersRelation"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"where"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"publicUser"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_or"},"value":{"kind":"ListValue","values":[{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"firstName"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_ilike"},"value":{"kind":"Variable","name":{"kind":"Name","value":"search"}}}]}}]},{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"lastName"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_ilike"},"value":{"kind":"Variable","name":{"kind":"Name","value":"search"}}}]}}]},{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"login"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_ilike"},"value":{"kind":"Variable","name":{"kind":"Name","value":"search"}}}]}}]},{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_and"},"value":{"kind":"ListValue","values":[{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"firstName"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_ilike"},"value":{"kind":"Variable","name":{"kind":"Name","value":"firstNameSearch"}}}]}}]},{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"lastName"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_ilike"},"value":{"kind":"Variable","name":{"kind":"Name","value":"lastNameSearch"}}}]}}]}]}}]},{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_and"},"value":{"kind":"ListValue","values":[{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"firstName"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_ilike"},"value":{"kind":"Variable","name":{"kind":"Name","value":"lastNameSearch"}}}]}}]},{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"lastName"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_ilike"},"value":{"kind":"Variable","name":{"kind":"Name","value":"firstNameSearch"}}}]}}]}]}}]}]}}]}}]}},{"kind":"Argument","name":{"kind":"Name","value":"order_by"},"value":{"kind":"Variable","name":{"kind":"Name","value":"orderBy"}}},{"kind":"Argument","name":{"kind":"Name","value":"offset"},"value":{"kind":"Variable","name":{"kind":"Name","value":"offset"}}},{"kind":"Argument","name":{"kind":"Name","value":"limit"},"value":{"kind":"Variable","name":{"kind":"Name","value":"limit"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"publicUser"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"PublicUserFields"}}]}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"userAuditRatio"}},{"kind":"Field","name":{"kind":"Name","value":"userId"}},{"kind":"Field","name":{"kind":"Name","value":"level"}}]}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"PublicUserFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"user_public_view"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"login"}},{"kind":"Field","name":{"kind":"Name","value":"avatarUrl"}},{"kind":"Field","name":{"kind":"Name","value":"firstName"}},{"kind":"Field","name":{"kind":"Name","value":"lastName"}},{"kind":"Field","name":{"kind":"Name","value":"canBeAuditor"}},{"kind":"Field","name":{"kind":"Name","value":"canAccessPlatform"}},{"kind":"Field","name":{"kind":"Name","value":"campus"}},{"kind":"Field","name":{"kind":"Name","value":"githubId"}}]}}]} as unknown as DocumentNode<GetEventUsersQuery, GetEventUsersQueryVariables>;
 export const GetObjectChildrenDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetObjectChildren"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"objectId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"object_by_pk"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"objectId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"childrenRelation"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"order_by"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"index"},"value":{"kind":"EnumValue","value":"asc"}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"index"}},{"kind":"Field","name":{"kind":"Name","value":"child"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"ObjectOverview"}}]}}]}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"ObjectOverview"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"object"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"campus"}},{"kind":"Field","name":{"kind":"Name","value":"paths"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"path"}}]}},{"kind":"Field","alias":{"kind":"Name","value":"language"},"name":{"kind":"Name","value":"attrs"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"path"},"value":{"kind":"StringValue","value":"language","block":false}}]},{"kind":"Field","name":{"kind":"Name","value":"groups_aggregate"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"aggregate"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"count"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"events_aggregate"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"aggregate"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"count"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"groups_aggregate"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"aggregate"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"count"}}]}}]}}]}}]} as unknown as DocumentNode<GetObjectChildrenQuery, GetObjectChildrenQueryVariables>;
 export const GetObjectEventsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetObjectEvents"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"objectId"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"object"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"where"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"id"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"objectId"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"events"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"startAt"}},{"kind":"Field","name":{"kind":"Name","value":"endAt"}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"campus"}},{"kind":"Field","name":{"kind":"Name","value":"registrations_aggregate"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"aggregate"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"count"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"users_aggregate"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"aggregate"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"count"}}]}}]}}]}}]}}]}}]} as unknown as DocumentNode<GetObjectEventsQuery, GetObjectEventsQueryVariables>;
-export const GetObjectGroupsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetObjectGroups"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"objectId"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"object"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"where"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"id"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"objectId"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"groups"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"Group"}}]}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"Group"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"group"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"captain"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"login"}}]}},{"kind":"Field","name":{"kind":"Name","value":"members"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"where"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"accepted"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_eq"},"value":{"kind":"BooleanValue","value":true}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"user"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"login"}},{"kind":"Field","name":{"kind":"Name","value":"avatarUrl"}},{"kind":"Field","name":{"kind":"Name","value":"canAccessPlatform"}}]}}]}}]}}]} as unknown as DocumentNode<GetObjectGroupsQuery, GetObjectGroupsQueryVariables>;
+export const GetObjectGroupsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetObjectGroups"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"objectId"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"object"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"where"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"id"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"objectId"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"groups"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"Group"}}]}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"Audit"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"audit"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"grade"}},{"kind":"Field","name":{"kind":"Name","value":"closureType"}},{"kind":"Field","name":{"kind":"Name","value":"closureMessage"}},{"kind":"Field","name":{"kind":"Name","value":"attrs"}},{"kind":"Field","name":{"kind":"Name","value":"auditor"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"login"}},{"kind":"Field","name":{"kind":"Name","value":"avatarUrl"}},{"kind":"Field","name":{"kind":"Name","value":"canAccessPlatform"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"Group"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"group"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"captain"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"login"}}]}},{"kind":"Field","name":{"kind":"Name","value":"members"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"where"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"accepted"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_eq"},"value":{"kind":"BooleanValue","value":true}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"user"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"login"}},{"kind":"Field","name":{"kind":"Name","value":"avatarUrl"}},{"kind":"Field","name":{"kind":"Name","value":"canAccessPlatform"}}]}}]}},{"kind":"Field","alias":{"kind":"Name","value":"invitations"},"name":{"kind":"Name","value":"members"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"where"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"accepted"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_eq"},"value":{"kind":"BooleanValue","value":false}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"user"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"login"}},{"kind":"Field","name":{"kind":"Name","value":"avatarUrl"}},{"kind":"Field","name":{"kind":"Name","value":"canAccessPlatform"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"auditors"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"where"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"resultId"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_is_null"},"value":{"kind":"BooleanValue","value":true}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"Audit"}}]}},{"kind":"Field","name":{"kind":"Name","value":"results"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"order_by"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"createdAt"},"value":{"kind":"EnumValue","value":"desc"}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"grade"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"audits"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"Audit"}}]}}]}}]}}]} as unknown as DocumentNode<GetObjectGroupsQuery, GetObjectGroupsQueryVariables>;
 export const GetObjectOverviewDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetObjectOverview"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"objectId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"relationId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","alias":{"kind":"Name","value":"overview"},"name":{"kind":"Name","value":"object_by_pk"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"objectId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"ObjectOverview"}}]}},{"kind":"Field","alias":{"kind":"Name","value":"siblings"},"name":{"kind":"Name","value":"object_child_by_pk"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"relationId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"index"}},{"kind":"Field","name":{"kind":"Name","value":"parent"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"childrenRelation"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"index"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"child"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}}]}}]}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"ObjectOverview"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"object"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"campus"}},{"kind":"Field","name":{"kind":"Name","value":"paths"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"path"}}]}},{"kind":"Field","alias":{"kind":"Name","value":"language"},"name":{"kind":"Name","value":"attrs"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"path"},"value":{"kind":"StringValue","value":"language","block":false}}]},{"kind":"Field","name":{"kind":"Name","value":"groups_aggregate"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"aggregate"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"count"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"events_aggregate"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"aggregate"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"count"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"groups_aggregate"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"aggregate"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"count"}}]}}]}}]}}]} as unknown as DocumentNode<GetObjectOverviewQuery, GetObjectOverviewQueryVariables>;
 export const GetPendingUserGroupsByIdDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetPendingUserGroupsById"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"userId"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"offset"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"limit"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"group_user"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"where"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"userId"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"userId"}}}]}},{"kind":"ObjectField","name":{"kind":"Name","value":"accepted"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_is_null"},"value":{"kind":"BooleanValue","value":true}}]}}]}},{"kind":"Argument","name":{"kind":"Name","value":"offset"},"value":{"kind":"Variable","name":{"kind":"Name","value":"offset"}}},{"kind":"Argument","name":{"kind":"Name","value":"limit"},"value":{"kind":"Variable","name":{"kind":"Name","value":"limit"}}},{"kind":"Argument","name":{"kind":"Name","value":"order_by"},"value":{"kind":"ListValue","values":[{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"group"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"updatedAt"},"value":{"kind":"EnumValue","value":"desc"}}]}}]},{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"id"},"value":{"kind":"EnumValue","value":"desc"}}]}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"UserGroupFields"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"PublicUserFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"user_public_view"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"login"}},{"kind":"Field","name":{"kind":"Name","value":"avatarUrl"}},{"kind":"Field","name":{"kind":"Name","value":"firstName"}},{"kind":"Field","name":{"kind":"Name","value":"lastName"}},{"kind":"Field","name":{"kind":"Name","value":"canBeAuditor"}},{"kind":"Field","name":{"kind":"Name","value":"canAccessPlatform"}},{"kind":"Field","name":{"kind":"Name","value":"campus"}},{"kind":"Field","name":{"kind":"Name","value":"githubId"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"UserGroupFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"group_user"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"userLogin"}},{"kind":"Field","name":{"kind":"Name","value":"userId"}},{"kind":"Field","name":{"kind":"Name","value":"groupId"}},{"kind":"Field","name":{"kind":"Name","value":"group"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"captainId"}},{"kind":"Field","name":{"kind":"Name","value":"captainLogin"}},{"kind":"Field","name":{"kind":"Name","value":"path"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"members"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"user"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"PublicUserFields"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"auditors"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"closedAt"}},{"kind":"Field","name":{"kind":"Name","value":"closureType"}},{"kind":"Field","name":{"kind":"Name","value":"auditor"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"PublicUserFields"}}]}}]}}]}}]}}]} as unknown as DocumentNode<GetPendingUserGroupsByIdQuery, GetPendingUserGroupsByIdQueryVariables>;
 export const GetPendingUserGroupsByLoginDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetPendingUserGroupsByLogin"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"userLogin"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"offset"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"limit"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"group_user"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"where"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"userLogin"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"userLogin"}}}]}},{"kind":"ObjectField","name":{"kind":"Name","value":"accepted"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_is_null"},"value":{"kind":"BooleanValue","value":true}}]}}]}},{"kind":"Argument","name":{"kind":"Name","value":"offset"},"value":{"kind":"Variable","name":{"kind":"Name","value":"offset"}}},{"kind":"Argument","name":{"kind":"Name","value":"limit"},"value":{"kind":"Variable","name":{"kind":"Name","value":"limit"}}},{"kind":"Argument","name":{"kind":"Name","value":"order_by"},"value":{"kind":"ListValue","values":[{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"group"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"updatedAt"},"value":{"kind":"EnumValue","value":"desc"}}]}}]},{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"id"},"value":{"kind":"EnumValue","value":"desc"}}]}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"UserGroupFields"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"PublicUserFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"user_public_view"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"login"}},{"kind":"Field","name":{"kind":"Name","value":"avatarUrl"}},{"kind":"Field","name":{"kind":"Name","value":"firstName"}},{"kind":"Field","name":{"kind":"Name","value":"lastName"}},{"kind":"Field","name":{"kind":"Name","value":"canBeAuditor"}},{"kind":"Field","name":{"kind":"Name","value":"canAccessPlatform"}},{"kind":"Field","name":{"kind":"Name","value":"campus"}},{"kind":"Field","name":{"kind":"Name","value":"githubId"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"UserGroupFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"group_user"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"userLogin"}},{"kind":"Field","name":{"kind":"Name","value":"userId"}},{"kind":"Field","name":{"kind":"Name","value":"groupId"}},{"kind":"Field","name":{"kind":"Name","value":"group"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"captainId"}},{"kind":"Field","name":{"kind":"Name","value":"captainLogin"}},{"kind":"Field","name":{"kind":"Name","value":"path"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"members"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"user"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"PublicUserFields"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"auditors"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"closedAt"}},{"kind":"Field","name":{"kind":"Name","value":"closureType"}},{"kind":"Field","name":{"kind":"Name","value":"auditor"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"PublicUserFields"}}]}}]}}]}}]}}]} as unknown as DocumentNode<GetPendingUserGroupsByLoginQuery, GetPendingUserGroupsByLoginQueryVariables>;
 export const GetRootObjectsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetRootObjects"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","alias":{"kind":"Name","value":"rootEvents"},"name":{"kind":"Name","value":"event"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"where"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"parentId"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_is_null"},"value":{"kind":"BooleanValue","value":true}}]}}]}},{"kind":"Argument","name":{"kind":"Name","value":"distinct_on"},"value":{"kind":"EnumValue","value":"objectId"}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"object"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"ObjectOverview"}}]}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"ObjectOverview"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"object"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"campus"}},{"kind":"Field","name":{"kind":"Name","value":"paths"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"path"}}]}},{"kind":"Field","alias":{"kind":"Name","value":"language"},"name":{"kind":"Name","value":"attrs"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"path"},"value":{"kind":"StringValue","value":"language","block":false}}]},{"kind":"Field","name":{"kind":"Name","value":"groups_aggregate"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"aggregate"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"count"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"events_aggregate"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"aggregate"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"count"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"groups_aggregate"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"aggregate"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"count"}}]}}]}}]}}]} as unknown as DocumentNode<GetRootObjectsQuery, GetRootObjectsQueryVariables>;
 export const GetUserByIdDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetUserById"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"userId"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"user_public_view"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"where"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"id"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"userId"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"PublicUserFields"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"PublicUserFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"user_public_view"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"login"}},{"kind":"Field","name":{"kind":"Name","value":"avatarUrl"}},{"kind":"Field","name":{"kind":"Name","value":"firstName"}},{"kind":"Field","name":{"kind":"Name","value":"lastName"}},{"kind":"Field","name":{"kind":"Name","value":"canBeAuditor"}},{"kind":"Field","name":{"kind":"Name","value":"canAccessPlatform"}},{"kind":"Field","name":{"kind":"Name","value":"campus"}},{"kind":"Field","name":{"kind":"Name","value":"githubId"}}]}}]} as unknown as DocumentNode<GetUserByIdQuery, GetUserByIdQueryVariables>;
 export const GetUserByLoginDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetUserByLogin"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"userLogin"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"user_public_view"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"where"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"login"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"userLogin"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"PublicUserFields"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"PublicUserFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"user_public_view"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"login"}},{"kind":"Field","name":{"kind":"Name","value":"avatarUrl"}},{"kind":"Field","name":{"kind":"Name","value":"firstName"}},{"kind":"Field","name":{"kind":"Name","value":"lastName"}},{"kind":"Field","name":{"kind":"Name","value":"canBeAuditor"}},{"kind":"Field","name":{"kind":"Name","value":"canAccessPlatform"}},{"kind":"Field","name":{"kind":"Name","value":"campus"}},{"kind":"Field","name":{"kind":"Name","value":"githubId"}}]}}]} as unknown as DocumentNode<GetUserByLoginQuery, GetUserByLoginQueryVariables>;
-export const GetUserGroupsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetUserGroups"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"userLogin"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"group"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"where"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"members"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"userLogin"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"userLogin"}}}]}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"object"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"Group"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"Group"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"group"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"captain"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"login"}}]}},{"kind":"Field","name":{"kind":"Name","value":"members"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"where"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"accepted"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_eq"},"value":{"kind":"BooleanValue","value":true}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"user"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"login"}},{"kind":"Field","name":{"kind":"Name","value":"avatarUrl"}},{"kind":"Field","name":{"kind":"Name","value":"canAccessPlatform"}}]}}]}}]}}]} as unknown as DocumentNode<GetUserGroupsQuery, GetUserGroupsQueryVariables>;
+export const GetUserGroupsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetUserGroups"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"userLogin"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"group"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"where"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"members"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"userLogin"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"userLogin"}}}]}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"object"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"Group"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"Audit"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"audit"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"grade"}},{"kind":"Field","name":{"kind":"Name","value":"closureType"}},{"kind":"Field","name":{"kind":"Name","value":"closureMessage"}},{"kind":"Field","name":{"kind":"Name","value":"attrs"}},{"kind":"Field","name":{"kind":"Name","value":"auditor"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"login"}},{"kind":"Field","name":{"kind":"Name","value":"avatarUrl"}},{"kind":"Field","name":{"kind":"Name","value":"canAccessPlatform"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"Group"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"group"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"captain"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"login"}}]}},{"kind":"Field","name":{"kind":"Name","value":"members"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"where"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"accepted"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_eq"},"value":{"kind":"BooleanValue","value":true}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"user"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"login"}},{"kind":"Field","name":{"kind":"Name","value":"avatarUrl"}},{"kind":"Field","name":{"kind":"Name","value":"canAccessPlatform"}}]}}]}},{"kind":"Field","alias":{"kind":"Name","value":"invitations"},"name":{"kind":"Name","value":"members"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"where"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"accepted"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_eq"},"value":{"kind":"BooleanValue","value":false}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"user"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"login"}},{"kind":"Field","name":{"kind":"Name","value":"avatarUrl"}},{"kind":"Field","name":{"kind":"Name","value":"canAccessPlatform"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"auditors"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"where"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"resultId"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_is_null"},"value":{"kind":"BooleanValue","value":true}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"Audit"}}]}},{"kind":"Field","name":{"kind":"Name","value":"results"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"order_by"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"createdAt"},"value":{"kind":"EnumValue","value":"desc"}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"grade"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"audits"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"Audit"}}]}}]}}]}}]} as unknown as DocumentNode<GetUserGroupsQuery, GetUserGroupsQueryVariables>;
 export const GetUserGroupsByIdDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetUserGroupsById"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"userId"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"offset"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"limit"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"accepted"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Boolean"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"group_user"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"where"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"userId"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"userId"}}}]}},{"kind":"ObjectField","name":{"kind":"Name","value":"accepted"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"accepted"}}}]}}]}},{"kind":"Argument","name":{"kind":"Name","value":"offset"},"value":{"kind":"Variable","name":{"kind":"Name","value":"offset"}}},{"kind":"Argument","name":{"kind":"Name","value":"limit"},"value":{"kind":"Variable","name":{"kind":"Name","value":"limit"}}},{"kind":"Argument","name":{"kind":"Name","value":"order_by"},"value":{"kind":"ListValue","values":[{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"group"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"updatedAt"},"value":{"kind":"EnumValue","value":"desc"}}]}}]},{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"id"},"value":{"kind":"EnumValue","value":"desc"}}]}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"UserGroupFields"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"PublicUserFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"user_public_view"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"login"}},{"kind":"Field","name":{"kind":"Name","value":"avatarUrl"}},{"kind":"Field","name":{"kind":"Name","value":"firstName"}},{"kind":"Field","name":{"kind":"Name","value":"lastName"}},{"kind":"Field","name":{"kind":"Name","value":"canBeAuditor"}},{"kind":"Field","name":{"kind":"Name","value":"canAccessPlatform"}},{"kind":"Field","name":{"kind":"Name","value":"campus"}},{"kind":"Field","name":{"kind":"Name","value":"githubId"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"UserGroupFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"group_user"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"userLogin"}},{"kind":"Field","name":{"kind":"Name","value":"userId"}},{"kind":"Field","name":{"kind":"Name","value":"groupId"}},{"kind":"Field","name":{"kind":"Name","value":"group"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"captainId"}},{"kind":"Field","name":{"kind":"Name","value":"captainLogin"}},{"kind":"Field","name":{"kind":"Name","value":"path"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"members"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"user"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"PublicUserFields"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"auditors"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"closedAt"}},{"kind":"Field","name":{"kind":"Name","value":"closureType"}},{"kind":"Field","name":{"kind":"Name","value":"auditor"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"PublicUserFields"}}]}}]}}]}}]}}]} as unknown as DocumentNode<GetUserGroupsByIdQuery, GetUserGroupsByIdQueryVariables>;
 export const GetUserGroupsByLoginDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetUserGroupsByLogin"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"userLogin"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"offset"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"limit"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"accepted"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Boolean"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"group_user"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"where"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"userLogin"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"userLogin"}}}]}},{"kind":"ObjectField","name":{"kind":"Name","value":"accepted"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"accepted"}}}]}}]}},{"kind":"Argument","name":{"kind":"Name","value":"offset"},"value":{"kind":"Variable","name":{"kind":"Name","value":"offset"}}},{"kind":"Argument","name":{"kind":"Name","value":"limit"},"value":{"kind":"Variable","name":{"kind":"Name","value":"limit"}}},{"kind":"Argument","name":{"kind":"Name","value":"order_by"},"value":{"kind":"ListValue","values":[{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"group"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"updatedAt"},"value":{"kind":"EnumValue","value":"desc"}}]}}]},{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"id"},"value":{"kind":"EnumValue","value":"desc"}}]}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"UserGroupFields"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"PublicUserFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"user_public_view"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"login"}},{"kind":"Field","name":{"kind":"Name","value":"avatarUrl"}},{"kind":"Field","name":{"kind":"Name","value":"firstName"}},{"kind":"Field","name":{"kind":"Name","value":"lastName"}},{"kind":"Field","name":{"kind":"Name","value":"canBeAuditor"}},{"kind":"Field","name":{"kind":"Name","value":"canAccessPlatform"}},{"kind":"Field","name":{"kind":"Name","value":"campus"}},{"kind":"Field","name":{"kind":"Name","value":"githubId"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"UserGroupFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"group_user"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"userLogin"}},{"kind":"Field","name":{"kind":"Name","value":"userId"}},{"kind":"Field","name":{"kind":"Name","value":"groupId"}},{"kind":"Field","name":{"kind":"Name","value":"group"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"captainId"}},{"kind":"Field","name":{"kind":"Name","value":"captainLogin"}},{"kind":"Field","name":{"kind":"Name","value":"path"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"members"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"user"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"PublicUserFields"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"auditors"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"closedAt"}},{"kind":"Field","name":{"kind":"Name","value":"closureType"}},{"kind":"Field","name":{"kind":"Name","value":"auditor"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"PublicUserFields"}}]}}]}}]}}]}}]} as unknown as DocumentNode<GetUserGroupsByLoginQuery, GetUserGroupsByLoginQueryVariables>;
 export const GetUserProfileDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetUserProfile"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"userId"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","alias":{"kind":"Name","value":"profile"},"name":{"kind":"Name","value":"user_public_view"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"where"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"id"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"userId"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"avatarUrl"}},{"kind":"Field","name":{"kind":"Name","value":"login"}}]}}]}}]} as unknown as DocumentNode<GetUserProfileQuery, GetUserProfileQueryVariables>;

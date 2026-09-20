@@ -6,6 +6,7 @@
 	type Props = {
 		active?: TabKey;
 		hidden?: Partial<Record<TabKey, boolean>>;
+		navMinWidth?: number;
 	};
 
 	const Prefix = 'Nav';
@@ -23,7 +24,7 @@
 	const props: Props & SnippetProps = $props();
 	const isTabKey = (k: string): k is TabKey =>
 		props[k] !== undefined && props[`${Prefix}${k}`] !== undefined;
-	const { active, hidden } = $derived(props);
+	const { active, hidden, navMinWidth = 200 } = $derived(props);
 	const navSnippets: NavSnippets = $derived(props);
 	const tabSnippets: TabSnippets = $derived(props);
 
@@ -33,7 +34,7 @@
 </script>
 
 <nav>
-	<FlexContainer minWidth={200} gap="5px">
+	<FlexContainer minWidth={navMinWidth} gap="5px">
 		{#snippet children(Flex)}
 			{#each tabKeys as key (key)}
 				{@const active = activeNav === key}
