@@ -105,7 +105,7 @@
 	{/if}
 	<Suspend data={getUserGroups()}>
 		{#snippet children(groups)}
-			<List items={groups}>
+			<List items={groups} minWidth={500}>
 				{#snippet Item(group)}
 					<GroupCard {group} title={group.object?.name ?? '-'} />
 				{/snippet}

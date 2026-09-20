@@ -1,3 +1,16 @@
+fragment Audit on audit {
+	grade
+	closureType
+	closureMessage
+	attrs
+	auditor {
+		id
+		login
+		avatarUrl
+		canAccessPlatform
+	}
+}
+
 fragment Group on group {
 	id
 	status
@@ -11,6 +24,25 @@ fragment Group on group {
 			login
 			avatarUrl
 			canAccessPlatform
+		}
+	}
+	invitations: members(where: { accepted: { _eq: false } }) {
+		user {
+			id
+			login
+			avatarUrl
+			canAccessPlatform
+		}
+	}
+	auditors(where: { resultId: { _is_null: true } }) {
+		...Audit
+	}
+	results(order_by: { createdAt: desc }) {
+		grade
+		id
+		createdAt
+		audits {
+			...Audit
 		}
 	}
 }

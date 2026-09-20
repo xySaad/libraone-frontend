@@ -13,9 +13,10 @@
 	interface Props {
 		items: T[];
 		Item: Snippet<[T]>;
+		minWidth?: number;
 	}
 
-	const { items, Item }: Props = $props();
+	const { items, Item, minWidth = 300 }: Props = $props();
 
 	let searchQuery = $state('');
 	let filterValue = $state('all');
@@ -67,7 +68,7 @@
 			<Divider>
 				<Badge>{filtredItems.length} result</Badge>
 			</Divider>
-			<FlexContainer minWidth={300} gap="16px" justifyContent="center">
+			<FlexContainer {minWidth} gap="16px" justifyContent="center">
 				{#snippet children(Flex)}
 					{#each filtredItems as item (item.value.id)}
 						<Flex>
