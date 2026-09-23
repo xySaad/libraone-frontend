@@ -48,7 +48,9 @@
 		<section class="search-filter" use:ctrlAltF>
 			{#if filterOptions.length > 1}
 				{@const options = filterOptions.map((o) => ({ value: o, text: o }))}
-				<Select bind:value={filterValue} options={[{ text: 'all', value: 'all' }, ...options]} />
+				<div class="select">
+					<Select bind:value={filterValue} options={[{ text: 'all', value: 'all' }, ...options]} />
+				</div>
 			{/if}
 			<div class="input">
 				<Input
@@ -94,7 +96,9 @@
 			justify-content: center;
 			gap: 10px;
 			width: 100%;
-
+			.select {
+				max-width: 30%;
+			}
 			.input {
 				width: clamp(280px, 80%, 600px);
 			}

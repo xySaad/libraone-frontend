@@ -19,6 +19,7 @@
 
 <style>
 	select {
+		max-width: 100%;
 		background: var(--primary);
 		border-radius: 8px;
 	}
