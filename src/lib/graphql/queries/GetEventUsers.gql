@@ -1,46 +1,7 @@
-query GetEventUsers(
-	$eventId: Int
-	$offset: Int
-	$limit: Int
-	$orderBy: [event_user_order_by!]
-	$search: String
-	$firstNameSearch: String
-	$lastNameSearch: String
-) {
-	childEvents: event(where: { id: { _eq: $eventId } }) {
-		usersRelation(
-			where: {
-				publicUser: {
-					_or: [
-						{ firstName: { _ilike: $search } }
-						{ lastName: { _ilike: $search } }
-						{ login: { _ilike: $search } }
-						{
-							_and: [
-								{ firstName: { _ilike: $firstNameSearch } }
-								{ lastName: { _ilike: $lastNameSearch } }
-							]
-						}
-						{
-							_and: [
-								{ firstName: { _ilike: $lastNameSearch } }
-								{ lastName: { _ilike: $firstNameSearch } }
-							]
-						}
-					]
-				}
-			}
-			order_by: $orderBy
-			offset: $offset
-			limit: $limit
-		) {
-			publicUser {
-				...PublicUserFields
-			}
-			createdAt
-			userAuditRatio
-			userId
-			level
+query GetEventUsers($id: Int!) {
+	event_by_pk(id: $id) {
+		usersRelation(order_by: { level: desc }) {
+			...EventUserRel
 		}
 	}
 }

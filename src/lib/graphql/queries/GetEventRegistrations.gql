@@ -1,0 +1,8 @@
+query GetEventRgistrations($id: Int!) {
+	event_by_pk(id: $id) {
+		id
+		registrations(order_by: { startAt: desc }) {
+			...RegistrationOverview
+		}
+	}
+}

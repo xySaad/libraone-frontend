@@ -1,0 +1,5 @@
+query GetEventOverview($id: Int!) {
+	event_by_pk(id: $id) {
+		...EventOverview
+	}
+}

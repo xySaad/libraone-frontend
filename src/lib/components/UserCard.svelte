@@ -1,14 +1,15 @@
 <script lang="ts">
 	import Block from '$lib/assets/svg/block.svelte';
+	import type { EventUserRelFragment } from '$lib/graphql/generated';
 	import { onlineUsers } from '$lib/stores/onlineUsers.svelte';
-	import type { EventPublicUser, EventUserRel } from '$lib/types/events';
+	import type { EventPublicUser } from '$lib/types/events';
 	import UserAvatar from './image/UserAvatar.svelte';
 	import Badge from './ui/Badge.svelte';
 	import Card from './ui/Card.svelte';
 
 	interface Props {
 		user: EventPublicUser;
-		eventUserRel?: EventUserRel;
+		eventUserRel?: EventUserRelFragment;
 	}
 	let { user, eventUserRel }: Props = $props();
 	const level = $derived(eventUserRel?.level);

@@ -1,0 +1,17 @@
+fragment EventOverview on event {
+	id
+	startAt
+	endAt
+	description
+	campus
+	registrations_aggregate {
+		aggregate {
+			count
+		}
+	}
+	users_aggregate {
+		aggregate {
+			count
+		}
+	}
+}

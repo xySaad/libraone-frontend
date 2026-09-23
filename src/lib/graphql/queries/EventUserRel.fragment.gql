@@ -1,0 +1,8 @@
+fragment EventUserRel on event_user {
+	id
+	level
+	userAuditRatio
+	publicUser {
+		...PublicUserFields
+	}
+}

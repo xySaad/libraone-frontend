@@ -4,6 +4,7 @@
 	import Login from '$lib/assets/svg/login.svelte';
 	import Card from '$lib/components/ui/Card.svelte';
 	import type { GetObjectEventsQuery } from '$lib/graphql/generated';
+	import CardDescription from '../Card/CardDescription.svelte';
 	import CardStates from '../Card/CardStates.svelte';
 	import type { StatesRow } from '../Card/types';
 	import Divider from '../shared/Divider.svelte';
@@ -41,7 +42,7 @@
 
 		{#if event.description}
 			<Divider />
-			<p class="description">{event.description}</p>
+			<CardDescription>{event.description}</CardDescription>
 		{/if}
 
 		<Divider />
@@ -57,19 +58,6 @@
 		&:hover {
 			border-radius: var(--card-radius);
 			background: var(--primary);
-		}
-
-		.description {
-			font-size: var(--subtitle-font-size);
-			line-height: 1.65;
-			color: var(--text-muted);
-			display: -webkit-box;
-			-webkit-line-clamp: 2;
-			line-clamp: 2;
-			-webkit-box-orient: vertical;
-			overflow: hidden;
-			text-overflow: ellipsis;
-			margin: 0;
 		}
 	}
 </style>

@@ -1,0 +1,9 @@
+query GetRegistrationUsers($id: Int!) {
+	registration_by_pk(id: $id) {
+		users {
+			id
+			registeredAt
+			position
+		}
+	}
+}

@@ -1,0 +1,18 @@
+fragment RegistrationOverview on registration {
+	id
+	startAt
+	endAt
+	capacity
+	labelName
+	label {
+		id
+		name
+		description
+	}
+	campus
+	users_aggregate {
+		aggregate {
+			count
+		}
+	}
+}
