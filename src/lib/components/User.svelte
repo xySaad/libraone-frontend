@@ -3,12 +3,14 @@
 	import { resolve } from '$app/paths';
 	import { Client } from '$lib/graphql/client';
 	import { GetUserProfileDocument } from '$lib/graphql/generated';
-	import { profileUserState } from '$lib/stores/user.svelte';
+	import { preferences } from '$lib/stores/prefenreces.svelte';
+	import { intraCreds, profileUserState } from '$lib/stores/user.svelte';
 	import UserAvatar from './image/UserAvatar.svelte';
 	import Spinner from './ui/Spinner.svelte';
 
 	const getUserProfile = async (userId: number) => {
 		const user = await Client.request(GetUserProfileDocument, { userId });
+		if (preferences.intraAutoLogin && $intraCreds === null) goto(resolve('/accounts/intra'));
 		return user.profile[0];
 	};
 </script>

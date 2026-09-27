@@ -10,8 +10,10 @@
 	import ActionButton from '$lib/components/ui/ActionButton.svelte';
 	import Badge from '$lib/components/ui/Badge.svelte';
 	import Card from '$lib/components/ui/Card.svelte';
+	import Toggle from '$lib/components/ui/Toggle.svelte';
 	import { Client } from '$lib/graphql/client';
 	import { GetUserByIdDocument } from '$lib/graphql/generated';
+	import { preferences } from '$lib/stores/prefenreces.svelte';
 	import { intraCreds, profileUserState } from '$lib/stores/user.svelte';
 
 	const getJWTSub = (token: string): number => Number(JSON.parse(atob(token.split('.')[1])).sub);
@@ -91,6 +93,10 @@
 				<LoginAnchor type="intra" subtitle="Login via Intra password">
 					<Code fill="var(--intra-accent)" />
 				</LoginAnchor>
+				<Toggle
+					bind:checked={preferences.intraAutoLogin}
+					data-tooltip="Automatically login on refresh">Auto Login</Toggle
+				>
 			{/if}
 		</Card>
 	</div>
