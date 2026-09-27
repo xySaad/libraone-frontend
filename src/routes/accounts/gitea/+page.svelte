@@ -9,34 +9,26 @@
 	import Form from '$lib/components/ui/Form.svelte';
 	import Spinner from '$lib/components/ui/Spinner.svelte';
 	import { profileUserState } from '$lib/stores/user.svelte';
-	import { onMount } from 'svelte';
 
 	const close = page.url.searchParams.get('close');
 	const from = page.url.searchParams.get('from');
 
 	const CLOSE_MESSAGE = 'close-gitea-oauth-window';
+	const closeHandler = (oauthWindow: Window) => async (event: MessageEvent) => {
+		if (event.origin !== window.origin) return;
+		if (event.data === CLOSE_MESSAGE) oauthWindow.close();
+		$profileUserState = await api.LIBRAONE.candidate();
+		goto(from ?? '/', { replaceState: true });
+	};
 
-	onMount(() => {
-		if (Boolean(close) === true) {
-			window.opener.postMessage(CLOSE_MESSAGE, { targetOrigin: window.origin });
-			return;
-		}
+	const mount = () => {
+		const oauthWindow = window.open('https://libraone.undo.it/api/v2/oauth/gitea', '_blank');
+		if (oauthWindow) addEventListener('message', closeHandler(oauthWindow));
+	};
 
-		const oauthWindow = window.open(
-			'https://libraone.undo.it/api/v2/oauth/gitea',
-			'_blank',
-			'popup,width=600,height=700'
-		);
-		if (!oauthWindow) return;
-		const closeHandler = async (event: MessageEvent) => {
-			if (event.origin !== window.origin) return;
-			if (event.data === CLOSE_MESSAGE) oauthWindow.close();
-			$profileUserState = await api.LIBRAONE.candidate();
-			goto(from ?? '/', { replaceState: true });
-		};
-		addEventListener('message', closeHandler);
-		return oauthWindow.close;
-	});
+	if (Boolean(close) === true)
+		window.opener.postMessage(CLOSE_MESSAGE, { targetOrigin: window.origin });
+	else mount();
 </script>
 
 <article>
