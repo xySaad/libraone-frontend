@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import Code from '$lib/assets/svg/code.svelte';
 	import Icon from '$lib/components/shared/Icon.svelte';
@@ -18,7 +19,7 @@
 			const { type, data } = event.data;
 			if (type === 'token') {
 				intraCreds.set(data);
-				goto('/');
+				goto(resolve('/'));
 			}
 		});
 		if (window.opener) window.opener.postMessage({ type: 'ready' }, senderOrigin);

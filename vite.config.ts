@@ -1,5 +1,4 @@
 /// <reference types="vitest/config" />
-import { paraglideVitePlugin } from '@inlang/paraglide-js';
 import tailwindcss from '@tailwindcss/vite';
 import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig } from 'vite';
@@ -15,14 +14,7 @@ export default defineConfig({
 	server: {
 		allowedHosts: ['libraone.undo.it']
 	},
-	plugins: [
-		tailwindcss(),
-		sveltekit(),
-		paraglideVitePlugin({
-			project: './project.inlang',
-			outdir: './src/lib/paraglide'
-		})
-	],
+	plugins: [tailwindcss(), sveltekit()],
 	test: {
 		projects: [
 			{

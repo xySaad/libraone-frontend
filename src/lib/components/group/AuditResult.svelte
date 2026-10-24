@@ -35,12 +35,12 @@
 		<div class="closure" data-tooltip="{closureType} ({grade})">
 			{#if closureType === 'failed'}
 				<GppBad
-					fill={'var(--error)'}
+					fill="var(--error)"
 					style="cursor: pointer:"
 					onclick={() => (showFeedback = !showFeedback)}
 				/>
 			{:else if closureType === 'succeeded'}
-				<DoneOutline fill={'var(--success)'} />
+				<DoneOutline fill="var(--success)" />
 				<!-- TODO: handle other closure types -->
 			{/if}
 		</div>

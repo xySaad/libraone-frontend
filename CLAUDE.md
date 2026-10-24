@@ -2,7 +2,7 @@
 
 - **Language**: TypeScript
 - **Package Manager**: npm
-- **Add-ons**: prettier, eslint, mcp, storybook, tailwindcss, paraglide, sveltekit-adapter
+- **Add-ons**: prettier, eslint, mcp, storybook, tailwindcss, sveltekit-adapter
 
 ---
 

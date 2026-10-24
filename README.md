@@ -11,8 +11,11 @@ For live schema code generation run:
 ```sh
 $ npx graphql-codegen --watch
 ```
+
 ## Libraone API
+
 This application uses an API that can be found at [libraone-backend](https://github.com/xySaad/libraone-backend)
+
 ## Svelte
 
 ### Developing

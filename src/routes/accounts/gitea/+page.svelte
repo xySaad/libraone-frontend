@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import api from '$lib/api';
 	import Gitea from '$lib/assets/svg/gitea.svelte';
@@ -18,7 +19,9 @@
 		if (event.origin !== window.origin) return;
 		if (event.data === CLOSE_MESSAGE) oauthWindow.close();
 		$profileUserState = await api.LIBRAONE.candidate();
-		goto(from ?? '/', { replaceState: true });
+		// eslint-disable-next-line svelte/no-navigation-without-resolve
+		if (from) goto(from, { replaceState: true });
+		else goto(resolve('/'), { replaceState: true });
 	};
 
 	const mount = () => {

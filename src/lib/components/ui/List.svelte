@@ -1,5 +1,4 @@
 <script lang="ts" generics="T extends {id: unknown}">
-	import { ctrlAltF } from '$lib/actions/shortcuts';
 	import FlexContainer from '$lib/components/ui/Flex/FlexContainer.svelte';
 	import type { ResultItem, SearchResult } from '$lib/workers/search.worker';
 	import SearchWorker from '$lib/workers/search.worker.ts?worker';
@@ -45,7 +44,7 @@
 			<Wordmark>Search</Wordmark>
 		</Divider>
 
-		<section class="search-filter" use:ctrlAltF>
+		<section class="search-filter">
 			{#if filterOptions.length > 1}
 				{@const options = filterOptions.map((o) => ({ value: o, text: o }))}
 				<div class="select">
@@ -53,13 +52,7 @@
 				</div>
 			{/if}
 			<div class="input">
-				<Input
-					// use:ctrlAltF
-					name="search"
-					type="text"
-					placeholder="srm, go-reloaded"
-					bind:value={searchQuery}
-				/>
+				<Input name="search" type="text" placeholder="srm, go-reloaded" bind:value={searchQuery} />
 			</div>
 		</section>
 	{/if}
