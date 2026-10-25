@@ -16,12 +16,16 @@
 <ActionButton onclick={copy}>
 	<span>
 		<Copy />
-		Copy {label}
+		{#if label}
+			Copy {label}
+		{/if}
 	</span>
 	{#snippet success()}
 		<span>
 			<CheckMark />
-			{label} Copied
+			{#if label}
+				{label.charAt(0).toUpperCase() + label.substring(1)} copied
+			{/if}
 		</span>
 	{/snippet}
 </ActionButton>

@@ -1,4 +1,4 @@
-<script lang="ts">
+<script module lang="ts">
 	import Crown from '$lib/assets/svg/crown.svelte';
 	import DoneOutline from '$lib/assets/svg/done_outline.svelte';
 	import GroupsIcon from '$lib/assets/svg/groups.svelte';
@@ -8,12 +8,24 @@
 	import UserAvatar from '$lib/components/image/UserAvatar.svelte';
 	import Divider from '$lib/components/shared/Divider.svelte';
 	import Card from '$lib/components/ui/Card.svelte';
-	import { Group_Status_Enum, type GetObjectGroupsQuery } from '$lib/graphql/generated';
+	import CopyButton from '$lib/components/CopyButton.svelte';
+	import {
+		Group_Status_Enum,
+		type AuditFragment,
+		type GroupFragment
+	} from '$lib/graphql/generated';
 	import { formatDate } from '$lib/utils/time';
 	import CardHeader from '../Card/CardHeader.svelte';
 	import Badge from '../ui/Badge.svelte';
 	import TabsContainer from '../ui/Tabs/TabsContainer.svelte';
 	import AuditResult from './AuditResult.svelte';
+	import ArrowRight from '$lib/assets/svg/arrow-right.svelte';
+
+	interface Props {
+		group: GroupFragment;
+		title?: string;
+	}
+
 	const statusIconMap = {
 		[Group_Status_Enum.Setup]: Hail,
 		[Group_Status_Enum.Working]: IncompleteCircle,
@@ -21,15 +33,50 @@
 		[Group_Status_Enum.Finished]: DoneOutline
 	};
 
-	interface Props {
-		group: GetObjectGroupsQuery['object'][number]['groups'][number];
-		title?: string;
-	}
+	type GroupedAuditors = {
+		createdAt: string;
+		endDate: string;
+		audits: AuditFragment[];
+	};
+	const groupAuditsByDate = (audits: AuditFragment[]) => {
+		return audits.reduce<Record<string, GroupedAuditors>>((acc, audit) => {
+			const key = `${audit.createdAt}${audit.endAt}`;
+			if (!acc[key]) {
+				acc[key] = {
+					createdAt: audit.createdAt,
+					endDate: audit.endAt,
+					audits: []
+				};
+			}
 
+			acc[key].audits.push(audit);
+			return acc;
+		}, {});
+	};
+
+	const buildAuditCopyText = (
+		projectName: string,
+		members: GroupFragment['members'],
+		audits: AuditFragment[]
+	) => {
+		const membersMention = members.map((m) => `@${m.user?.login}`).join(' ');
+		const auditorList = audits.map((a) => `- @${a.auditor?.login}`).join('\n');
+		const date = new Date().toLocaleTimeString();
+		return [
+			`Project: ${projectName}`,
+			`Team Members: ${membersMention}`,
+			`Available between: ${date} - ${date}`,
+			`Auditors:`,
+			``,
+			auditorList
+		].join('\n');
+	};
+</script>
+
+<script lang="ts">
 	const { group, title: groupTitle = '-' }: Props = $props();
-
 	const StatusIcon = $derived(statusIconMap[group.status]);
-	const memberLabel = $derived(group.members.length === 1 ? 'member' : 'members');
+	const { id, object, members, auditors } = $derived(group);
 </script>
 
 <Card padding="sm">
@@ -40,8 +87,8 @@
 			{/snippet}
 			{#snippet title()}
 				<div class="title">
-					<div class="text">{groupTitle} #{group.id}</div>
-					<Badge>{group.members.length} {memberLabel}</Badge>
+					<div class="text">{groupTitle} #{id}</div>
+					<Badge>{group.members.length} {members.length === 1 ? 'member' : 'members'}</Badge>
 				</div>
 			{/snippet}
 		</CardHeader>
@@ -49,6 +96,7 @@
 
 	<TabsContainer
 		navMinWidth={100}
+		active="Results"
 		hidden={{
 			Invitations: group.invitations.length < 1,
 			Members: group.members.length < 1,
@@ -115,12 +163,21 @@
 		{#snippet Results()}
 			<div class="results">
 				{#if group.auditors.length > 0}
-					<div class="members">
-						<Divider margin="0 0 0 auto">in progress</Divider>
-						{#each group.auditors as audit, i (i)}
-							<AuditResult {audit} captainId={group.captain?.id} />
-						{/each}
-					</div>
+					{#each Object.entries(groupAuditsByDate(auditors)) as [key, { createdAt, endDate, audits }] (key)}
+						{@const copyText = buildAuditCopyText(object.name ?? 'unknown', members, audits)}
+						<div class="members">
+							<div class="group-header">
+								<Divider margin="0">
+									{formatDate(createdAt)}
+									<ArrowRight />{formatDate(endDate)}
+								</Divider>
+								<span><CopyButton text={copyText} /></span>
+							</div>
+							{#each audits as audit, i (i)}
+								<AuditResult {audit} captainId={group.captain?.id} />
+							{/each}
+						</div>
+					{/each}
 				{/if}
 				{#each group.results as result (result.id)}
 					<div class="members">
@@ -171,6 +228,13 @@
 		display: flex;
 		gap: 5px;
 		flex-wrap: wrap;
+
+		.group-header {
+			width: 100%;
+			display: flex;
+			align-items: center;
+			gap: 8px;
+		}
 
 		.member {
 			display: flex;

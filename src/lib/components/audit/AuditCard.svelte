@@ -68,7 +68,7 @@
 	<!-- Actions -->
 	{#if code}
 		<div class="actions">
-			<CopyButton text={code} label="Code" />
+			<CopyButton text={code} label="code" />
 		</div>
 	{/if}
 </li>
