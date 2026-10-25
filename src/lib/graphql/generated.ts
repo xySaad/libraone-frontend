@@ -5166,7 +5166,7 @@ export type Object_Aggregate_Order_By = {
 	variance?: InputMaybe<Object_Variance_Order_By>;
 };
 
-/** Users available per project */
+/** columns and relationships of "object_availability" */
 export type Object_Availability = {
 	__typename?: 'object_availability';
 	created_at: Scalars['timestamptz']['output'];
@@ -5200,7 +5200,7 @@ export type Object_Availability = {
 	user_view?: Maybe<User_Public_View>;
 };
 
-/** Users available per project */
+/** columns and relationships of "object_availability" */
 export type Object_AvailabilityInvitesArgs = {
 	distinct_on?: InputMaybe<Array<Group_User_Select_Column>>;
 	limit?: InputMaybe<Scalars['Int']['input']>;
@@ -5209,7 +5209,7 @@ export type Object_AvailabilityInvitesArgs = {
 	where?: InputMaybe<Group_User_Bool_Exp>;
 };
 
-/** Users available per project */
+/** columns and relationships of "object_availability" */
 export type Object_AvailabilityInvites_AggregateArgs = {
 	distinct_on?: InputMaybe<Array<Group_User_Select_Column>>;
 	limit?: InputMaybe<Scalars['Int']['input']>;
@@ -5218,7 +5218,7 @@ export type Object_AvailabilityInvites_AggregateArgs = {
 	where?: InputMaybe<Group_User_Bool_Exp>;
 };
 
-/** Users available per project */
+/** columns and relationships of "object_availability" */
 export type Object_AvailabilityRecordsArgs = {
 	distinct_on?: InputMaybe<Array<Record_Select_Column>>;
 	limit?: InputMaybe<Scalars['Int']['input']>;
@@ -5227,7 +5227,7 @@ export type Object_AvailabilityRecordsArgs = {
 	where?: InputMaybe<Record_Bool_Exp>;
 };
 
-/** Users available per project */
+/** columns and relationships of "object_availability" */
 export type Object_AvailabilityUserRecordsArgs = {
 	distinct_on?: InputMaybe<Array<Record_Public_View_Select_Column>>;
 	limit?: InputMaybe<Scalars['Int']['input']>;
@@ -5236,7 +5236,7 @@ export type Object_AvailabilityUserRecordsArgs = {
 	where?: InputMaybe<Record_Public_View_Bool_Exp>;
 };
 
-/** Users available per project */
+/** columns and relationships of "object_availability" */
 export type Object_AvailabilityUserRecords_AggregateArgs = {
 	distinct_on?: InputMaybe<Array<Record_Public_View_Select_Column>>;
 	limit?: InputMaybe<Scalars['Int']['input']>;
@@ -5647,7 +5647,6 @@ export type Object_Child = {
 	/** An aggregate relationship */
 	formerVersions_aggregate: Object_Child_Aggregate;
 	id: Scalars['Int']['output'];
-	/** Deprecated for object_child which parent is a module object - set to NULL */
 	index?: Maybe<Scalars['Int']['output']>;
 	key: Scalars['String']['output'];
 	/** An array relationship */
@@ -5661,9 +5660,7 @@ export type Object_Child = {
 	paths: Array<Path>;
 	/** An aggregate relationship */
 	paths_aggregate: Path_Aggregate;
-	/** Timestamp indicating when this content was replaced by onother relation */
 	replacedAt?: Maybe<Scalars['timestamptz']['output']>;
-	/** Reference t o the object_child entry that replaces this one. Used to link versions in replacements */
 	replacedBy?: Maybe<Scalars['Int']['output']>;
 	updatedAt?: Maybe<Scalars['timestamptz']['output']>;
 };
@@ -5787,10 +5784,8 @@ export type Object_Child_Avg_Fields = {
 	__typename?: 'object_child_avg_fields';
 	childId?: Maybe<Scalars['Float']['output']>;
 	id?: Maybe<Scalars['Float']['output']>;
-	/** Deprecated for object_child which parent is a module object - set to NULL */
 	index?: Maybe<Scalars['Float']['output']>;
 	parentId?: Maybe<Scalars['Float']['output']>;
-	/** Reference t o the object_child entry that replaces this one. Used to link versions in replacements */
 	replacedBy?: Maybe<Scalars['Float']['output']>;
 };
 
@@ -5798,10 +5793,8 @@ export type Object_Child_Avg_Fields = {
 export type Object_Child_Avg_Order_By = {
 	childId?: InputMaybe<Order_By>;
 	id?: InputMaybe<Order_By>;
-	/** Deprecated for object_child which parent is a module object - set to NULL */
 	index?: InputMaybe<Order_By>;
 	parentId?: InputMaybe<Order_By>;
-	/** Reference t o the object_child entry that replaces this one. Used to link versions in replacements */
 	replacedBy?: InputMaybe<Order_By>;
 };
 
@@ -5834,13 +5827,10 @@ export type Object_Child_Max_Fields = {
 	__typename?: 'object_child_max_fields';
 	childId?: Maybe<Scalars['Int']['output']>;
 	id?: Maybe<Scalars['Int']['output']>;
-	/** Deprecated for object_child which parent is a module object - set to NULL */
 	index?: Maybe<Scalars['Int']['output']>;
 	key?: Maybe<Scalars['String']['output']>;
 	parentId?: Maybe<Scalars['Int']['output']>;
-	/** Timestamp indicating when this content was replaced by onother relation */
 	replacedAt?: Maybe<Scalars['timestamptz']['output']>;
-	/** Reference t o the object_child entry that replaces this one. Used to link versions in replacements */
 	replacedBy?: Maybe<Scalars['Int']['output']>;
 	updatedAt?: Maybe<Scalars['timestamptz']['output']>;
 };
@@ -5849,13 +5839,10 @@ export type Object_Child_Max_Fields = {
 export type Object_Child_Max_Order_By = {
 	childId?: InputMaybe<Order_By>;
 	id?: InputMaybe<Order_By>;
-	/** Deprecated for object_child which parent is a module object - set to NULL */
 	index?: InputMaybe<Order_By>;
 	key?: InputMaybe<Order_By>;
 	parentId?: InputMaybe<Order_By>;
-	/** Timestamp indicating when this content was replaced by onother relation */
 	replacedAt?: InputMaybe<Order_By>;
-	/** Reference t o the object_child entry that replaces this one. Used to link versions in replacements */
 	replacedBy?: InputMaybe<Order_By>;
 	updatedAt?: InputMaybe<Order_By>;
 };
@@ -5865,13 +5852,10 @@ export type Object_Child_Min_Fields = {
 	__typename?: 'object_child_min_fields';
 	childId?: Maybe<Scalars['Int']['output']>;
 	id?: Maybe<Scalars['Int']['output']>;
-	/** Deprecated for object_child which parent is a module object - set to NULL */
 	index?: Maybe<Scalars['Int']['output']>;
 	key?: Maybe<Scalars['String']['output']>;
 	parentId?: Maybe<Scalars['Int']['output']>;
-	/** Timestamp indicating when this content was replaced by onother relation */
 	replacedAt?: Maybe<Scalars['timestamptz']['output']>;
-	/** Reference t o the object_child entry that replaces this one. Used to link versions in replacements */
 	replacedBy?: Maybe<Scalars['Int']['output']>;
 	updatedAt?: Maybe<Scalars['timestamptz']['output']>;
 };
@@ -5880,13 +5864,10 @@ export type Object_Child_Min_Fields = {
 export type Object_Child_Min_Order_By = {
 	childId?: InputMaybe<Order_By>;
 	id?: InputMaybe<Order_By>;
-	/** Deprecated for object_child which parent is a module object - set to NULL */
 	index?: InputMaybe<Order_By>;
 	key?: InputMaybe<Order_By>;
 	parentId?: InputMaybe<Order_By>;
-	/** Timestamp indicating when this content was replaced by onother relation */
 	replacedAt?: InputMaybe<Order_By>;
-	/** Reference t o the object_child entry that replaces this one. Used to link versions in replacements */
 	replacedBy?: InputMaybe<Order_By>;
 	updatedAt?: InputMaybe<Order_By>;
 };
@@ -5936,10 +5917,8 @@ export type Object_Child_Stddev_Fields = {
 	__typename?: 'object_child_stddev_fields';
 	childId?: Maybe<Scalars['Float']['output']>;
 	id?: Maybe<Scalars['Float']['output']>;
-	/** Deprecated for object_child which parent is a module object - set to NULL */
 	index?: Maybe<Scalars['Float']['output']>;
 	parentId?: Maybe<Scalars['Float']['output']>;
-	/** Reference t o the object_child entry that replaces this one. Used to link versions in replacements */
 	replacedBy?: Maybe<Scalars['Float']['output']>;
 };
 
@@ -5947,10 +5926,8 @@ export type Object_Child_Stddev_Fields = {
 export type Object_Child_Stddev_Order_By = {
 	childId?: InputMaybe<Order_By>;
 	id?: InputMaybe<Order_By>;
-	/** Deprecated for object_child which parent is a module object - set to NULL */
 	index?: InputMaybe<Order_By>;
 	parentId?: InputMaybe<Order_By>;
-	/** Reference t o the object_child entry that replaces this one. Used to link versions in replacements */
 	replacedBy?: InputMaybe<Order_By>;
 };
 
@@ -5959,10 +5936,8 @@ export type Object_Child_Stddev_Pop_Fields = {
 	__typename?: 'object_child_stddev_pop_fields';
 	childId?: Maybe<Scalars['Float']['output']>;
 	id?: Maybe<Scalars['Float']['output']>;
-	/** Deprecated for object_child which parent is a module object - set to NULL */
 	index?: Maybe<Scalars['Float']['output']>;
 	parentId?: Maybe<Scalars['Float']['output']>;
-	/** Reference t o the object_child entry that replaces this one. Used to link versions in replacements */
 	replacedBy?: Maybe<Scalars['Float']['output']>;
 };
 
@@ -5970,10 +5945,8 @@ export type Object_Child_Stddev_Pop_Fields = {
 export type Object_Child_Stddev_Pop_Order_By = {
 	childId?: InputMaybe<Order_By>;
 	id?: InputMaybe<Order_By>;
-	/** Deprecated for object_child which parent is a module object - set to NULL */
 	index?: InputMaybe<Order_By>;
 	parentId?: InputMaybe<Order_By>;
-	/** Reference t o the object_child entry that replaces this one. Used to link versions in replacements */
 	replacedBy?: InputMaybe<Order_By>;
 };
 
@@ -5982,10 +5955,8 @@ export type Object_Child_Stddev_Samp_Fields = {
 	__typename?: 'object_child_stddev_samp_fields';
 	childId?: Maybe<Scalars['Float']['output']>;
 	id?: Maybe<Scalars['Float']['output']>;
-	/** Deprecated for object_child which parent is a module object - set to NULL */
 	index?: Maybe<Scalars['Float']['output']>;
 	parentId?: Maybe<Scalars['Float']['output']>;
-	/** Reference t o the object_child entry that replaces this one. Used to link versions in replacements */
 	replacedBy?: Maybe<Scalars['Float']['output']>;
 };
 
@@ -5993,10 +5964,8 @@ export type Object_Child_Stddev_Samp_Fields = {
 export type Object_Child_Stddev_Samp_Order_By = {
 	childId?: InputMaybe<Order_By>;
 	id?: InputMaybe<Order_By>;
-	/** Deprecated for object_child which parent is a module object - set to NULL */
 	index?: InputMaybe<Order_By>;
 	parentId?: InputMaybe<Order_By>;
-	/** Reference t o the object_child entry that replaces this one. Used to link versions in replacements */
 	replacedBy?: InputMaybe<Order_By>;
 };
 
@@ -6013,13 +5982,10 @@ export type Object_Child_Stream_Cursor_Value_Input = {
 	attrs?: InputMaybe<Scalars['jsonb']['input']>;
 	childId?: InputMaybe<Scalars['Int']['input']>;
 	id?: InputMaybe<Scalars['Int']['input']>;
-	/** Deprecated for object_child which parent is a module object - set to NULL */
 	index?: InputMaybe<Scalars['Int']['input']>;
 	key?: InputMaybe<Scalars['String']['input']>;
 	parentId?: InputMaybe<Scalars['Int']['input']>;
-	/** Timestamp indicating when this content was replaced by onother relation */
 	replacedAt?: InputMaybe<Scalars['timestamptz']['input']>;
-	/** Reference t o the object_child entry that replaces this one. Used to link versions in replacements */
 	replacedBy?: InputMaybe<Scalars['Int']['input']>;
 	updatedAt?: InputMaybe<Scalars['timestamptz']['input']>;
 };
@@ -6029,10 +5995,8 @@ export type Object_Child_Sum_Fields = {
 	__typename?: 'object_child_sum_fields';
 	childId?: Maybe<Scalars['Int']['output']>;
 	id?: Maybe<Scalars['Int']['output']>;
-	/** Deprecated for object_child which parent is a module object - set to NULL */
 	index?: Maybe<Scalars['Int']['output']>;
 	parentId?: Maybe<Scalars['Int']['output']>;
-	/** Reference t o the object_child entry that replaces this one. Used to link versions in replacements */
 	replacedBy?: Maybe<Scalars['Int']['output']>;
 };
 
@@ -6040,10 +6004,8 @@ export type Object_Child_Sum_Fields = {
 export type Object_Child_Sum_Order_By = {
 	childId?: InputMaybe<Order_By>;
 	id?: InputMaybe<Order_By>;
-	/** Deprecated for object_child which parent is a module object - set to NULL */
 	index?: InputMaybe<Order_By>;
 	parentId?: InputMaybe<Order_By>;
-	/** Reference t o the object_child entry that replaces this one. Used to link versions in replacements */
 	replacedBy?: InputMaybe<Order_By>;
 };
 
@@ -6052,10 +6014,8 @@ export type Object_Child_Var_Pop_Fields = {
 	__typename?: 'object_child_var_pop_fields';
 	childId?: Maybe<Scalars['Float']['output']>;
 	id?: Maybe<Scalars['Float']['output']>;
-	/** Deprecated for object_child which parent is a module object - set to NULL */
 	index?: Maybe<Scalars['Float']['output']>;
 	parentId?: Maybe<Scalars['Float']['output']>;
-	/** Reference t o the object_child entry that replaces this one. Used to link versions in replacements */
 	replacedBy?: Maybe<Scalars['Float']['output']>;
 };
 
@@ -6063,10 +6023,8 @@ export type Object_Child_Var_Pop_Fields = {
 export type Object_Child_Var_Pop_Order_By = {
 	childId?: InputMaybe<Order_By>;
 	id?: InputMaybe<Order_By>;
-	/** Deprecated for object_child which parent is a module object - set to NULL */
 	index?: InputMaybe<Order_By>;
 	parentId?: InputMaybe<Order_By>;
-	/** Reference t o the object_child entry that replaces this one. Used to link versions in replacements */
 	replacedBy?: InputMaybe<Order_By>;
 };
 
@@ -6075,10 +6033,8 @@ export type Object_Child_Var_Samp_Fields = {
 	__typename?: 'object_child_var_samp_fields';
 	childId?: Maybe<Scalars['Float']['output']>;
 	id?: Maybe<Scalars['Float']['output']>;
-	/** Deprecated for object_child which parent is a module object - set to NULL */
 	index?: Maybe<Scalars['Float']['output']>;
 	parentId?: Maybe<Scalars['Float']['output']>;
-	/** Reference t o the object_child entry that replaces this one. Used to link versions in replacements */
 	replacedBy?: Maybe<Scalars['Float']['output']>;
 };
 
@@ -6086,10 +6042,8 @@ export type Object_Child_Var_Samp_Fields = {
 export type Object_Child_Var_Samp_Order_By = {
 	childId?: InputMaybe<Order_By>;
 	id?: InputMaybe<Order_By>;
-	/** Deprecated for object_child which parent is a module object - set to NULL */
 	index?: InputMaybe<Order_By>;
 	parentId?: InputMaybe<Order_By>;
-	/** Reference t o the object_child entry that replaces this one. Used to link versions in replacements */
 	replacedBy?: InputMaybe<Order_By>;
 };
 
@@ -6098,10 +6052,8 @@ export type Object_Child_Variance_Fields = {
 	__typename?: 'object_child_variance_fields';
 	childId?: Maybe<Scalars['Float']['output']>;
 	id?: Maybe<Scalars['Float']['output']>;
-	/** Deprecated for object_child which parent is a module object - set to NULL */
 	index?: Maybe<Scalars['Float']['output']>;
 	parentId?: Maybe<Scalars['Float']['output']>;
-	/** Reference t o the object_child entry that replaces this one. Used to link versions in replacements */
 	replacedBy?: Maybe<Scalars['Float']['output']>;
 };
 
@@ -6109,10 +6061,8 @@ export type Object_Child_Variance_Fields = {
 export type Object_Child_Variance_Order_By = {
 	childId?: InputMaybe<Order_By>;
 	id?: InputMaybe<Order_By>;
-	/** Deprecated for object_child which parent is a module object - set to NULL */
 	index?: InputMaybe<Order_By>;
 	parentId?: InputMaybe<Order_By>;
-	/** Reference t o the object_child entry that replaces this one. Used to link versions in replacements */
 	replacedBy?: InputMaybe<Order_By>;
 };
 
@@ -17262,6 +17212,7 @@ export type GetObjectGroupsQuery = {
 			__typename?: 'group';
 			id: number;
 			status: Group_Status_Enum;
+			object: { __typename?: 'object'; name?: string | null };
 			captain?: {
 				__typename?: 'user_public_view';
 				id?: number | null;
@@ -17293,6 +17244,8 @@ export type GetObjectGroupsQuery = {
 				closureType?: Audit_Closure_Type_Enum | null;
 				closureMessage?: string | null;
 				attrs: any;
+				createdAt: any;
+				endAt?: any | null;
 				auditor?: {
 					__typename?: 'user_public_view';
 					id?: number | null;
@@ -17312,6 +17265,8 @@ export type GetObjectGroupsQuery = {
 					closureType?: Audit_Closure_Type_Enum | null;
 					closureMessage?: string | null;
 					attrs: any;
+					createdAt: any;
+					endAt?: any | null;
 					auditor?: {
 						__typename?: 'user_public_view';
 						id?: number | null;
@@ -17584,6 +17539,8 @@ export type GetUserGroupsQuery = {
 			closureType?: Audit_Closure_Type_Enum | null;
 			closureMessage?: string | null;
 			attrs: any;
+			createdAt: any;
+			endAt?: any | null;
 			auditor?: {
 				__typename?: 'user_public_view';
 				id?: number | null;
@@ -17603,6 +17560,8 @@ export type GetUserGroupsQuery = {
 				closureType?: Audit_Closure_Type_Enum | null;
 				closureMessage?: string | null;
 				attrs: any;
+				createdAt: any;
+				endAt?: any | null;
 				auditor?: {
 					__typename?: 'user_public_view';
 					id?: number | null;
@@ -17763,6 +17722,8 @@ export type AuditFragment = {
 	closureType?: Audit_Closure_Type_Enum | null;
 	closureMessage?: string | null;
 	attrs: any;
+	createdAt: any;
+	endAt?: any | null;
 	auditor?: {
 		__typename?: 'user_public_view';
 		id?: number | null;
@@ -17776,6 +17737,7 @@ export type GroupFragment = {
 	__typename?: 'group';
 	id: number;
 	status: Group_Status_Enum;
+	object: { __typename?: 'object'; name?: string | null };
 	captain?: { __typename?: 'user_public_view'; id?: number | null; login?: string | null } | null;
 	members: Array<{
 		__typename?: 'group_user';
@@ -17803,6 +17765,8 @@ export type GroupFragment = {
 		closureType?: Audit_Closure_Type_Enum | null;
 		closureMessage?: string | null;
 		attrs: any;
+		createdAt: any;
+		endAt?: any | null;
 		auditor?: {
 			__typename?: 'user_public_view';
 			id?: number | null;
@@ -17822,6 +17786,8 @@ export type GroupFragment = {
 			closureType?: Audit_Closure_Type_Enum | null;
 			closureMessage?: string | null;
 			attrs: any;
+			createdAt: any;
+			endAt?: any | null;
 			auditor?: {
 				__typename?: 'user_public_view';
 				id?: number | null;
@@ -18010,6 +17976,8 @@ export const AuditFragmentDoc = {
 					{ kind: 'Field', name: { kind: 'Name', value: 'closureType' } },
 					{ kind: 'Field', name: { kind: 'Name', value: 'closureMessage' } },
 					{ kind: 'Field', name: { kind: 'Name', value: 'attrs' } },
+					{ kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+					{ kind: 'Field', name: { kind: 'Name', value: 'endAt' } },
 					{
 						kind: 'Field',
 						name: { kind: 'Name', value: 'auditor' },
@@ -18040,6 +18008,14 @@ export const GroupFragmentDoc = {
 				selections: [
 					{ kind: 'Field', name: { kind: 'Name', value: 'id' } },
 					{ kind: 'Field', name: { kind: 'Name', value: 'status' } },
+					{
+						kind: 'Field',
+						name: { kind: 'Name', value: 'object' },
+						selectionSet: {
+							kind: 'SelectionSet',
+							selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }]
+						}
+					},
 					{
 						kind: 'Field',
 						name: { kind: 'Name', value: 'captain' },
@@ -18229,6 +18205,8 @@ export const GroupFragmentDoc = {
 					{ kind: 'Field', name: { kind: 'Name', value: 'closureType' } },
 					{ kind: 'Field', name: { kind: 'Name', value: 'closureMessage' } },
 					{ kind: 'Field', name: { kind: 'Name', value: 'attrs' } },
+					{ kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+					{ kind: 'Field', name: { kind: 'Name', value: 'endAt' } },
 					{
 						kind: 'Field',
 						name: { kind: 'Name', value: 'auditor' },
@@ -19310,6 +19288,8 @@ export const GetObjectGroupsDocument = {
 					{ kind: 'Field', name: { kind: 'Name', value: 'closureType' } },
 					{ kind: 'Field', name: { kind: 'Name', value: 'closureMessage' } },
 					{ kind: 'Field', name: { kind: 'Name', value: 'attrs' } },
+					{ kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+					{ kind: 'Field', name: { kind: 'Name', value: 'endAt' } },
 					{
 						kind: 'Field',
 						name: { kind: 'Name', value: 'auditor' },
@@ -19335,6 +19315,14 @@ export const GetObjectGroupsDocument = {
 				selections: [
 					{ kind: 'Field', name: { kind: 'Name', value: 'id' } },
 					{ kind: 'Field', name: { kind: 'Name', value: 'status' } },
+					{
+						kind: 'Field',
+						name: { kind: 'Name', value: 'object' },
+						selectionSet: {
+							kind: 'SelectionSet',
+							selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }]
+						}
+					},
 					{
 						kind: 'Field',
 						name: { kind: 'Name', value: 'captain' },
@@ -20540,6 +20528,8 @@ export const GetUserGroupsDocument = {
 					{ kind: 'Field', name: { kind: 'Name', value: 'closureType' } },
 					{ kind: 'Field', name: { kind: 'Name', value: 'closureMessage' } },
 					{ kind: 'Field', name: { kind: 'Name', value: 'attrs' } },
+					{ kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+					{ kind: 'Field', name: { kind: 'Name', value: 'endAt' } },
 					{
 						kind: 'Field',
 						name: { kind: 'Name', value: 'auditor' },
@@ -20565,6 +20555,14 @@ export const GetUserGroupsDocument = {
 				selections: [
 					{ kind: 'Field', name: { kind: 'Name', value: 'id' } },
 					{ kind: 'Field', name: { kind: 'Name', value: 'status' } },
+					{
+						kind: 'Field',
+						name: { kind: 'Name', value: 'object' },
+						selectionSet: {
+							kind: 'SelectionSet',
+							selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }]
+						}
+					},
 					{
 						kind: 'Field',
 						name: { kind: 'Name', value: 'captain' },

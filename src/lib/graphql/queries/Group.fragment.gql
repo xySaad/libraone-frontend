@@ -3,6 +3,8 @@ fragment Audit on audit {
 	closureType
 	closureMessage
 	attrs
+	createdAt
+	endAt
 	auditor {
 		id
 		login
@@ -14,6 +16,9 @@ fragment Audit on audit {
 fragment Group on group {
 	id
 	status
+	object {
+		name
+	}
 	captain {
 		id
 		login
