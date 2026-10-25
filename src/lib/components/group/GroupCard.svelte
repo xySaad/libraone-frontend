@@ -96,7 +96,6 @@
 
 	<TabsContainer
 		navMinWidth={100}
-		active="Results"
 		hidden={{
 			Invitations: group.invitations.length < 1,
 			Members: group.members.length < 1,
