@@ -99,7 +99,7 @@
 		hidden={{
 			Invitations: group.invitations.length < 1,
 			Members: group.members.length < 1,
-			Results: group.results.length < 1
+			Results: group.results.length < 1 && group.auditors.length < 1
 		}}
 	>
 		{#snippet NavMembers()}
