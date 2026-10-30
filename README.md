@@ -6,10 +6,10 @@ Community made web UI for 01edu
 
 ## GraphQL
 
-For live schema code generation run:
+For schema code generation run:
 
 ```sh
-$ npx graphql-codegen --watch
+$ npm run codegen
 ```
 
 ## Libraone API
