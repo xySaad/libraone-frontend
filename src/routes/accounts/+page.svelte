@@ -14,9 +14,8 @@
 	import { Client } from '$lib/graphql/client';
 	import { GetUserByIdDocument } from '$lib/graphql/generated';
 	import { preferences } from '$lib/stores/prefenreces.svelte';
-	import { intraCreds, profileUserState } from '$lib/stores/user.svelte';
+	import { intraUserIdState, profileUserState } from '$lib/stores/user.svelte';
 
-	const getJWTSub = (token: string): number => Number(JSON.parse(atob(token.split('.')[1])).sub);
 	const getUserById = async (userId: number) => {
 		const res = await Client.request(GetUserByIdDocument, { userId });
 		const publicUser = res.user_public_view[0];
@@ -64,7 +63,7 @@
 					<Gitea />
 				</LoginAnchor>
 			{/if}
-			{#if $intraCreds}
+			{#if $intraUserIdState}
 				<div class="intra">
 					<Card>
 						<CardHeader>
@@ -80,7 +79,7 @@
 						</CardHeader>
 
 						<section class="user">
-							<Suspend data={getUserById(getJWTSub($intraCreds))}>
+							<Suspend data={getUserById($intraUserIdState)}>
 								{#snippet children(user)}
 									<UserAvatar userLogin={user.login} avatarUrl={user.avatarUrl} />
 									<Badge>{user.login}</Badge>
