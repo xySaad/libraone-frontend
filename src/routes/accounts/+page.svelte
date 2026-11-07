@@ -13,7 +13,7 @@
 	import Toggle from '$lib/components/ui/Toggle.svelte';
 	import { Client } from '$lib/graphql/client';
 	import { GetUserByIdDocument } from '$lib/graphql/generated';
-	import { preferences } from '$lib/stores/prefenreces.svelte';
+	import { preferences } from '$lib/stores/preferences.svelte';
 	import { intraUserIdState, profileUserState } from '$lib/stores/user.svelte';
 
 	const getUserById = async (userId: number) => {

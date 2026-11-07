@@ -2,12 +2,12 @@
 	import Spinner from '$lib/components/ui/Spinner.svelte';
 	import type { Snippet } from 'svelte';
 	import type { HTMLButtonAttributes } from 'svelte/elements';
-
+	type ButtonClickEvent = MouseEvent & { currentTarget: EventTarget & HTMLButtonElement };
 	type Props = {
 		/** Text shown in place of children while loading */
 		loadingLabel?: string;
 		/** Async onclick handler — Button manages its own loading state around it */
-		onclick?: () => T | Promise<T>;
+		onclick?: (e: ButtonClickEvent) => T | Promise<T>;
 		children: Snippet;
 	} & HTMLButtonAttributes;
 
@@ -15,11 +15,11 @@
 
 	let loading = $state(false);
 
-	async function handleClick() {
+	async function handleClick(e: ButtonClickEvent) {
 		if (!onclick || loading) return;
 		loading = true;
 		try {
-			await onclick();
+			await onclick(e);
 		} finally {
 			loading = false;
 		}

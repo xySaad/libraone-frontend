@@ -1,14 +1,15 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 	import Button from './Button.svelte';
+	import type { HTMLButtonAttributes } from 'svelte/elements';
 
-	interface Props {
+	type Props = {
 		children: Snippet;
 		success?: Snippet;
 		onclick: () => unknown | Promise<unknown>;
-	}
+	} & HTMLButtonAttributes;
 
-	const { children, success, onclick }: Props = $props();
+	const { children, success, onclick, ...attrs }: Props = $props();
 
 	let actionCompleted = $state(false);
 	let timeout = 0;
@@ -27,7 +28,7 @@
 	};
 </script>
 
-<Button onclick={handleClick}>
+<Button onclick={handleClick} {...attrs}>
 	{#if actionCompleted && success}
 		{@render success()}
 	{:else}

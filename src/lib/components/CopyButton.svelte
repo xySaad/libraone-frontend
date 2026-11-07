@@ -13,7 +13,7 @@
 	const copy = () => navigator.clipboard.writeText(text);
 </script>
 
-<ActionButton onclick={copy}>
+<ActionButton onclick={copy} style="padding: 10px;">
 	<span>
 		<Copy />
 		{#if label}

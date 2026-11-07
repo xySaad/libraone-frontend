@@ -8,18 +8,15 @@
 	import UserAvatar from '$lib/components/image/UserAvatar.svelte';
 	import Divider from '$lib/components/shared/Divider.svelte';
 	import Card from '$lib/components/ui/Card.svelte';
-	import CopyButton from '$lib/components/CopyButton.svelte';
 	import {
 		Group_Status_Enum,
 		type AuditFragment,
 		type GroupFragment
 	} from '$lib/graphql/generated';
-	import { formatDate } from '$lib/utils/time';
 	import CardHeader from '../Card/CardHeader.svelte';
 	import Badge from '../ui/Badge.svelte';
 	import TabsContainer from '../ui/Tabs/TabsContainer.svelte';
-	import AuditResult from './AuditResult.svelte';
-	import ArrowRight from '$lib/assets/svg/arrow-right.svelte';
+	import GroupAudits from './GroupAudits.svelte';
 
 	interface Props {
 		group: GroupFragment;
@@ -52,24 +49,6 @@
 			acc[key].audits.push(audit);
 			return acc;
 		}, {});
-	};
-
-	const buildAuditCopyText = (
-		projectName: string,
-		members: GroupFragment['members'],
-		audits: AuditFragment[]
-	) => {
-		const membersMention = members.map((m) => `@${m.user?.login}`).join(' ');
-		const auditorList = audits.map((a) => `- @${a.auditor?.login}`).join('\n');
-		const date = new Date().toLocaleTimeString();
-		return [
-			`Project: ${projectName}`,
-			`Team Members: ${membersMention}`,
-			`Available between: ${date} - ${date}`,
-			`Auditors:`,
-			``,
-			auditorList
-		].join('\n');
 	};
 </script>
 
@@ -163,27 +142,28 @@
 			<div class="results">
 				{#if group.auditors.length > 0}
 					{#each Object.entries(groupAuditsByDate(auditors)) as [key, { createdAt, endDate, audits }] (key)}
-						{@const copyText = buildAuditCopyText(object.name ?? 'unknown', members, audits)}
 						<div class="members">
-							<div class="group-header">
-								<Divider margin="0">
-									{formatDate(createdAt)}
-									<ArrowRight />{formatDate(endDate)}
-								</Divider>
-								<span><CopyButton text={copyText} /></span>
-							</div>
-							{#each audits as audit, i (i)}
-								<AuditResult {audit} captainId={group.captain?.id} />
-							{/each}
+							<GroupAudits
+								projectName={object.name ?? 'unknown'}
+								captainId={group.captain?.id}
+								members={group.members}
+								{audits}
+								{createdAt}
+								{endDate}
+							/>
 						</div>
 					{/each}
 				{/if}
 				{#each group.results as result (result.id)}
+					{@const { audits, createdAt } = result}
 					<div class="members">
-						<Divider margin="0 0 0 auto">{formatDate(result.createdAt)}</Divider>
-						{#each result.audits as audit, i (i)}
-							<AuditResult {audit} captainId={group.captain?.id} />
-						{/each}
+						<GroupAudits
+							projectName={object.name ?? 'unknown'}
+							captainId={group.captain?.id}
+							members={group.members}
+							{audits}
+							{createdAt}
+						/>
 					</div>
 				{/each}
 			</div>
@@ -227,13 +207,6 @@
 		display: flex;
 		gap: 5px;
 		flex-wrap: wrap;
-
-		.group-header {
-			width: 100%;
-			display: flex;
-			align-items: center;
-			gap: 8px;
-		}
 
 		.member {
 			display: flex;

@@ -1,7 +1,7 @@
 import api from '$lib/api';
 import type { ProfileCreds } from '$lib/types/profile';
 import { writable } from 'svelte/store';
-import { preferences } from './prefenreces.svelte';
+import { preferences } from './preferences.svelte';
 import { goto } from '$app/navigation';
 import { resolve } from '$app/paths';
 
