@@ -48,6 +48,11 @@
 	--error-bg: hsla(0, 70%, 55%, 0.08);
 	--error-shadow: hsla(0, 70%, 55%, 0.1);
 
+	/* warning state */
+	--warning: hsl(40, 90%, 62%);
+	--warning-border: hsla(40, 90%, 55%, 0.3);
+	--warning-bg: hsla(40, 90%, 55%, 0.08);
+
 	/* spinner */
 	--spinner-track: hsla(0, 0%, 100%, 0.3);
 

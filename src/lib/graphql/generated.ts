@@ -17692,6 +17692,79 @@ export type GetUserGroupsByLoginQuery = {
 	}>;
 };
 
+export type GetUserGroupsInAuditQueryVariables = Exact<{
+	userLogin?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+export type GetUserGroupsInAuditQuery = {
+	__typename?: 'query_root';
+	group: Array<{
+		__typename?: 'group';
+		id: number;
+		status: Group_Status_Enum;
+		object: { __typename?: 'object'; id: number; name?: string | null };
+		captain?: { __typename?: 'user_public_view'; id?: number | null; login?: string | null } | null;
+		members: Array<{
+			__typename?: 'group_user';
+			user?: {
+				__typename?: 'user_public_view';
+				id?: number | null;
+				login?: string | null;
+				avatarUrl?: string | null;
+				canAccessPlatform?: boolean | null;
+			} | null;
+		}>;
+		invitations: Array<{
+			__typename?: 'group_user';
+			user?: {
+				__typename?: 'user_public_view';
+				id?: number | null;
+				login?: string | null;
+				avatarUrl?: string | null;
+				canAccessPlatform?: boolean | null;
+			} | null;
+		}>;
+		auditors: Array<{
+			__typename?: 'audit';
+			grade?: any | null;
+			closureType?: Audit_Closure_Type_Enum | null;
+			closureMessage?: string | null;
+			attrs: any;
+			createdAt: any;
+			endAt?: any | null;
+			auditor?: {
+				__typename?: 'user_public_view';
+				id?: number | null;
+				login?: string | null;
+				avatarUrl?: string | null;
+				canAccessPlatform?: boolean | null;
+			} | null;
+		}>;
+		results: Array<{
+			__typename?: 'result';
+			grade?: any | null;
+			id: number;
+			createdAt: any;
+			audits: Array<{
+				__typename?: 'audit';
+				grade?: any | null;
+				closureType?: Audit_Closure_Type_Enum | null;
+				closureMessage?: string | null;
+				attrs: any;
+				createdAt: any;
+				endAt?: any | null;
+				auditor?: {
+					__typename?: 'user_public_view';
+					id?: number | null;
+					login?: string | null;
+					avatarUrl?: string | null;
+					canAccessPlatform?: boolean | null;
+				} | null;
+			}>;
+		}>;
+	}>;
+};
+
 export type GetUserProfileQueryVariables = Exact<{
 	userId?: InputMaybe<Scalars['Int']['input']>;
 }>;
@@ -21199,6 +21272,338 @@ export const GetUserGroupsByLoginDocument = {
 		}
 	]
 } as unknown as DocumentNode<GetUserGroupsByLoginQuery, GetUserGroupsByLoginQueryVariables>;
+export const GetUserGroupsInAuditDocument = {
+	kind: 'Document',
+	definitions: [
+		{
+			kind: 'OperationDefinition',
+			operation: 'query',
+			name: { kind: 'Name', value: 'GetUserGroupsInAudit' },
+			variableDefinitions: [
+				{
+					kind: 'VariableDefinition',
+					variable: { kind: 'Variable', name: { kind: 'Name', value: 'userLogin' } },
+					type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } }
+				}
+			],
+			selectionSet: {
+				kind: 'SelectionSet',
+				selections: [
+					{
+						kind: 'Field',
+						name: { kind: 'Name', value: 'group' },
+						arguments: [
+							{
+								kind: 'Argument',
+								name: { kind: 'Name', value: 'where' },
+								value: {
+									kind: 'ObjectValue',
+									fields: [
+										{
+											kind: 'ObjectField',
+											name: { kind: 'Name', value: 'members' },
+											value: {
+												kind: 'ObjectValue',
+												fields: [
+													{
+														kind: 'ObjectField',
+														name: { kind: 'Name', value: 'userLogin' },
+														value: {
+															kind: 'ObjectValue',
+															fields: [
+																{
+																	kind: 'ObjectField',
+																	name: { kind: 'Name', value: '_eq' },
+																	value: {
+																		kind: 'Variable',
+																		name: { kind: 'Name', value: 'userLogin' }
+																	}
+																}
+															]
+														}
+													}
+												]
+											}
+										},
+										{
+											kind: 'ObjectField',
+											name: { kind: 'Name', value: 'status' },
+											value: {
+												kind: 'ObjectValue',
+												fields: [
+													{
+														kind: 'ObjectField',
+														name: { kind: 'Name', value: '_eq' },
+														value: { kind: 'EnumValue', value: 'audit' }
+													}
+												]
+											}
+										}
+									]
+								}
+							},
+							{
+								kind: 'Argument',
+								name: { kind: 'Name', value: 'order_by' },
+								value: {
+									kind: 'ObjectValue',
+									fields: [
+										{
+											kind: 'ObjectField',
+											name: { kind: 'Name', value: 'updatedAt' },
+											value: { kind: 'EnumValue', value: 'desc' }
+										}
+									]
+								}
+							}
+						],
+						selectionSet: {
+							kind: 'SelectionSet',
+							selections: [
+								{
+									kind: 'Field',
+									name: { kind: 'Name', value: 'object' },
+									selectionSet: {
+										kind: 'SelectionSet',
+										selections: [
+											{ kind: 'Field', name: { kind: 'Name', value: 'id' } },
+											{ kind: 'Field', name: { kind: 'Name', value: 'name' } }
+										]
+									}
+								},
+								{ kind: 'FragmentSpread', name: { kind: 'Name', value: 'Group' } }
+							]
+						}
+					}
+				]
+			}
+		},
+		{
+			kind: 'FragmentDefinition',
+			name: { kind: 'Name', value: 'Audit' },
+			typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'audit' } },
+			selectionSet: {
+				kind: 'SelectionSet',
+				selections: [
+					{ kind: 'Field', name: { kind: 'Name', value: 'grade' } },
+					{ kind: 'Field', name: { kind: 'Name', value: 'closureType' } },
+					{ kind: 'Field', name: { kind: 'Name', value: 'closureMessage' } },
+					{ kind: 'Field', name: { kind: 'Name', value: 'attrs' } },
+					{ kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+					{ kind: 'Field', name: { kind: 'Name', value: 'endAt' } },
+					{
+						kind: 'Field',
+						name: { kind: 'Name', value: 'auditor' },
+						selectionSet: {
+							kind: 'SelectionSet',
+							selections: [
+								{ kind: 'Field', name: { kind: 'Name', value: 'id' } },
+								{ kind: 'Field', name: { kind: 'Name', value: 'login' } },
+								{ kind: 'Field', name: { kind: 'Name', value: 'avatarUrl' } },
+								{ kind: 'Field', name: { kind: 'Name', value: 'canAccessPlatform' } }
+							]
+						}
+					}
+				]
+			}
+		},
+		{
+			kind: 'FragmentDefinition',
+			name: { kind: 'Name', value: 'Group' },
+			typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'group' } },
+			selectionSet: {
+				kind: 'SelectionSet',
+				selections: [
+					{ kind: 'Field', name: { kind: 'Name', value: 'id' } },
+					{ kind: 'Field', name: { kind: 'Name', value: 'status' } },
+					{
+						kind: 'Field',
+						name: { kind: 'Name', value: 'object' },
+						selectionSet: {
+							kind: 'SelectionSet',
+							selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }]
+						}
+					},
+					{
+						kind: 'Field',
+						name: { kind: 'Name', value: 'captain' },
+						selectionSet: {
+							kind: 'SelectionSet',
+							selections: [
+								{ kind: 'Field', name: { kind: 'Name', value: 'id' } },
+								{ kind: 'Field', name: { kind: 'Name', value: 'login' } }
+							]
+						}
+					},
+					{
+						kind: 'Field',
+						name: { kind: 'Name', value: 'members' },
+						arguments: [
+							{
+								kind: 'Argument',
+								name: { kind: 'Name', value: 'where' },
+								value: {
+									kind: 'ObjectValue',
+									fields: [
+										{
+											kind: 'ObjectField',
+											name: { kind: 'Name', value: 'accepted' },
+											value: {
+												kind: 'ObjectValue',
+												fields: [
+													{
+														kind: 'ObjectField',
+														name: { kind: 'Name', value: '_eq' },
+														value: { kind: 'BooleanValue', value: true }
+													}
+												]
+											}
+										}
+									]
+								}
+							}
+						],
+						selectionSet: {
+							kind: 'SelectionSet',
+							selections: [
+								{
+									kind: 'Field',
+									name: { kind: 'Name', value: 'user' },
+									selectionSet: {
+										kind: 'SelectionSet',
+										selections: [
+											{ kind: 'Field', name: { kind: 'Name', value: 'id' } },
+											{ kind: 'Field', name: { kind: 'Name', value: 'login' } },
+											{ kind: 'Field', name: { kind: 'Name', value: 'avatarUrl' } },
+											{ kind: 'Field', name: { kind: 'Name', value: 'canAccessPlatform' } }
+										]
+									}
+								}
+							]
+						}
+					},
+					{
+						kind: 'Field',
+						alias: { kind: 'Name', value: 'invitations' },
+						name: { kind: 'Name', value: 'members' },
+						arguments: [
+							{
+								kind: 'Argument',
+								name: { kind: 'Name', value: 'where' },
+								value: {
+									kind: 'ObjectValue',
+									fields: [
+										{
+											kind: 'ObjectField',
+											name: { kind: 'Name', value: 'accepted' },
+											value: {
+												kind: 'ObjectValue',
+												fields: [
+													{
+														kind: 'ObjectField',
+														name: { kind: 'Name', value: '_eq' },
+														value: { kind: 'BooleanValue', value: false }
+													}
+												]
+											}
+										}
+									]
+								}
+							}
+						],
+						selectionSet: {
+							kind: 'SelectionSet',
+							selections: [
+								{
+									kind: 'Field',
+									name: { kind: 'Name', value: 'user' },
+									selectionSet: {
+										kind: 'SelectionSet',
+										selections: [
+											{ kind: 'Field', name: { kind: 'Name', value: 'id' } },
+											{ kind: 'Field', name: { kind: 'Name', value: 'login' } },
+											{ kind: 'Field', name: { kind: 'Name', value: 'avatarUrl' } },
+											{ kind: 'Field', name: { kind: 'Name', value: 'canAccessPlatform' } }
+										]
+									}
+								}
+							]
+						}
+					},
+					{
+						kind: 'Field',
+						name: { kind: 'Name', value: 'auditors' },
+						arguments: [
+							{
+								kind: 'Argument',
+								name: { kind: 'Name', value: 'where' },
+								value: {
+									kind: 'ObjectValue',
+									fields: [
+										{
+											kind: 'ObjectField',
+											name: { kind: 'Name', value: 'resultId' },
+											value: {
+												kind: 'ObjectValue',
+												fields: [
+													{
+														kind: 'ObjectField',
+														name: { kind: 'Name', value: '_is_null' },
+														value: { kind: 'BooleanValue', value: true }
+													}
+												]
+											}
+										}
+									]
+								}
+							}
+						],
+						selectionSet: {
+							kind: 'SelectionSet',
+							selections: [{ kind: 'FragmentSpread', name: { kind: 'Name', value: 'Audit' } }]
+						}
+					},
+					{
+						kind: 'Field',
+						name: { kind: 'Name', value: 'results' },
+						arguments: [
+							{
+								kind: 'Argument',
+								name: { kind: 'Name', value: 'order_by' },
+								value: {
+									kind: 'ObjectValue',
+									fields: [
+										{
+											kind: 'ObjectField',
+											name: { kind: 'Name', value: 'createdAt' },
+											value: { kind: 'EnumValue', value: 'desc' }
+										}
+									]
+								}
+							}
+						],
+						selectionSet: {
+							kind: 'SelectionSet',
+							selections: [
+								{ kind: 'Field', name: { kind: 'Name', value: 'grade' } },
+								{ kind: 'Field', name: { kind: 'Name', value: 'id' } },
+								{ kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+								{
+									kind: 'Field',
+									name: { kind: 'Name', value: 'audits' },
+									selectionSet: {
+										kind: 'SelectionSet',
+										selections: [{ kind: 'FragmentSpread', name: { kind: 'Name', value: 'Audit' } }]
+									}
+								}
+							]
+						}
+					}
+				]
+			}
+		}
+	]
+} as unknown as DocumentNode<GetUserGroupsInAuditQuery, GetUserGroupsInAuditQueryVariables>;
 export const GetUserProfileDocument = {
 	kind: 'Document',
 	definitions: [

@@ -75,13 +75,18 @@
 {:else}
 	<div class="audit-header">
 		<Divider margin="0">
-			{formatDate(createdAt)}
-			{#if endDate}<ArrowRight />{formatDate(endDate)}{/if}
+			<div data-tooltip="Created At">{formatDate(createdAt)}</div>
+			{#if endDate}
+				<ArrowRight />
+				<div data-tooltip="End At">{formatDate(endDate)}</div>
+			{/if}
 		</Divider>
-		<span> <CopyButton text={() => buildAuditCopyText(projectName, members, audits)} /></span>
-		<span>
-			<Button style="padding: 10px;" onclick={() => (editTimeScreen = true)}><Clock /></Button>
-		</span>
+		<div class="actions">
+			<span> <CopyButton text={() => buildAuditCopyText(projectName, members, audits)} /></span>
+			<span>
+				<Button style="padding: 10px;" onclick={() => (editTimeScreen = true)}><Clock /></Button>
+			</span>
+		</div>
 	</div>
 	{#each audits as audit, i (i)}
 		<AuditResult {audit} {captainId} />
@@ -104,6 +109,13 @@
 		width: 100%;
 		display: flex;
 		white-space: nowrap;
+		flex-wrap: wrap;
 		gap: 10px;
+
+		.actions {
+			display: flex;
+			gap: 10px;
+			margin-left: auto;
+		}
 	}
 </style>

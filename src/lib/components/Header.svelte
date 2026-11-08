@@ -2,6 +2,7 @@
 	import { resolve } from '$app/paths';
 	import zone01oujda from '$lib/assets/zone01oujda.png';
 	import AssignedAuditors from '$lib/components/audit/AssignedAudits.svelte';
+	import MainNav from './MainNav.svelte';
 	import User from './User.svelte';
 </script>
 
@@ -9,6 +10,7 @@
 	<a href={resolve('/')}>
 		<img src={zone01oujda} alt="zone01oujda-logo" id="zone01oujda-logo" />
 	</a>
+	<MainNav />
 	<div class="header-actions">
 		<AssignedAuditors />
 		<User />
@@ -22,12 +24,14 @@
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
+		gap: 16px;
 		height: var(--header-height);
 		padding: 30px 30px;
 
 		img {
-			width: auto;
-			height: var(--header-height);
+			min-width: 0;
+			width: fit-content;
+			max-height: var(--header-height);
 		}
 	}
 

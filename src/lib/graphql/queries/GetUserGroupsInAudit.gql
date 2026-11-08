@@ -1,0 +1,12 @@
+query GetUserGroupsInAudit($userLogin: String) {
+	group(
+		where: { members: { userLogin: { _eq: $userLogin } }, status: { _eq: audit } }
+		order_by: { updatedAt: desc }
+	) {
+		object {
+			id
+			name
+		}
+		...Group
+	}
+}
