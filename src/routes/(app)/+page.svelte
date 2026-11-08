@@ -4,6 +4,7 @@
 	import Event from '$lib/assets/svg/event.svelte';
 	import Gite from '$lib/assets/svg/gite.svelte';
 	import Leaderboard from '$lib/assets/svg/leaderboard.svelte';
+	import Suspend from '$lib/components/shared/Suspend.svelte';
 	import Card from '$lib/components/ui/Card.svelte';
 	import FlexContainer from '$lib/components/ui/Flex/FlexContainer.svelte';
 	import type { Component } from 'svelte';
@@ -14,12 +15,14 @@
 		text: string;
 	}
 
-	const response = await fetch(
-		`https://api.github.com/repos/xySaad/libraone-frontend/contributors`
-	);
-	const contributors: { login: string; avatar_url: string; html_url: string }[] =
-		await response.json();
-
+	async function getContributors() {
+		const response = await fetch(
+			`https://api.github.com/repos/xySaad/libraone-frontend/contributors`
+		);
+		const contributors: { login: string; avatar_url: string; html_url: string }[] =
+			await response.json();
+		return contributors;
+	}
 	const links: Link[] = [
 		{ href: '/events', icon: Event, text: 'Events' },
 		{ href: '/map', icon: Gite, text: 'Map' },
@@ -47,17 +50,26 @@
 </nav>
 
 <footer class="contributors-footer">
-	<div class="divider"></div>
-	<span class="label">Contributors</span>
-	<ul class="avatars">
-		{#each contributors as contributor (contributor.login)}
-			<li class="avatar-item" data-tooltip={contributor.login}>
-				<a href={contributor.html_url} target="_blank" rel="noopener noreferrer external">
-					<img src={contributor.avatar_url} alt={contributor.login} class="avatar" loading="lazy" />
-				</a>
-			</li>
-		{/each}
-	</ul>
+	<a href="https://github.com/xySaad/libraone-frontend" rel="external" target="_blank">
+		<div class="divider"></div>
+		<span class="label">Contributors</span>
+		<ul class="avatars">
+			<Suspend data={getContributors()}>
+				{#snippet children(contributors)}
+					{#each contributors as contributor (contributor.login)}
+						<li class="avatar-item" data-tooltip={contributor.login}>
+							<img
+								src={contributor.avatar_url}
+								alt={contributor.login}
+								class="avatar"
+								loading="lazy"
+							/>
+						</li>
+					{/each}
+				{/snippet}
+			</Suspend>
+		</ul>
+	</a>
 </footer>
 
 <style>
