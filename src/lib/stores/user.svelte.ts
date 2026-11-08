@@ -9,16 +9,18 @@ const profileCreds = await api.LIBRAONE.candidate().catch(() => null);
 export const profileUserState = writable<ProfileCreds | null>(profileCreds);
 
 const getUserIdFromWorker = async (): Promise<number | null> => {
-	const reg = await navigator.serviceWorker.ready;
-	const active = reg.active;
-	if (!active) return null;
+	const ctrl = navigator.serviceWorker.controller;
+	if (!ctrl) {
+		window.location.reload();
+		return null;
+	}
 	return new Promise((res) => {
 		const { port1, port2 } = new MessageChannel();
 		port1.onmessage = (e) => {
 			res(e.data.userID);
 			if (preferences.intraAutoLogin && e.data.userID === null) goto(resolve('/accounts/intra'));
 		};
-		active.postMessage({ type: 'GET_USER_ID' }, [port2]);
+		ctrl.postMessage({ type: 'GET_USER_ID' }, [port2]);
 	});
 };
 

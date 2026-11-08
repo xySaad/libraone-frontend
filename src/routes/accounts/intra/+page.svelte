@@ -9,26 +9,24 @@
 	import { onMount } from 'svelte';
 	const senderOrigin = 'https://libraone-auth.undo.it';
 
-	const handleAsReceiver = () => {
+	const handleAsReceiver = (ctrl: ServiceWorker) => {
 		window.addEventListener('message', async (event) => {
-			if (event.origin !== senderOrigin) return;
-			if (event.source !== window.opener) return;
+			if (event.origin !== senderOrigin || event.source !== window.parent) return;
 			const { type, data } = event.data;
 			if (type === 'token') {
-				const reg = await navigator.serviceWorker.ready;
-				reg.active?.postMessage({ type: 'SET_TOKEN', token: data });
-				window.close();
+				ctrl.postMessage({ type: 'SET_TOKEN', token: data });
+				console.log('ctrl:', ctrl);
+				window.parent.postMessage({ type: 'token_received' }, senderOrigin);
 			}
 		});
-		if (window.opener) window.opener.postMessage({ type: 'ready' }, senderOrigin);
+		window.parent.postMessage({ type: 'ready' }, senderOrigin);
 	};
 
 	const receiver = page.url.searchParams.get('receiver');
-	const callback = page.url.searchParams.get('callback');
 	onMount(async () => {
-		if (receiver) handleAsReceiver();
-		else if (callback) history.back();
-		else if (!navigator.serviceWorker.controller) window.location.reload();
+		const ctrl = navigator.serviceWorker.controller;
+		if (!ctrl) window.location.reload();
+		else if (receiver) handleAsReceiver(ctrl);
 		else window.location.replace(senderOrigin);
 	});
 </script>
