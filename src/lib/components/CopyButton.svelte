@@ -4,13 +4,16 @@
 	import ActionButton from './ui/ActionButton.svelte';
 
 	type Props = {
-		text: string;
+		text: string | (() => Promise<string> | string);
 		label?: string;
 	};
 
 	let { text, label }: Props = $props();
 
-	const copy = () => navigator.clipboard.writeText(text);
+	const copy = async () => {
+		const plainText = typeof text === 'function' ? await text() : text;
+		navigator.clipboard.writeText(plainText);
+	};
 </script>
 
 <ActionButton onclick={copy} style="padding: 10px;">

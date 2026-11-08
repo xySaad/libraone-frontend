@@ -16,7 +16,8 @@ export const api = {
 		},
 		object(path: string = '') {
 			return endpoint<GraphQLObject>('GET', `/object${path}`).call(this);
-		}
+		},
+		discord: endpoint<string[], Record<string, string>>('POST', '/v2/users/discord')
 	}),
 	CAMPUS: config({
 		ORIGIN: 'https://libraone.undo.it/api/campus',

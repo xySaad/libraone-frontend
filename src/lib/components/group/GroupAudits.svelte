@@ -11,21 +11,39 @@
 	import { formatDate } from '$lib/utils/time';
 	import Button from '../ui/Button.svelte';
 	import AuditResult from './AuditResult.svelte';
+	import api from '$lib/api';
 
-	const buildAuditCopyText = (
+	const buildAuditCopyText = async (
 		projectName: string,
 		members: GroupFragment['members'],
 		audits: AuditFragment[]
 	) => {
-		const membersMention = members.map((m) => `@${m.user?.login}`).join(' ');
-		const auditorList = audits.map((a) => `- @${a.auditor?.login}`).join('\n');
+		const membersLogin = members
+			.map((m) => m.user?.login)
+			.filter((login) => typeof login === 'string');
+		const auditorsLogin = audits
+			.map((a) => a.auditor?.login)
+			.filter((login) => typeof login === 'string');
+
+		const logins = [...auditorsLogin, ...membersLogin];
+		const usersDiscord = await api.LIBRAONE.discord(logins);
+
+		const membersMention = membersLogin
+			.map((login) => usersDiscord[login])
+			.map((discordId) => `<@${discordId}>`)
+			.join(' ');
+
+		const auditorsMention = auditorsLogin
+			.map((login) => usersDiscord[login])
+			.map((discordId) => `<@${discordId}>`)
+			.join('\n');
+
 		return [
 			`Project: ${projectName}`,
 			`Team Members: ${membersMention}`,
 			`Available between: ${preferences.auditTime.start} - ${preferences.auditTime.end}`,
 			`Auditors:`,
-			``,
-			auditorList
+			auditorsMention
 		].join('\n');
 	};
 </script>
@@ -40,7 +58,6 @@
 		endDate?: string;
 	}
 	const { projectName, captainId, members, audits, createdAt, endDate }: Props = $props();
-	let copyText = $derived(buildAuditCopyText(projectName, members, audits));
 	let editTimeScreen = $state(false);
 </script>
 
@@ -61,7 +78,7 @@
 			{formatDate(createdAt)}
 			{#if endDate}<ArrowRight />{formatDate(endDate)}{/if}
 		</Divider>
-		<span> <CopyButton text={copyText} /></span>
+		<span> <CopyButton text={() => buildAuditCopyText(projectName, members, audits)} /></span>
 		<span>
 			<Button style="padding: 10px;" onclick={() => (editTimeScreen = true)}><Clock /></Button>
 		</span>
