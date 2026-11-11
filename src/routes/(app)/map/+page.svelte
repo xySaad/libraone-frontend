@@ -59,7 +59,7 @@
 											<UserAvatar
 												userLogin={username}
 												avatarUrl={`${api.CAMPUS.ORIGIN}/image/map/${username}`}
-												allowSwitch={false}
+												showOnline={false}
 											/>
 										{/if}
 									</div>

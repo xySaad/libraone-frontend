@@ -6,19 +6,17 @@
 	import type { PublicUserFieldsFragment } from '$lib/graphql/generated';
 	import type { Snippet } from 'svelte';
 	import UserAvatar from '../image/UserAvatar.svelte';
-	import OnlineDot from '../OnlineDot.svelte';
 	import Card from '$lib/components/ui/Card.svelte';
 	import ManageAccounts from '$lib/assets/svg/manage-accounts.svelte';
 	import { resolve } from '$app/paths';
 	import { profileUserState } from '$lib/stores/user.svelte';
 
 	interface Props {
-		active?: boolean | null;
 		user: PublicUserFieldsFragment;
 		children?: Snippet;
 	}
 
-	const { user, active, children }: Props = $props();
+	const { user, children }: Props = $props();
 
 	const getDiscord = async () => {
 		try {
@@ -41,9 +39,6 @@
 				userLogin={user.login}
 				banned={!user.canAccessPlatform}
 			/>
-			{#if active}
-				<div class="online-dot"><OnlineDot /></div>
-			{/if}
 		</div>
 		<h1 class="meta">
 			{user.firstName}
@@ -83,12 +78,6 @@
 </Card>
 
 <style>
-	.online-dot {
-		position: absolute;
-		bottom: -5px;
-		right: -5px;
-		padding: 10px;
-	}
 	header {
 		display: flex;
 		gap: 20px;

@@ -1,6 +1,5 @@
 <script lang="ts">
 	import Block from '$lib/assets/svg/block.svelte';
-	import { onlineUsers } from '$lib/stores/onlineUsers.svelte';
 	import type { EventPublicUser, EventUserRel } from '$lib/types/events';
 	import UserAvatar from './image/UserAvatar.svelte';
 	import Badge from './ui/Badge.svelte';
@@ -13,8 +12,6 @@
 	let { user, eventUserRel }: Props = $props();
 	const level = $derived(eventUserRel?.level);
 	const auditRatio = $derived(eventUserRel?.userAuditRatio);
-
-	const post = $derived(user.login ? onlineUsers[user.login] : null);
 </script>
 
 <Card>
@@ -42,7 +39,6 @@
 		</div>
 		<div>
 			<dt>last online</dt>
-			<dd>{post ?? '-'}</dd>
 			<dt>audit ratio</dt>
 			<dd>{auditRatio ? Number(auditRatio).toFixed(2) : '_'}</dd>
 		</div>

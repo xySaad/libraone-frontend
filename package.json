@@ -76,6 +76,6 @@
 		"jwt-decode": "^4.0.0",
 		"marked": "^18.0.6",
 		"marked-katex-extension": "^5.1.10",
-		"zod": "^4.4.3"
+		"zod": "^4.6.7"
 	}
 }

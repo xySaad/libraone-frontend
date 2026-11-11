@@ -82,7 +82,7 @@
 	{#if loading}
 		<SkeletonLoader />
 	{:else if user}
-		<ProfileHero {user} active={!!profile?.location}>
+		<ProfileHero {user}>
 			{#if !profileState}
 				<LockedOverlay message="Link profile">
 					<ProfileStats logtime={fakeLogtime} profile={fakeProfile} />
