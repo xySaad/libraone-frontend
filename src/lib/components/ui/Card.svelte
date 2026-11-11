@@ -1,4 +1,3 @@
-<!-- lib/components/ui/Card.svelte -->
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 

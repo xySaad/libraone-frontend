@@ -1,6 +1,7 @@
 import { goto } from '$app/navigation';
 import { resolve } from '$app/paths';
 import { config, endpoint } from '$lib/types/config';
+import type { Occupancy } from '$lib/types/map/occupancy';
 import type { GraphQLObject } from '$lib/types/object';
 import type { LeaderboardUser, LogtimeData, MaplProfile, ProfileCreds } from '$lib/types/profile';
 
@@ -17,7 +18,8 @@ export const api = {
 		object(path: string = '') {
 			return endpoint<GraphQLObject>('GET', `/object${path}`).call(this);
 		},
-		discord: endpoint<string[], Record<string, string>>('POST', '/v2/users/discord')
+		discord: endpoint<string[], Record<string, string>>('POST', '/v2/users/discord'),
+		map: endpoint<Occupancy>('GET', '/v2/campus/map')
 	}),
 	CAMPUS: config({
 		ORIGIN: 'https://libraone.undo.it/api/campus',
