@@ -56,6 +56,9 @@
 			aspect-ratio: 1;
 			overflow: hidden;
 			transition: transform 0.8s;
+			display: flex;
+			align-items: center;
+			justify-content: center;
 
 			.banned {
 				position: absolute;
