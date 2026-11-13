@@ -10,11 +10,10 @@
 	import ActionButton from '$lib/components/ui/ActionButton.svelte';
 	import Badge from '$lib/components/ui/Badge.svelte';
 	import Card from '$lib/components/ui/Card.svelte';
-	import Toggle from '$lib/components/ui/Toggle.svelte';
 	import { Client } from '$lib/graphql/client';
 	import { GetUserByIdDocument } from '$lib/graphql/generated';
 	import { preferences } from '$lib/stores/preferences.svelte';
-	import { intraUserIdState, profileUserState } from '$lib/stores/user.svelte';
+	import { intraUserIdState, libraoneUserState } from '$lib/stores/user.svelte';
 
 	const getUserById = async (userId: number) => {
 		const res = await Client.request(GetUserByIdDocument, { userId });
@@ -32,7 +31,7 @@
 	<div class="card">
 		<Card maxWidth="600px">
 			<Wordmark>Accounts</Wordmark>
-			{#if $profileUserState}
+			{#if $libraoneUserState}
 				<div class="gitea">
 					<Card>
 						<CardHeader>
@@ -49,19 +48,28 @@
 
 						<section class="user">
 							<UserAvatar
-								userLogin={$profileUserState.graphql_login}
-								avatarUrl={$profileUserState.avatar_url}
+								userLogin={$libraoneUserState.graphql_login}
+								avatarUrl={$libraoneUserState.avatar_url}
 							/>
 							<Badge>
-								{$profileUserState.gitea_login} ({$profileUserState.role})</Badge
+								{$libraoneUserState.gitea_login} ({$libraoneUserState.role})</Badge
 							>
 						</section>
 					</Card>
 				</div>
 			{:else}
-				<LoginAnchor type="gitea" subtitle="Login via OAuth">
-					<Gitea />
-				</LoginAnchor>
+				<div class="login-option">
+					<div class="unlocks">
+						<span class="unlocks-label">Unlocks</span>
+						<Badge>Map</Badge>
+						<Badge>Online status</Badge>
+						<Badge>Discord</Badge>
+						<Badge>GraphQL data</Badge>
+					</div>
+					<LoginAnchor type="gitea" subtitle="Login via OAuth">
+						<Gitea />
+					</LoginAnchor>
+				</div>
 			{/if}
 			{#if $intraUserIdState}
 				<div class="intra">
@@ -72,7 +80,15 @@
 								<div class="title">
 									Intra
 									<div class="logout">
-										<ActionButton onclick={() => {}}>Logout</ActionButton>
+										<ActionButton
+											onclick={() => {
+												navigator.serviceWorker.controller?.postMessage({ type: 'LOGOUT' });
+												preferences.intraAutoLogin = false;
+												$intraUserIdState = null;
+											}}
+										>
+											Logout
+										</ActionButton>
 									</div>
 								</div>
 							{/snippet}
@@ -89,13 +105,17 @@
 					</Card>
 				</div>
 			{:else}
-				<LoginAnchor type="intra" subtitle="Login via Intra password">
-					<Code fill="var(--intra-accent)" />
-				</LoginAnchor>
-				<Toggle
-					bind:checked={preferences.intraAutoLogin}
-					data-tooltip="Automatically login on refresh">Auto Login</Toggle
-				>
+				<div class="login-option">
+					<div class="unlocks">
+						<span class="unlocks-label">Unlocks</span>
+						<Badge>Private GraphQL data</Badge>
+						<Badge>Assigned audits</Badge>
+						<Badge>Group auditors</Badge>
+					</div>
+					<LoginAnchor type="intra" subtitle="Login via Intra password">
+						<Code fill="var(--intra-accent)" />
+					</LoginAnchor>
+				</div>
 			{/if}
 		</Card>
 	</div>
@@ -132,6 +152,23 @@
 				width: 100%;
 				align-items: center;
 				gap: 10px;
+			}
+			.login-option {
+				display: flex;
+				flex-direction: column;
+				gap: 8px;
+				width: 100%;
+			}
+			.unlocks {
+				display: flex;
+				flex-wrap: wrap;
+				align-items: center;
+				gap: 6px;
+			}
+			.unlocks-label {
+				margin-right: 2px;
+				font-size: var(--subtitle-font-size);
+				color: var(--text-muted);
 			}
 		}
 	}

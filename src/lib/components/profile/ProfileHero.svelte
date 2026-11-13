@@ -9,7 +9,7 @@
 	import Card from '$lib/components/ui/Card.svelte';
 	import ManageAccounts from '$lib/assets/svg/manage-accounts.svelte';
 	import { resolve } from '$app/paths';
-	import { profileUserState } from '$lib/stores/user.svelte';
+	import { intraUserIdState, libraoneUserState } from '$lib/stores/user.svelte';
 
 	interface Props {
 		user: PublicUserFieldsFragment;
@@ -45,7 +45,7 @@
 			{user.lastName}
 			<p class="login">@{user.login} #{user.id}</p>
 		</h1>
-		{#if $profileUserState?.id == user.githubId}
+		{#if ($libraoneUserState?.graphql_id || $intraUserIdState) == user.id}
 			<a class="manage-accounts" href={resolve('/accounts')}><ManageAccounts /></a>
 		{/if}
 	</header>

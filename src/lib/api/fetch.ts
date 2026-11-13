@@ -19,9 +19,11 @@ export const fetchJSON = async <Req, Res>(
 		body: JSON.stringify(body)
 	});
 
-	const json = await resp.json();
-
-	if (!resp.ok) throw new FetchError(resp.status, { cause: json });
-
-	return json;
+	try {
+		const json = await resp.json();
+		if (!resp.ok) throw new FetchError(resp.status, { cause: json });
+		return json;
+	} catch (error) {
+		throw new FetchError(resp.status, { cause: error });
+	}
 };

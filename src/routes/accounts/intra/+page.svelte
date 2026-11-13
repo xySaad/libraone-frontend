@@ -6,6 +6,7 @@
 	import Card from '$lib/components/ui/Card.svelte';
 	import Form from '$lib/components/ui/Form.svelte';
 	import Spinner from '$lib/components/ui/Spinner.svelte';
+	import { preferences } from '$lib/stores/preferences.svelte';
 	import { onMount } from 'svelte';
 	const senderOrigin = 'https://libraone-auth.undo.it';
 
@@ -14,6 +15,7 @@
 			if (event.origin !== senderOrigin || event.source !== window.parent) return;
 			const { type, data } = event.data;
 			if (type === 'token') {
+				preferences.intraAutoLogin = true;
 				ctrl.postMessage({ type: 'SET_TOKEN', token: data });
 				console.log('ctrl:', ctrl);
 				window.parent.postMessage({ type: 'token_received' }, senderOrigin);

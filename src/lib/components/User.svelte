@@ -1,32 +1,32 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
-	import { resolve } from '$app/paths';
 	import { Client } from '$lib/graphql/client';
 	import { GetUserProfileDocument } from '$lib/graphql/generated';
-	import { profileUserState } from '$lib/stores/user.svelte';
+	import { intraUserIdState, libraoneUserState } from '$lib/stores/user.svelte';
 	import UserAvatar from './image/UserAvatar.svelte';
+	import LoginButton from './LoginButton.svelte';
 	import Spinner from './ui/Spinner.svelte';
 
 	const getUserProfile = async (userId: number) => {
 		const user = await Client.request(GetUserProfileDocument, { userId });
 		return user.profile[0];
 	};
+	const userId = $derived($libraoneUserState?.graphql_id || $intraUserIdState);
 </script>
 
-{#if $profileUserState}
-	<a href={resolve(`/users/${$profileUserState.graphql_login}`)}>
-		{#await getUserProfile($profileUserState.graphql_id)}
-			<Spinner size="50px" />
-		{:then user}
+{#if userId}
+	{#await getUserProfile(userId)}
+		<Spinner size="50px" />
+	{:then user}
+		<div class="shrink">
 			<UserAvatar avatarUrl={user.avatarUrl} userLogin={user.login} />
-		{/await}
-	</a>
+		</div>
+	{/await}
 {:else}
-	<button class="btn blue" onclick={() => goto(resolve('/accounts/gitea'))}> Login </button>
+	<LoginButton />
 {/if}
 
 <style>
-	a {
+	.shrink {
 		overflow: hidden;
 		width: 50px;
 		height: 50px;

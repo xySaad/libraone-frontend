@@ -14,11 +14,14 @@ const DOWNLOAD_PATH = '/api/download';
 let token: string | null = null;
 sw.addEventListener('message', (event) => {
 	switch (event.data?.type) {
+		case 'SET_TOKEN':
+			token = event.data.token;
+			break;
 		case 'GET_USER_ID':
 			event.ports[0]?.postMessage({ userID: token ? getJWTSub(token) : null });
 			break;
-		case 'SET_TOKEN':
-			token = event.data.token;
+		case 'LOGOUT':
+			token = null;
 			break;
 		default:
 			break;

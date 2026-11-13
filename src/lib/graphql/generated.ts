@@ -17693,7 +17693,7 @@ export type GetUserGroupsByLoginQuery = {
 };
 
 export type GetUserGroupsInAuditQueryVariables = Exact<{
-	userLogin?: InputMaybe<Scalars['String']['input']>;
+	userId?: InputMaybe<Scalars['Int']['input']>;
 }>;
 
 export type GetUserGroupsInAuditQuery = {
@@ -21282,8 +21282,8 @@ export const GetUserGroupsInAuditDocument = {
 			variableDefinitions: [
 				{
 					kind: 'VariableDefinition',
-					variable: { kind: 'Variable', name: { kind: 'Name', value: 'userLogin' } },
-					type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } }
+					variable: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
+					type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } }
 				}
 			],
 			selectionSet: {
@@ -21307,7 +21307,7 @@ export const GetUserGroupsInAuditDocument = {
 												fields: [
 													{
 														kind: 'ObjectField',
-														name: { kind: 'Name', value: 'userLogin' },
+														name: { kind: 'Name', value: 'userId' },
 														value: {
 															kind: 'ObjectValue',
 															fields: [
@@ -21316,7 +21316,7 @@ export const GetUserGroupsInAuditDocument = {
 																	name: { kind: 'Name', value: '_eq' },
 																	value: {
 																		kind: 'Variable',
-																		name: { kind: 'Name', value: 'userLogin' }
+																		name: { kind: 'Name', value: 'userId' }
 																	}
 																}
 															]

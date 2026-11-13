@@ -9,7 +9,7 @@ const patchedRequest = async (...args: Parameters<typeof Client.request>) => {
 		return await originalRequest(...args);
 	} catch (error) {
 		if (error instanceof ClientError && error.response.status === 401) {
-			goto(resolve(`/accounts/gitea?from=${location.pathname}`), { replaceState: true });
+			goto(resolve(`/accounts`), { replaceState: true });
 		}
 		throw error;
 	}

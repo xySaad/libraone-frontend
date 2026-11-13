@@ -2,7 +2,7 @@ import { FetchError, fetchJSON } from '$lib/api/fetch';
 
 export type Method = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 export type APIConfig = {
-	ORIGIN: string;
+	BASE: string;
 	HEADERS?: () => HeadersInit;
 	ERR_HANDLER?(status: number, body: unknown): void;
 };
@@ -36,7 +36,7 @@ export function endpoint<Res, H extends string[]>(
 export function endpoint<Req, Res>(method: Method, path: `/${string}`, requiredHeaders?: boolean) {
 	if (!requiredHeaders)
 		return async function (this: APIConfig, body?: Req) {
-			const url = this.ORIGIN + path;
+			const url = this.BASE + path;
 			try {
 				return await fetchJSON<Req, Res>(method, url, this.HEADERS?.(), body);
 			} catch (error) {
@@ -48,7 +48,7 @@ export function endpoint<Req, Res>(method: Method, path: `/${string}`, requiredH
 		};
 
 	return async function (this: APIConfig, headers: HeadersInit, body?: Req) {
-		const url = this.ORIGIN + path;
+		const url = this.BASE + path;
 		const mergedHeaders = { ...headers, ...this.HEADERS?.() };
 		try {
 			return await fetchJSON<Req, Res>(method, url, mergedHeaders, body);
