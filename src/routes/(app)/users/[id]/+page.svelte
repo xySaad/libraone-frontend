@@ -17,13 +17,13 @@
 		type PublicUserFieldsFragment
 	} from '$lib/graphql/generated';
 	import { fakeLogtime, fakeProfile } from '$lib/mock/mapl';
-	import { profileUserState } from '$lib/stores/user.svelte';
+	import { libraoneUserState } from '$lib/stores/user.svelte';
 	import type { LogtimeData, MaplProfile } from '$lib/types/profile';
 	import { formatDateInput } from '$lib/utils/time';
 	import type { PageProps } from './$types';
 
 	const { params }: PageProps = $props();
-	const profileState = $derived($profileUserState);
+	const profileState = $derived($libraoneUserState);
 
 	const getPublicUser = async (userId: string) => {
 		if (Number.isInteger(+userId)) {
@@ -84,7 +84,7 @@
 	{:else if user}
 		<ProfileHero {user}>
 			{#if !profileState}
-				<LockedOverlay message="Link profile">
+				<LockedOverlay message="Login with Gitea">
 					<ProfileStats logtime={fakeLogtime} profile={fakeProfile} />
 				</LockedOverlay>
 			{:else}
@@ -93,7 +93,7 @@
 		</ProfileHero>
 		{#if user.login}
 			{#if !profileState}
-				<LockedOverlay message="Link profile">
+				<LockedOverlay message="Login with Gitea">
 					<LogtimeSection logtime={fakeLogtime} />
 				</LockedOverlay>
 			{:else if logtime}

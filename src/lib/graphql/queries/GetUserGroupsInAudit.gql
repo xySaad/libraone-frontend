@@ -1,6 +1,6 @@
-query GetUserGroupsInAudit($userLogin: String) {
+query GetUserGroupsInAudit($userId: Int) {
 	group(
-		where: { members: { userLogin: { _eq: $userLogin } }, status: { _eq: audit } }
+		where: { members: { userId: { _eq: $userId } }, status: { _eq: audit } }
 		order_by: { updatedAt: desc }
 	) {
 		object {

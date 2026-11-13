@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { resolve } from '$app/paths';
 	import Warning from '$lib/assets/svg/warning.svelte';
 	import GroupCard from '$lib/components/group/GroupCard.svelte';
 	import Suspend from '$lib/components/shared/Suspend.svelte';
@@ -7,12 +6,13 @@
 	import Notice from '$lib/components/ui/Notice.svelte';
 	import { Client } from '$lib/graphql/client';
 	import { GetUserGroupsInAuditDocument } from '$lib/graphql/generated';
-	import { profileUserState } from '$lib/stores/user.svelte';
+	import { intraUserIdState, libraoneUserState } from '$lib/stores/user.svelte';
 	import walkingKerby from '$lib/assets/walking_kerby.webp';
+	import LoginButton from '$lib/components/LoginButton.svelte';
 
-	const userLogin = $derived($profileUserState?.graphql_login);
-	const getGroupsInAudit = async (login: string) => {
-		const { group } = await Client.request(GetUserGroupsInAuditDocument, { userLogin: login });
+	const userId = $derived($libraoneUserState?.graphql_id || $intraUserIdState);
+	const getGroupsInAudit = async (userId: number) => {
+		const { group } = await Client.request(GetUserGroupsInAuditDocument, { userId: userId });
 		return group;
 	};
 
@@ -44,8 +44,8 @@
 			<p>Your groups that are currently waiting for or going through an audit.</p>
 		</header>
 
-		{#if userLogin}
-			<Suspend data={getGroupsInAudit(userLogin)} size="32px">
+		{#if userId}
+			<Suspend data={getGroupsInAudit(userId)} size="32px">
 				{#snippet children(groups)}
 					{#if groups.length === 0}
 						<p class="empty">None of your groups are in audit right now.</p>
@@ -65,7 +65,7 @@
 		{:else}
 			<div class="login">
 				<p class="empty">Log in to see your groups that are in audit.</p>
-				<a class="btn blue" href={resolve('/accounts/gitea')}>Login</a>
+				<LoginButton />
 			</div>
 		{/if}
 	</section>

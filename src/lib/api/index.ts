@@ -2,25 +2,31 @@ import { goto } from '$app/navigation';
 import { resolve } from '$app/paths';
 import { config, endpoint } from '$lib/types/config';
 import type { GraphQLObject } from '$lib/types/object';
-import type { LeaderboardUser, LogtimeData, MaplProfile, ProfileCreds } from '$lib/types/profile';
+import type { LeaderboardUser, LogtimeData, MaplProfile } from '$lib/types/profile';
+import type { LibraoneUser } from '$lib/types/user';
 
 const handleUnAuthorized = (status: number) =>
 	status === 401 &&
 	goto(resolve(`/accounts/gitea?from=${location.pathname}`), { replaceState: true });
 
+const LIBRAONE_BASE = 'https://libraone.undo.it/api';
 export const api = {
 	LIBRAONE: config({
-		ORIGIN: 'https://libraone.undo.it/api',
-		candidate(login?: string) {
-			return endpoint<ProfileCreds>('GET', `/candidate/${login ?? ''}`).call(this);
-		},
+		ERR_HANDLER: handleUnAuthorized,
+		BASE: LIBRAONE_BASE,
 		object(path: string = '') {
 			return endpoint<GraphQLObject>('GET', `/object${path}`).call(this);
 		},
 		discord: endpoint<string[], Record<string, string>>('POST', '/v2/users/discord')
 	}),
+	LIBRAONE_UNAUTHED: config({
+		BASE: LIBRAONE_BASE,
+		candidate() {
+			return endpoint<LibraoneUser>('GET', '/candidate').call(this);
+		}
+	}),
 	CAMPUS: config({
-		ORIGIN: 'https://libraone.undo.it/api/campus',
+		BASE: `${LIBRAONE_BASE}/campus`,
 		online: endpoint<Record<string, string>>('GET', '/online'),
 		ERR_HANDLER: handleUnAuthorized,
 		profile({ login }: { login: string }) {
@@ -37,11 +43,11 @@ export const api = {
 		}
 	}),
 	INTRA: config({
-		ORIGIN: 'https://learn.zone01oujda.ma/api',
+		BASE: 'https://learn.zone01oujda.ma/api',
 		signin: endpoint<string, ['Authorization']>('POST', '/auth/signin', true)
 	}),
 	PROXIED_INTRA: config({
-		ORIGIN: 'https://cors.lil-hacker.workers.dev/proxy?url=https://learn.zone01oujda.ma/api',
+		BASE: 'https://cors.lil-hacker.workers.dev/proxy?url=https://learn.zone01oujda.ma/api',
 		object(path: string = '') {
 			return endpoint<GraphQLObject>('GET', `/object/${path}`).call(this);
 		}

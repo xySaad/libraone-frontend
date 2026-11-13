@@ -1,12 +1,12 @@
 import api from '$lib/api';
-import type { ProfileCreds } from '$lib/types/profile';
 import { writable } from 'svelte/store';
 import { preferences } from './preferences.svelte';
 import { goto } from '$app/navigation';
 import { resolve } from '$app/paths';
+import type { LibraoneUser } from '$lib/types/user';
 
-const profileCreds = await api.LIBRAONE.candidate().catch(() => null);
-export const profileUserState = writable<ProfileCreds | null>(profileCreds);
+const libraoneCreds = await api.LIBRAONE_UNAUTHED.candidate().catch(() => null);
+export const libraoneUserState = writable<LibraoneUser | null>(libraoneCreds);
 
 const getUserIdFromWorker = async (): Promise<number | null> => {
 	const ctrl = navigator.serviceWorker.controller;
@@ -17,8 +17,8 @@ const getUserIdFromWorker = async (): Promise<number | null> => {
 	return new Promise((res) => {
 		const { port1, port2 } = new MessageChannel();
 		port1.onmessage = (e) => {
-			res(e.data.userID);
 			if (preferences.intraAutoLogin && e.data.userID === null) goto(resolve('/accounts/intra'));
+			else res(e.data.userID);
 		};
 		ctrl.postMessage({ type: 'GET_USER_ID' }, [port2]);
 	});

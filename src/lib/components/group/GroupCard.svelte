@@ -73,16 +73,9 @@
 		</CardHeader>
 	</div>
 
-	<TabsContainer
-		navMinWidth={100}
-		hidden={{
-			Invitations: group.invitations.length < 1,
-			Members: group.members.length < 1,
-			Results: group.results.length < 1 && group.auditors.length < 1
-		}}
-	>
+	<TabsContainer navMinWidth={120} hidden={{}}>
 		{#snippet NavMembers()}
-			members
+			members <Badge>{group.members.length}</Badge>
 		{/snippet}
 		{#snippet Members()}
 			<div class="members">
@@ -108,38 +101,13 @@
 			</div>
 		{/snippet}
 
-		{#snippet NavInvitations()}
-			invitations
+		{#snippet NavAudits()}
+			audits <Badge
+				>{group.results.reduce((a, b) => a + b.audits.length, 0) + group.auditors.length}</Badge
+			>
 		{/snippet}
-		{#snippet Invitations()}
-			<div class="members">
-				{#each group.invitations as member (member.user?.id)}
-					{@const user = member.user}
-					{@const isCaptain = user?.id === group.captain?.id}
-					{@const memberTooltip = `${member.user?.login}${isCaptain ? ' (captain)' : ''}`}
-					<div class="member" data-tooltip={memberTooltip}>
-						{#if isCaptain}
-							<div class="crown">
-								<Crown />
-							</div>
-						{/if}
-						<div class="avatar">
-							<UserAvatar
-								avatarUrl={user?.avatarUrl}
-								userLogin={user?.login}
-								banned={!user?.canAccessPlatform}
-							/>
-						</div>
-					</div>
-				{/each}
-			</div>
-		{/snippet}
-
-		{#snippet NavResults()}
-			results
-		{/snippet}
-		{#snippet Results()}
-			<div class="results">
+		{#snippet Audits()}
+			<div class="audits">
 				{#if group.auditors.length > 0}
 					{#each Object.entries(groupAuditsByDate(auditors)) as [key, { createdAt, endDate, audits }] (key)}
 						<div class="members">
@@ -164,6 +132,33 @@
 							{audits}
 							{createdAt}
 						/>
+					</div>
+				{/each}
+			</div>
+		{/snippet}
+
+		{#snippet NavInvitations()}
+			invitations <Badge>{group.invitations.length}</Badge>
+		{/snippet}
+		{#snippet Invitations()}
+			<div class="members">
+				{#each group.invitations as member (member.user?.id)}
+					{@const user = member.user}
+					{@const isCaptain = user?.id === group.captain?.id}
+					{@const memberTooltip = `${member.user?.login}${isCaptain ? ' (captain)' : ''}`}
+					<div class="member" data-tooltip={memberTooltip}>
+						{#if isCaptain}
+							<div class="crown">
+								<Crown />
+							</div>
+						{/if}
+						<div class="avatar">
+							<UserAvatar
+								avatarUrl={user?.avatarUrl}
+								userLogin={user?.login}
+								banned={!user?.canAccessPlatform}
+							/>
+						</div>
 					</div>
 				{/each}
 			</div>
@@ -195,7 +190,7 @@
 		}
 	}
 
-	.results {
+	.audits {
 		display: flex;
 		flex-direction: column;
 		gap: 30px;
