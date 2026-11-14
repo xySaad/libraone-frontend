@@ -1,4 +1,5 @@
 <script lang="ts">
+	import api from '$lib/api';
 	import Code from '$lib/assets/svg/code.svelte';
 	import Gitea from '$lib/assets/svg/gitea.svelte';
 	import CardHeader from '$lib/components/Card/CardHeader.svelte';
@@ -40,7 +41,14 @@
 								<div class="title">
 									Gitea OAuth
 									<div class="logout">
-										<ActionButton onclick={() => {}}>Logout</ActionButton>
+										<ActionButton
+											onclick={() => {
+												libraoneUserState.set(null);
+												return api.LIBRAONE_UNAUTHED.logout();
+											}}
+										>
+											Logout
+										</ActionButton>
 									</div>
 								</div>
 							{/snippet}

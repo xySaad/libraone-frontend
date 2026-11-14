@@ -21,9 +21,8 @@ export const api = {
 	}),
 	LIBRAONE_UNAUTHED: config({
 		BASE: LIBRAONE_BASE,
-		candidate() {
-			return endpoint<LibraoneUser>('GET', '/candidate').call(this);
-		}
+		logout: endpoint<void>('POST', '/v2/account/logout'),
+		candidate: endpoint<LibraoneUser>('GET', '/candidate')
 	}),
 	CAMPUS: config({
 		BASE: `${LIBRAONE_BASE}/campus`,
