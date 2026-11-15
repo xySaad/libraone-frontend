@@ -1,9 +1,9 @@
 <script lang="ts">
 	import UserAvatar from '$lib/components/image/UserAvatar.svelte';
 	import { avatarUrl } from '$lib/map/ui/avatar';
-	import type { Occupant } from '$lib/map/domain/occupancy';
+	import type { Seat } from '$lib/types/websocket/seats';
 
-	let { occupant, onclose }: { occupant: Occupant; onclose: () => void } = $props();
+	let { occupant, onclose }: { occupant: Seat; onclose: () => void } = $props();
 </script>
 
 <div class="card">
@@ -16,8 +16,7 @@
 	</div>
 	<div class="who">
 		<strong>{occupant.login}</strong>
-		<span>Row {occupant.row}, seat {occupant.seat}</span>
-		<span>{occupant.hostname}</span>
+		<span>Row {occupant.row}, seat {occupant.id}</span>
 	</div>
 	<button class="x" aria-label="Close" onclick={onclose}>&times;</button>
 </div>

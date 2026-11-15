@@ -1,146 +1,193 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
-	import { LAYOUTS } from '$lib/map/config/buildings_layouts';
-	import { extent, floorInfo, sectionsOf } from '$lib/map/domain/geometry';
-	import { onlineInSection } from '$lib/map/domain/occupancy';
-	import type { Occupancy } from '$lib/map/domain/occupancy';
-	import type { Building, ZoneId } from '$lib/map/domain/types';
-	import { pillWidth } from '$lib/map/ui/pill';
+	import { DIRECTIONS, DOOR_TURN } from '$lib/config/map/layout';
+	import type { Floor } from '$lib/types/map.svelte';
+	import { extent, spanOf } from '$lib/utils/ui/geometry';
+	import { ArrowDown } from '@lucide/svelte';
 	import MapHint from './MapHint.svelte';
-	import Pill from './Pill.svelte';
 
 	interface Props {
-		building: Building;
-		zone: ZoneId;
-		occupancy: Occupancy;
+		floor: Floor;
+		building: string;
 	}
 
-	let { building, zone, occupancy }: Props = $props();
-
-	const K = 30;
-	const info = $derived(floorInfo(zone));
-	const entry = $derived(LAYOUTS[zone].entry);
-	const X = (x: number) => (x - info.minX) * K;
-	const Y = (y: number) => (y - info.minY) * K;
-
-	const sections = $derived(
-		sectionsOf(zone).map((section) => {
-			const online = onlineInSection(occupancy, zone, section);
-			const label = online ? `${section.label} \u00b7 ${online}` : section.label;
-			const x = X(section.box.x0);
-			const y = Y(section.box.y0);
-			const w = (section.box.x1 - section.box.x0) * K;
-			const h = (section.box.y1 - section.box.y0) * K;
-			return {
-				section,
-				online,
-				label,
-				x,
-				y,
-				w,
-				h,
-				pillX: Math.round(x + w / 2 - pillWidth(label) / 2),
-				pillY: Math.round(y + h / 2),
-				rows: section.blocks.map((b) => {
-					const e = extent(b);
-					return { r: b.r, x: X(e.x), y: Y(e.y), w: e.w * K, h: e.h * K };
-				})
-			};
-		})
-	);
-
-	const cx = $derived(X(entry.x));
-	const cy = $derived(Y(entry.y));
+	let { building, floor }: Props = $props();
+	const { zone, layout } = $derived(floor);
 </script>
 
-<svg
-	class="lay"
-	viewBox="0 0 {info.W * K} {info.H * K}"
-	role="group"
-	aria-label="{building.name} floor layout"
->
-	{#each sections as s (s.section.id)}
-		<a
-			href="{resolve(`/map/${building.id}/${zone}`)}/{s.section.id}"
-			aria-label="Rows {s.section.lo === s.section.hi
-				? s.section.lo
-				: `${s.section.lo} to ${s.section.hi}`}, {s.online} online"
+<div class="view">
+	<div
+		class="floor"
+		role="group"
+		aria-label="Floor layout"
+		style:--right={layout.right}
+		style:--bottom={layout.bottom}
+	>
+		<!-- every side of the room that has rows is one section -->
+		{#each DIRECTIONS as face (face)}
+			{@const blocks = layout.blocks[face] ?? []}
+			{#if blocks.length}
+				{@const s = spanOf(face, blocks)}
+				{@const single = s.lo === s.hi}
+				{@const online = blocks.reduce((n, b) => n + (zone.rows['R' + b.r]?.seats.length ?? 0), 0)}
+				{@const range = single ? `R${s.lo}` : `R${s.lo}-R${s.hi}`}
+				<a
+					class="section"
+					class:lit={online > 0}
+					href={resolve(`/map/${building}/${zone.id}/${face}`)}
+					aria-label="Rows {single ? s.lo : `${s.lo} to ${s.hi}`}, {online} online"
+				>
+					<span class="card" style:--x={s.x} style:--y={s.y} style:--w={s.w} style:--h={s.h}>
+						<span class="badge" class:zero={online === 0}>
+							{online ? `${range} · ${online}` : range}
+						</span>
+					</span>
+					{#each blocks as block (block.r)}
+						{@const e = extent(face, block)}
+						<span class="row" style:--x={e.x} style:--y={e.y} style:--w={e.w} style:--h={e.h}
+						></span>
+					{/each}
+				</a>
+			{/if}
+		{/each}
+		<span
+			class="door"
+			class:side={layout.entry.dir === 'right'}
+			style:--x={layout.entry.x}
+			style:--y={layout.entry.y}
 		>
-			<rect
-				class="edge"
-				x={s.x}
-				y={s.y}
-				width={s.w}
-				height={s.h}
-				rx={K * 0.5}
-				fill="var(--{s.online ? 'blk-on' : 'blk'})"
-			/>
-			{#each s.rows as row (row.r)}
-				<rect
-					x={row.x}
-					y={row.y}
-					width={row.w}
-					height={row.h}
-					rx={K * 0.3}
-					fill="var(--plate)"
-					opacity="0.8"
-				/>
-			{/each}
-			<Pill x={s.pillX} cy={s.pillY} label={s.label} count={s.online} />
-		</a>
-	{/each}
-
-	{#if entry.dir === 'right'}
-		<text x={cx - 20} y={cy + 4} text-anchor="middle">Entry / exit</text>
-		<path d="M{cx + 24} {cy}h18m-6-6l6 6-6 6" />
-	{:else}
-		<text x={cx} y={cy - 4} text-anchor="middle">Entry / exit</text>
-		<path d="M{cx} {cy + 5}v16m-6-6l6 6 6-6" />
-	{/if}
-</svg>
+			Entry / exit
+			<span class="arrow" style:rotate="{DOOR_TURN[layout.entry.dir]}deg"><ArrowDown /></span>
+		</span>
+	</div>
+</div>
 <MapHint>Tap a section to see its seats; the number shows who is online there.</MapHint>
 
 <style>
-	.lay {
-		display: block;
-		width: 100%;
-		height: auto;
-		margin: 0 auto;
-		overflow: visible;
+	.view {
+		container-type: inline-size;
 		max-width: 560px;
-		max-height: min(72vh, 760px);
-		max-height: min(72dvh, 760px);
+		margin: 0 auto;
 	}
-	a {
-		cursor: pointer;
+
+	/* --pad is the empty plate around the rows; it leaves room for the entry door.
+	   --u is one seat: as wide as the view allows, and short enough to fit the screen. */
+	.floor {
+		--pad: 1;
+		--u: min(
+			calc(100cqw / (var(--right) + 2 * var(--pad))),
+			calc(min(72dvh, 760px) / (var(--bottom) + 2 * var(--pad)))
+		);
+		position: relative;
+		width: calc(var(--u) * (var(--right) + 2 * var(--pad)));
+		height: calc(var(--u) * (var(--bottom) + 2 * var(--pad)));
+		margin: 0 auto;
+	}
+
+	/* the section covers the plate so it can lift as one; only its card and rows take taps */
+	.section {
+		position: absolute;
+		inset: 0;
 		outline: none;
+		pointer-events: none;
 	}
 	@media (hover: hover) {
-		a {
-			transition: transform 0.22s cubic-bezier(0.2, 0.7, 0.2, 1);
+		.section {
+			transition: translate 0.22s cubic-bezier(0.2, 0.7, 0.2, 1);
 		}
-		a:hover {
-			transform: translateY(-5px);
+		.section:hover {
+			translate: 0 calc(var(--u) * -0.17);
 		}
 	}
-	.edge {
+
+	.card,
+	.row {
+		position: absolute;
+		left: calc(var(--u) * (var(--x) + var(--pad)));
+		top: calc(var(--u) * (var(--y) + var(--pad)));
+		width: calc(var(--u) * var(--w));
+		height: calc(var(--u) * var(--h));
+		pointer-events: auto;
+	}
+
+	.card {
+		box-sizing: content-box;
+		margin: calc(var(--u) * -0.25);
+		padding: calc(var(--u) * 0.25);
+		display: grid;
+		place-items: center;
+		border-radius: calc(var(--u) * 0.5);
+		background: var(--blk);
 		outline: none; /* the app's base styles draw an outline on every element */
-		stroke: transparent;
-		stroke-width: 4;
 	}
-	a:hover .edge,
-	a:focus-visible .edge {
-		stroke: var(--lit);
+	.lit .card {
+		background: var(--blk-on);
 	}
-	text {
-		font-size: 13px;
-		fill: var(--muted);
+	.section:hover .card,
+	.section:focus-visible .card {
+		box-shadow: 0 0 0 calc(var(--u) * 0.13) var(--lit);
 	}
-	path {
-		fill: none;
-		stroke: var(--muted);
-		stroke-width: 2;
-		stroke-linecap: round;
-		stroke-linejoin: round;
+
+	.row {
+		border-radius: calc(var(--u) * 0.3);
+		background: var(--plate);
+		opacity: 0.8;
+	}
+
+	.badge {
+		position: relative;
+		z-index: 1;
+		display: inline-flex;
+		align-items: center;
+		gap: 0.4em;
+		padding: 0.3em 0.75em;
+		border-radius: 999px;
+		background: var(--ink);
+		color: var(--bg);
+		font-size: calc(var(--u) * 0.67);
+		font-weight: 650;
+		line-height: 1;
+		white-space: nowrap;
+	}
+	.badge::before {
+		content: '';
+		width: 0.5em;
+		height: 0.5em;
+		border-radius: 50%;
+		background: var(--lit);
+	}
+	.badge.zero {
+		background: var(--bg);
+		color: var(--muted);
+		box-shadow: inset 0 0 0 1.5px var(--muted);
+	}
+	.badge.zero::before {
+		background: var(--muted);
+	}
+
+	/* --x, --y are the centre of the door's label and arrow */
+	.door {
+		position: absolute;
+		left: calc(var(--u) * (var(--x) + var(--pad)));
+		top: calc(var(--u) * (var(--y) + var(--pad)));
+		translate: -50% -50%;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: calc(var(--u) * 0.2);
+		color: var(--muted);
+		font-size: calc(var(--u) * 0.43);
+		white-space: nowrap;
+		pointer-events: none;
+	}
+	.door.side {
+		flex-direction: row;
+	}
+	.arrow {
+		display: grid;
+	}
+	.arrow :global(svg) {
+		width: calc(var(--u) * 0.75);
+		height: calc(var(--u) * 0.75);
 	}
 </style>

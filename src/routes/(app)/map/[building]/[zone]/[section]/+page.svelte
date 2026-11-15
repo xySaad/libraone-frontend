@@ -1,12 +1,17 @@
 <script lang="ts">
-	import { page } from '$app/state';
 	import SeatPlan from '$lib/components/map/SeatPlan.svelte';
-	import { resolveView } from '$lib/map/domain/view';
-	import { occupancyStore } from '$lib/map/stores/occupancy.svelte';
+	import { BUILDINGS } from '$lib/config/map/buildings';
+	import { DIRECTIONS } from '$lib/config/map/layout';
+	import type { PageProps } from './$types';
 
-	const view = $derived(resolveView(page.params));
+	const { params }: PageProps = $props();
+	const building = $derived(BUILDINGS[params.building]);
+	const floor = $derived(building?.floors.find((f) => f.zone.id === params.zone));
+	const face = $derived(DIRECTIONS.find((d) => d === params.section));
 </script>
 
-{#if view?.level === 'section'}
-	<SeatPlan zone={view.zone} section={view.section} occupancy={occupancyStore.occupancy} />
+{#if floor && face && floor.layout.blocks[face]?.length}
+	<SeatPlan {floor} {face} />
+{:else}
+	This floor doesn't include the section you are searching for
 {/if}

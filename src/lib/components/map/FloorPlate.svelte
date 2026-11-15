@@ -1,136 +1,157 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
-	import { floorName } from '$lib/map/config/campus';
-	import { LAYOUTS } from '$lib/map/config/buildings_layouts';
-	import { extent, floorInfo, seatPos } from '$lib/map/domain/geometry';
-	import { ISO, iso, polygon } from '$lib/map/domain/iso';
-	import type { Footprint } from '$lib/map/domain/iso';
-	import { onlineInZone, placedOf } from '$lib/map/domain/occupancy';
-	import type { Occupancy } from '$lib/map/domain/occupancy';
-	import type { Building, Point, ZoneId } from '$lib/map/domain/types';
-	import Pill from './Pill.svelte';
+	import { DIRECTIONS, DOOR_TURN } from '$lib/config/map/layout';
+	import type { Building, Floor } from '$lib/types/map.svelte';
+	import { extent, seatPos } from '$lib/utils/ui/geometry';
+	import { ArrowDown } from '@lucide/svelte';
 
 	interface Props {
 		building: Building;
-		zone: ZoneId;
-		/** 0 = ground floor (drawn lower), 1 = top floor. */
-		level: 0 | 1;
-		footprint: Footprint;
-		occupancy: Occupancy;
+		floor: Floor;
+		level: number;
 	}
 
-	let { building, zone, level, footprint: fp, occupancy }: Props = $props();
+	let { building, floor, level }: Props = $props();
+	const { zone, layout } = $derived(floor);
 
-	const info = $derived(floorInfo(zone));
-	const placed = $derived(placedOf(occupancy, zone));
-	const online = $derived(onlineInZone(occupancy, zone));
-
-	// seat units -> screen, centring this floor's desks in the shared footprint
-	const project = $derived((x: number, y: number) =>
-		iso(
-			(x + (fp.Wb - info.solidW) / 2 - info.solidX) * fp.k,
-			(y + (fp.Hb - info.solidH) / 2 - info.solidY) * fp.k
-		)
-	);
-
-	const top = $derived(polygon([iso(0, 0), iso(fp.W, 0), iso(fp.W, fp.H), iso(0, fp.H)]));
-	const lowered = (p: Point): Point => [p[0], p[1] + ISO.thickness];
-	const left = $derived(
-		polygon([iso(0, fp.H), iso(fp.W, fp.H), lowered(iso(fp.W, fp.H)), lowered(iso(0, fp.H))])
-	);
-	const right = $derived(
-		polygon([iso(fp.W, 0), iso(fp.W, fp.H), lowered(iso(fp.W, fp.H)), lowered(iso(fp.W, 0))])
-	);
-
-	const rows = $derived(
-		LAYOUTS[zone].blocks.map((block) => {
-			const e = extent(block);
-			return {
-				block,
-				occupied: placed.some((p) => p.block === block),
-				points: polygon([
-					project(e.x, e.y),
-					project(e.x + e.w, e.y),
-					project(e.x + e.w, e.y + e.h),
-					project(e.x, e.y + e.h)
-				])
-			};
-		})
-	);
-
-	const dots = $derived(
-		LAYOUTS[zone].blocks
-			.flatMap((block) =>
-				Array.from({ length: 2 * block.n }, (_, i) => {
-					const [x, y] = project(...seatPos(block, i + 1));
-					return `M${x.toFixed(1)} ${y.toFixed(1)}h.01`;
-				})
-			)
-			.join('')
-	);
-
-	const badge = $derived(iso(fp.W, 0));
-	const label = $derived(
-		`${building.name}, ${floorName(building, zone).toLowerCase()}, ${online} online`
-	);
+	const label = $derived(`${building.name}, ${zone.id.toLowerCase()}, ${zone.totalOnline} online`);
 </script>
 
-<g transform="translate({fp.originX.toFixed(1)},{level === 1 ? ISO.topY : ISO.bottomY})">
-	<a href={resolve(`/map/${building.id}/${zone}`)} aria-label={label}>
-		<polygon points={left} fill="var(--{building.tone}-dark)" />
-		<polygon points={right} fill="var(--{building.tone}-dark)" opacity="0.82" />
-		<polygon
-			class="edge"
-			points={top}
-			fill="var(--plate)"
-			stroke="var(--{building.tone})"
-			stroke-width="2"
-			stroke-linejoin="round"
-		/>
-		{#each rows as row (row.block.r)}
-			<polygon points={row.points} fill="var(--{row.occupied ? 'blk-on' : 'blk'})" />
+<a
+	class="plate"
+	class:top={level === 1}
+	href={resolve(`/map/${building.id}/${zone.id}`)}
+	aria-label={label}
+>
+	<div class="floor">
+		{#each DIRECTIONS as face (face)}
+			{#each layout.blocks[face] ?? [] as block (block.r)}
+				{@const e = extent(face, block)}
+				{@const seats = zone.rows['R' + block.r]?.seats ?? []}
+				<div
+					class="row"
+					class:lit={seats.length > 0}
+					style:--x={e.x}
+					style:--y={e.y}
+					style:--w={e.w}
+					style:--h={e.h}
+				></div>
+				{#each seats as seat (seat.id)}
+					{@const [x, y] = seatPos(face, block, Number(seat.id))}
+					<span class="seat" style:--x={x} style:--y={y}></span>
+				{/each}
+			{/each}
 		{/each}
-		<path
-			d={dots}
-			stroke="var(--dot)"
-			stroke-width={(fp.k * 0.55).toFixed(1)}
-			stroke-linecap="round"
-			fill="none"
-		/>
-		{#each placed as p (p.occupant.login)}
-			{@const [cx, cy] = project(...p.at)}
-			<circle class="lit" cx={cx.toFixed(1)} cy={cy.toFixed(1)} r="3.6" filter="url(#glow)" />
-		{/each}
-		<Pill x={badge[0] + 12} cy={badge[1]} label={String(online)} count={online} />
-	</a>
-</g>
+		<span
+			class="door"
+			style:--x={layout.entry.x}
+			style:--y={layout.entry.y}
+			style:rotate="{DOOR_TURN[layout.entry.dir]}deg"
+		>
+			<ArrowDown />
+		</span>
+		<span class="badge" class:zero={zone.totalOnline === 0}>{zone.totalOnline}</span>
+	</div>
+</a>
 
 <style>
-	a {
+	/* the floors share one grid cell and are lifted apart along Z by the scene around them */
+	.plate {
+		grid-area: 1 / 1;
+		display: block;
 		cursor: pointer;
 		outline: none;
+		pointer-events: auto; /* the scene around the floors ignores pointer events */
+		transform-style: preserve-3d;
+		transform: translateZ(calc(var(--lift) * -1));
+	}
+	.plate.top {
+		transform: translateZ(var(--lift));
+	}
+
+	/* --tone, --pad, --w and --h come from the scene: every floor shares the building's plate */
+	.floor {
+		position: relative;
+		width: calc(var(--u) * var(--w));
+		height: calc(var(--u) * var(--h));
+		background: var(--plate);
+		box-shadow: inset 0 0 0 max(2px, calc(var(--u) * 0.25)) var(--tone);
+		outline: none; /* the app's base styles draw an outline on every element */
+		transform-style: preserve-3d;
+		transition: transform 0.22s cubic-bezier(0.2, 0.7, 0.2, 1);
 	}
 	@media (hover: hover) {
-		a {
-			transition: transform 0.22s cubic-bezier(0.2, 0.7, 0.2, 1);
-		}
-		a:hover {
-			transform: translateY(-5px);
+		.plate:hover .floor,
+		.plate:focus-visible .floor {
+			transform: translateZ(calc(var(--u) * 0.8));
 		}
 	}
-	.edge {
-		outline: none; /* the app's base styles draw an outline on every element */
+	.plate:hover .floor,
+	.plate:focus-visible .floor {
+		box-shadow: inset 0 0 0 max(4px, calc(var(--u) * 0.5)) var(--lit);
 	}
-	a:hover .edge,
-	a:focus-visible .edge {
-		stroke: var(--lit);
-		stroke-width: 4;
+
+	/* the two edges of the slab that face the viewer */
+	.floor::before,
+	.floor::after {
+		content: '';
+		position: absolute;
+		background: var(--tone-dark);
 	}
-	.lit {
-		fill: var(--lit);
+	.floor::before {
+		top: 100%;
+		left: 0;
+		right: 0;
+		height: var(--thick);
+		transform-origin: top;
+		transform: rotateX(-90deg);
+	}
+	.floor::after {
+		top: 0;
+		bottom: 0;
+		left: 100%;
+		width: var(--thick);
+		transform-origin: left;
+		transform: rotateY(90deg);
+		background: color-mix(in srgb, var(--tone-dark) 82%, var(--bg));
+	}
+
+	.row,
+	.seat,
+	.door {
+		position: absolute;
+		left: calc(var(--u) * (var(--x) + var(--pad)));
+		top: calc(var(--u) * (var(--y) + var(--pad)));
+	}
+	.seat,
+	.door {
+		translate: -50% -50%; /* --x, --y are their centre */
+	}
+
+	.row {
+		width: calc(var(--u) * var(--w));
+		height: calc(var(--u) * var(--h));
+		background-color: var(--blk);
+		/* one dim seat per seat-sized cell */
+		background-image: radial-gradient(
+			circle,
+			var(--dot) calc(var(--u) * 0.275),
+			transparent calc(var(--u) * 0.275 + 0.5px)
+		);
+		background-size: var(--u) var(--u);
+	}
+	.row.lit {
+		background-color: var(--blk-on);
+	}
+	.seat {
+		width: calc(var(--u) * 0.9);
+		height: calc(var(--u) * 0.9);
+		border-radius: 50%;
+		background: var(--lit);
+		box-shadow: 0 0 calc(var(--u) * 0.8) var(--lit);
 	}
 	@media (prefers-reduced-motion: no-preference) {
-		.lit {
+		.seat {
 			animation: glow 3.4s ease-in-out infinite;
 		}
 	}
@@ -142,5 +163,52 @@
 		50% {
 			opacity: 0.68;
 		}
+	}
+
+	.door {
+		display: grid;
+		place-items: center;
+		color: var(--muted);
+		pointer-events: none;
+	}
+	.door :global(svg) {
+		width: calc(var(--u) * 1.2);
+		height: calc(var(--u) * 1.2);
+	}
+
+	/* stands upright at the plate's right corner: the turns undo the scene's tilt */
+	.badge {
+		position: absolute;
+		top: 0;
+		left: 100%;
+		margin-left: calc(var(--u) * 0.8);
+		display: inline-flex;
+		align-items: center;
+		gap: 0.4em;
+		padding: 0.3em 0.75em;
+		border-radius: 999px;
+		background: var(--ink);
+		color: var(--bg);
+		font-size: calc(var(--u) * 2.2);
+		font-weight: 650;
+		line-height: 1;
+		white-space: nowrap;
+		transform-origin: 0 50%;
+		transform: rotateZ(-45deg) rotateX(-60deg) translateY(-50%);
+	}
+	.badge::before {
+		content: '';
+		width: 0.5em;
+		height: 0.5em;
+		border-radius: 50%;
+		background: var(--lit);
+	}
+	.badge.zero {
+		background: var(--bg);
+		color: var(--muted);
+		box-shadow: inset 0 0 0 1.5px var(--muted);
+	}
+	.badge.zero::before {
+		background: var(--muted);
 	}
 </style>

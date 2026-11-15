@@ -4,58 +4,57 @@
 	import { cameraGestures } from '$lib/map/camera/gestures';
 	import { UNIT, focusPose, overviewPose, scaleLimits } from '$lib/map/camera/math';
 	import type { Size } from '$lib/map/camera/math';
-	import { LAYOUTS } from '$lib/map/config/buildings_layouts';
-	import { floorInfo } from '$lib/map/domain/geometry';
-	import type { Section } from '$lib/map/domain/geometry';
-	import { occupantsOf } from '$lib/map/domain/occupancy';
-	import type { Occupancy } from '$lib/map/domain/occupancy';
-	import type { ZoneId } from '$lib/map/domain/types';
+	import { spanOf } from '$lib/utils/ui/geometry';
 	import MapHint from './MapHint.svelte';
 	import OccupantCard from './OccupantCard.svelte';
 	import PlanCanvas from './PlanCanvas.svelte';
 	import PlanToolbar from './PlanToolbar.svelte';
+	import { PLAN_PAD, type Direction } from '$lib/config/map/layout';
+	import type { Floor } from '$lib/types/map.svelte';
 
 	interface Props {
-		zone: ZoneId;
-		/** The section that was tapped; the plan opens zoomed in on it. */
-		section: Section;
-		occupancy: Occupancy;
+		floor: Floor;
+		/** The side of the room that was tapped; the plan opens zoomed in on its rows. */
+		face: Direction;
 	}
 
-	let { zone, section, occupancy }: Props = $props();
+	let { floor, face }: Props = $props();
+	const { zone, layout } = $derived(floor);
 
 	const HINT_OFF =
 		'Scroll or swipe to move around the plan. Turn interactive mode on to drag, zoom and rotate. Tap an avatar to see who is sitting there.';
 	const HINT_ON =
 		'Drag to move, scroll or pinch to zoom, twist or right-drag to rotate. Tap an avatar to see who is sitting there. Turn interactive mode off to scroll normally.';
 
-	const info = $derived(floorInfo(zone));
-	const toPx = (units: number, min: number) => (units - min) * UNIT;
+	// the canvas is the plate plus a margin all round, so seat units start PLAN_PAD in
+	const wide = $derived(layout.right + 2 * PLAN_PAD);
+	const tall = $derived(layout.bottom + 2 * PLAN_PAD);
+	const toPx = (units: number) => (units + PLAN_PAD) * UNIT;
 
 	const camera = new Camera({
-		content: () => ({ w: info.W * UNIT, h: info.H * UNIT }),
+		content: () => ({ w: wide * UNIT, h: tall * UNIT }),
 		// the floor at a readable zoom, centred on the area nearest the entrance
 		overview: (view, content) => {
-			const { entry } = LAYOUTS[zone];
+			const { entry } = layout;
 			return overviewPose(
 				view,
 				content,
-				info.W,
-				[toPx(entry.x, info.minX), toPx(entry.y, info.minY)],
+				wide,
+				[toPx(entry.x), toPx(entry.y)],
 				scaleLimits(view, content)
 			);
 		},
 		// the tapped section filling the screen (margin leaves room for the row labels)
 		opening: (view, content) => {
-			const m = 1.2;
-			const { box } = section;
+			const m = 1.45;
+			const { x, y, w, h } = spanOf(face, layout.blocks[face] ?? []);
 			return focusPose(
 				view,
 				{
-					x0: toPx(box.x0 - m, info.minX),
-					y0: toPx(box.y0 - m, info.minY),
-					x1: toPx(box.x1 + m, info.minX),
-					y1: toPx(box.y1 + m, info.minY)
+					x0: toPx(x - m),
+					y0: toPx(y - m),
+					x1: toPx(x + w + m),
+					y1: toPx(y + h + m)
 				},
 				scaleLimits(view, content)
 			);
@@ -75,10 +74,10 @@
 		});
 	});
 
-	let selectedKey = $state<string | null>(null);
-	const occupants = $derived(occupantsOf(occupancy, zone));
-	const selected = $derived(occupants.find((o) => `${o.row}:${o.seat}` === selectedKey));
-	const pick = (key: string) => (selectedKey = selectedKey === key ? null : key);
+	let selectedLogin = $state<string | null>(null);
+	const occupants = $derived(Object.values(zone.rows).flatMap((row) => row.seats));
+	const selected = $derived(occupants.find((o) => o.login === selectedLogin));
+	const pick = (login: string) => (selectedLogin = selectedLogin === login ? null : login);
 
 	// Without interactive mode the browser scrolls the plan, so wait for the new scale to be laid out first.
 	async function scrollToPose() {
@@ -147,7 +146,7 @@
 		{@attach cameraGestures(camera)}
 	>
 		<div class="stage" style:transform={camera.transform} style:--rot="{camera.rotationDeg}deg">
-			<PlanCanvas {zone} {occupancy} selected={selectedKey} onpick={pick} />
+			<PlanCanvas {floor} selected={selectedLogin} onpick={pick} />
 		</div>
 	</div>
 
@@ -159,7 +158,7 @@
 	/>
 	<MapHint>{camera.interactive ? HINT_ON : HINT_OFF}</MapHint>
 	{#if selected}
-		<OccupantCard occupant={selected} onclose={() => (selectedKey = null)} />
+		<OccupantCard occupant={selected} onclose={() => (selectedLogin = null)} />
 	{/if}
 </section>
 
@@ -180,7 +179,6 @@
 		-webkit-user-select: none;
 		-webkit-touch-callout: none;
 	}
-	/* interactive on: the camera takes over */
 	.plan.live {
 		overflow: hidden;
 		scrollbar-gutter: auto;
