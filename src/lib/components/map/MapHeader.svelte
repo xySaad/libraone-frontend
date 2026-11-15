@@ -4,8 +4,7 @@
 
 	interface Props {
 		heading: string;
-		/** Undefined while who is online is still loading. */
-		online?: number;
+		online: number;
 	}
 
 	let { heading, online }: Props = $props();
@@ -14,7 +13,7 @@
 <header>
 	<button class="back" aria-label="Back" onclick={() => history.back()}><ArrowLeft /></button>
 	<h1>{heading}</h1>
-	<span class="chip"><OnlineDot />{online === undefined ? '…' : `${online} online`}</span>
+	<span class="chip"><OnlineDot />{online} online</span>
 </header>
 
 <style>
