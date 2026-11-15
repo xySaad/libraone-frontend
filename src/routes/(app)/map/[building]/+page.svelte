@@ -1,12 +1,14 @@
 <script lang="ts">
-	import { page } from '$app/state';
 	import BuildingFloors from '$lib/components/map/BuildingFloors.svelte';
-	import { resolveView } from '$lib/map/domain/view';
-	import { occupancyStore } from '$lib/map/stores/occupancy.svelte';
+	import { BUILDINGS } from '$lib/config/map/buildings';
+	import type { PageProps } from './$types';
 
-	const view = $derived(resolveView(page.params));
+	const { params }: PageProps = $props();
+	const building = $derived(BUILDINGS[params.building]);
 </script>
 
-{#if view?.level === 'building'}
-	<BuildingFloors building={view.building} occupancy={occupancyStore.occupancy} />
+{#if building}
+	<BuildingFloors {building} />
+{:else}
+	The building you are looking for has no layout yet
 {/if}

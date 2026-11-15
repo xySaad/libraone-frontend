@@ -1,0 +1,2601 @@
+diff --git a/src/lib/components/map/Building.svelte b/src/lib/components/map/Building.svelte
+new file mode 100644
+index 0000000..001cb50
+--- /dev/null
++++ b/src/lib/components/map/Building.svelte
+@@ -0,0 +1,39 @@
++<script lang="ts">
++	import { resolve } from '$app/paths';
++	import type { Building } from '$lib/types/map.svelte';
++	import { polygon } from '$lib/utils/ui/geometry';
++	import Pill from './Pill.svelte';
++	interface Props {
++		building: Building;
++	}
++	const { building }: Props = $props();
++	const totalOnline = $derived(building.floors.reduce((a, b) => a + b.zone.totalOnline, 0));
++	const label = $derived(`${building.name} \u00b7 ${totalOnline} online`);
++</script>
++
++<a href={resolve(`/map/${building.id}`)} aria-label="{building.name}, {totalOnline} online">
++	<polygon class="outline" points={polygon(building.outline)} stroke-linejoin="round" />
++	<Pill cx={building.badge[0]} cy={building.badge[1]} {label} count={totalOnline} />
++</a>
++
++<style>
++	a {
++		cursor: pointer;
++		outline: none;
++	}
++	.outline {
++		outline: none; /* the app's base styles draw an outline on every element */
++		fill: rgba(255, 255, 255, 0.1);
++		stroke: rgba(255, 255, 255, 0.85);
++		stroke-width: 2.5;
++		stroke-dasharray: 8 6;
++		transition: fill 0.2s;
++	}
++	a:hover .outline,
++	a:focus-visible .outline {
++		fill: rgba(255, 194, 71, 0.28);
++		stroke: var(--lit);
++		stroke-width: 4;
++		stroke-dasharray: none;
++	}
++</style>
+diff --git a/src/lib/components/map/BuildingFloors.svelte b/src/lib/components/map/BuildingFloors.svelte
+index c56b2a5..9b289b7 100644
+--- a/src/lib/components/map/BuildingFloors.svelte
++++ b/src/lib/components/map/BuildingFloors.svelte
+@@ -1,61 +1,119 @@
+ <script lang="ts">
+-	import { ISO, footprintOf, iso } from '$lib/map/domain/iso';
+-	import type { Occupancy } from '$lib/map/domain/occupancy';
+-	import type { Building } from '$lib/map/domain/types';
++	import type { Building } from '$lib/types/map.svelte';
+ 	import FloorPlate from './FloorPlate.svelte';
+ 	import MapHint from './MapHint.svelte';
+ 
+ 	interface Props {
+ 		building: Building;
+-		occupancy: Occupancy;
+ 	}
+ 
+-	let { building, occupancy }: Props = $props();
++	let { building }: Props = $props();
+ 
+-	const fp = $derived(footprintOf(building));
+-	const [ground, top] = $derived(building.floors);
+-
+-	// dashed guides tying the two floors' corners together
+-	const guides = $derived(
+-		[iso(0, fp.H), iso(fp.W, fp.H), iso(fp.W, 0)].map(([x, y]) => ({
+-			x: fp.originX + x,
+-			y1: ISO.bottomY + y,
+-			y2: ISO.topY + y + ISO.thickness
+-		}))
+-	);
++	/** Every floor sits on the same plate: the largest any of them needs. */
++	const right = $derived(Math.max(0, ...building.floors.map((f) => f.layout.right)));
++	const bottom = $derived(Math.max(0, ...building.floors.map((f) => f.layout.bottom)));
+ </script>
+ 
+-<svg class="iso" viewBox="0 0 {ISO.width} 400" role="group" aria-label="{building.name} floors">
+-	<defs>
+-		<filter id="glow" x="-60%" y="-60%" width="220%" height="220%">
+-			<feGaussianBlur stdDeviation="3" result="b" />
+-			<feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
+-		</filter>
+-	</defs>
+-	<FloorPlate {building} zone={ground} level={0} footprint={fp} {occupancy} />
+-	{#each guides as g (g.x)}
+-		<line
+-			x1={g.x.toFixed(1)}
+-			y1={g.y1.toFixed(1)}
+-			x2={g.x.toFixed(1)}
+-			y2={g.y2.toFixed(1)}
+-			stroke="var(--muted)"
+-			stroke-width="1.5"
+-			stroke-dasharray="4 5"
+-			opacity="0.6"
+-		/>
+-	{/each}
+-	<FloorPlate {building} zone={top} level={1} footprint={fp} {occupancy} />
+-</svg>
++<div class="view">
++	<div
++		class="scene"
++		role="group"
++		aria-label="{building.name} floors"
++		style:--tone="var(--{building.tone})"
++		style:--tone-dark="var(--{building.tone}-dark)"
++		style:--right={right}
++		style:--bottom={bottom}
++	>
++		{#each building.floors as floor, i (i)}
++			<FloorPlate {building} {floor} level={i} />
++		{/each}
++		{#if building.floors.length > 1}
++			<div class="frame" aria-hidden="true">
++				<span class="edge tl"></span>
++				<span class="edge tr"></span>
++				<span class="edge bl"></span>
++				<span class="edge br"></span>
++				<span class="roof"></span>
++			</div>
++		{/if}
++	</div>
++</div>
+ <MapHint>Tap a floor to see its rows.</MapHint>
+ 
+ <style>
+-	.iso {
+-		display: block;
++	.view {
++		container-type: inline-size;
+ 		width: 100%;
+-		height: auto;
+ 		max-width: 560px;
+ 		margin: 0 auto;
+-		overflow: visible;
++	}
++	/* Isometric: tilt and turn the whole scene. Floors size themselves; --u is one seat. */
++	.scene {
++		--u: 1.5cqw;
++		/* --pad is the empty plate around the rows; it leaves room for the entry door */
++		--pad: 1;
++		--w: calc(var(--right) + 2 * var(--pad));
++		--h: calc(var(--bottom) + 2 * var(--pad));
++		--lift: calc(var(--u) * 14.5);
++		--roof: calc(var(--u) * 4.5); /* how far the wireframe rises above the top floor */
++		--line: max(1.5px, calc(var(--u) * 0.2));
++		--thick: calc(var(--u) * 1.9);
++		display: grid;
++		place-items: center;
++		height: calc(var(--u) * 47);
++		transform-style: preserve-3d;
++		transform: rotateX(60deg) rotateZ(45deg);
++		/* The scene's own box lies at z = 0, between the floors, so it would catch the clicks meant
++		   for the floor below it. Only the floors (pointer-events: auto) take them. */
++		pointer-events: none;
++	}
++
++	/* spans from the lowest floor's surface up past the highest one's */
++	.frame {
++		--span: calc(var(--lift) * 2 + var(--roof));
++		grid-area: 1 / 1;
++		position: relative;
++		width: calc(var(--u) * var(--w));
++		height: calc(var(--u) * var(--h));
++		transform-style: preserve-3d;
++		transform: translateZ(calc(var(--lift) * -1));
++		pointer-events: none;
++	}
++	.edge {
++		position: absolute;
++		width: calc(var(--line) * 2);
++		height: var(--span);
++		margin-left: calc(var(--line) * -1);
++		transform-origin: top;
++		transform: rotateX(90deg);
++		background: repeating-linear-gradient(
++			to bottom,
++			color-mix(in srgb, var(--tone) 70%, transparent) 0 calc(var(--u) * 0.6),
++			transparent calc(var(--u) * 0.6) calc(var(--u) * 1.2)
++		);
++	}
++	.edge.tl {
++		top: 0;
++		left: 0;
++		opacity: 0.45; /* the corner at the back, behind the floors */
++	}
++	.edge.tr {
++		top: 0;
++		left: 100%;
++	}
++	.edge.bl {
++		top: 100%;
++		left: 0;
++	}
++	.edge.br {
++		top: 100%;
++		left: 100%;
++	}
++	.roof {
++		position: absolute;
++		inset: 0;
++		transform: translateZ(var(--span));
++		opacity: 0.6;
++		border: var(--line) dashed color-mix(in srgb, var(--tone) 70%, transparent);
+ 	}
+ </style>
+diff --git a/src/lib/components/map/CampusMap.svelte b/src/lib/components/map/CampusMap.svelte
+index aaa1fee..44ce124 100644
+--- a/src/lib/components/map/CampusMap.svelte
++++ b/src/lib/components/map/CampusMap.svelte
+@@ -1,39 +1,28 @@
+ <script lang="ts">
+-	import { resolve } from '$app/paths';
+-	import { BUILDINGS, PHOTO } from '$lib/map/config/campus';
+-	import { onlineInBuilding } from '$lib/map/domain/occupancy';
+-	import type { Occupancy } from '$lib/map/domain/occupancy';
+-	import { polygon } from '$lib/map/domain/iso';
+-	import { pillWidth } from '$lib/map/ui/pill';
++	import { PHOTO } from '$lib/config/map/buildings';
++	import type { Building } from '$lib/types/map.svelte';
++	import BuildingComponent from './Building.svelte';
+ 	import MapHint from './MapHint.svelte';
+-	import Pill from './Pill.svelte';
+ 
+-	let { occupancy }: { occupancy: Occupancy } = $props();
++	interface Props {
++		buildings: Building[];
++	}
++	let { buildings }: Props = $props();
+ </script>
+ 
+ <svg
+ 	class="photo"
+ 	viewBox="0 0 {PHOTO.width} {PHOTO.height}"
+ 	role="group"
+-	aria-label="Aerial view of the campus with two buildings"
++	aria-label="Aerial view of the campus"
+ >
+ 	<defs>
+ 		<clipPath id="photo-clip"><rect width={PHOTO.width} height={PHOTO.height} rx="22" /></clipPath>
+ 	</defs>
+ 	<image href={PHOTO.src} width={PHOTO.width} height={PHOTO.height} clip-path="url(#photo-clip)" />
+ 
+-	{#each BUILDINGS as building (building.id)}
+-		{@const online = onlineInBuilding(occupancy, building)}
+-		{@const label = `${building.name} \u00b7 ${online} online`}
+-		<a href={resolve(`/map/${building.id}`)} aria-label="{building.name}, {online} online">
+-			<polygon class="outline" points={polygon(building.outline)} stroke-linejoin="round" />
+-			<Pill
+-				x={Math.round(building.badge[0] - pillWidth(label) / 2)}
+-				cy={building.badge[1]}
+-				{label}
+-				count={online}
+-			/>
+-		</a>
++	{#each buildings as building (building.id)}
++		<BuildingComponent {building} />
+ 	{/each}
+ </svg>
+ <MapHint>Tap a building to look inside.</MapHint>
+@@ -46,23 +35,4 @@
+ 		max-width: 760px;
+ 		margin: 0 auto;
+ 	}
+-	a {
+-		cursor: pointer;
+-		outline: none;
+-	}
+-	.outline {
+-		outline: none; /* the app's base styles draw an outline on every element */
+-		fill: rgba(255, 255, 255, 0.1);
+-		stroke: rgba(255, 255, 255, 0.85);
+-		stroke-width: 2.5;
+-		stroke-dasharray: 8 6;
+-		transition: fill 0.2s;
+-	}
+-	a:hover .outline,
+-	a:focus-visible .outline {
+-		fill: rgba(255, 194, 71, 0.28);
+-		stroke: var(--lit);
+-		stroke-width: 4;
+-		stroke-dasharray: none;
+-	}
+ </style>
+diff --git a/src/lib/components/map/FloorPlate.svelte b/src/lib/components/map/FloorPlate.svelte
+index 9a1b96e..e0bc691 100644
+--- a/src/lib/components/map/FloorPlate.svelte
++++ b/src/lib/components/map/FloorPlate.svelte
+@@ -1,136 +1,157 @@
+ <script lang="ts">
+ 	import { resolve } from '$app/paths';
+-	import { floorName } from '$lib/map/config/campus';
+-	import { LAYOUTS } from '$lib/map/config/buildings_layouts';
+-	import { extent, floorInfo, seatPos } from '$lib/map/domain/geometry';
+-	import { ISO, iso, polygon } from '$lib/map/domain/iso';
+-	import type { Footprint } from '$lib/map/domain/iso';
+-	import { onlineInZone, placedOf } from '$lib/map/domain/occupancy';
+-	import type { Occupancy } from '$lib/map/domain/occupancy';
+-	import type { Building, Point, ZoneId } from '$lib/map/domain/types';
+-	import Pill from './Pill.svelte';
++	import { DIRECTIONS, DOOR_TURN } from '$lib/config/map/layout';
++	import type { Building, Floor } from '$lib/types/map.svelte';
++	import { extent, seatPos } from '$lib/utils/ui/geometry';
++	import { ArrowDown } from '@lucide/svelte';
+ 
+ 	interface Props {
+ 		building: Building;
+-		zone: ZoneId;
+-		/** 0 = ground floor (drawn lower), 1 = top floor. */
+-		level: 0 | 1;
+-		footprint: Footprint;
+-		occupancy: Occupancy;
++		floor: Floor;
++		level: number;
+ 	}
+ 
+-	let { building, zone, level, footprint: fp, occupancy }: Props = $props();
++	let { building, floor, level }: Props = $props();
++	const { zone, layout } = $derived(floor);
+ 
+-	const info = $derived(floorInfo(zone));
+-	const placed = $derived(placedOf(occupancy, zone));
+-	const online = $derived(onlineInZone(occupancy, zone));
+-
+-	// seat units -> screen, centring this floor's desks in the shared footprint
+-	const project = $derived((x: number, y: number) =>
+-		iso(
+-			(x + (fp.Wb - info.solidW) / 2 - info.solidX) * fp.k,
+-			(y + (fp.Hb - info.solidH) / 2 - info.solidY) * fp.k
+-		)
+-	);
+-
+-	const top = $derived(polygon([iso(0, 0), iso(fp.W, 0), iso(fp.W, fp.H), iso(0, fp.H)]));
+-	const lowered = (p: Point): Point => [p[0], p[1] + ISO.thickness];
+-	const left = $derived(
+-		polygon([iso(0, fp.H), iso(fp.W, fp.H), lowered(iso(fp.W, fp.H)), lowered(iso(0, fp.H))])
+-	);
+-	const right = $derived(
+-		polygon([iso(fp.W, 0), iso(fp.W, fp.H), lowered(iso(fp.W, fp.H)), lowered(iso(fp.W, 0))])
+-	);
+-
+-	const rows = $derived(
+-		LAYOUTS[zone].blocks.map((block) => {
+-			const e = extent(block);
+-			return {
+-				block,
+-				occupied: placed.some((p) => p.block === block),
+-				points: polygon([
+-					project(e.x, e.y),
+-					project(e.x + e.w, e.y),
+-					project(e.x + e.w, e.y + e.h),
+-					project(e.x, e.y + e.h)
+-				])
+-			};
+-		})
+-	);
+-
+-	const dots = $derived(
+-		LAYOUTS[zone].blocks
+-			.flatMap((block) =>
+-				Array.from({ length: 2 * block.n }, (_, i) => {
+-					const [x, y] = project(...seatPos(block, i + 1));
+-					return `M${x.toFixed(1)} ${y.toFixed(1)}h.01`;
+-				})
+-			)
+-			.join('')
+-	);
+-
+-	const badge = $derived(iso(fp.W, 0));
+-	const label = $derived(
+-		`${building.name}, ${floorName(building, zone).toLowerCase()}, ${online} online`
+-	);
++	const label = $derived(`${building.name}, ${zone.id.toLowerCase()}, ${zone.totalOnline} online`);
+ </script>
+ 
+-<g transform="translate({fp.originX.toFixed(1)},{level === 1 ? ISO.topY : ISO.bottomY})">
+-	<a href={resolve(`/map/${building.id}/${zone}`)} aria-label={label}>
+-		<polygon points={left} fill="var(--{building.tone}-dark)" />
+-		<polygon points={right} fill="var(--{building.tone}-dark)" opacity="0.82" />
+-		<polygon
+-			class="edge"
+-			points={top}
+-			fill="var(--plate)"
+-			stroke="var(--{building.tone})"
+-			stroke-width="2"
+-			stroke-linejoin="round"
+-		/>
+-		{#each rows as row (row.block.r)}
+-			<polygon points={row.points} fill="var(--{row.occupied ? 'blk-on' : 'blk'})" />
+-		{/each}
+-		<path
+-			d={dots}
+-			stroke="var(--dot)"
+-			stroke-width={(fp.k * 0.55).toFixed(1)}
+-			stroke-linecap="round"
+-			fill="none"
+-		/>
+-		{#each placed as p (p.occupant.login)}
+-			{@const [cx, cy] = project(...p.at)}
+-			<circle class="lit" cx={cx.toFixed(1)} cy={cy.toFixed(1)} r="3.6" filter="url(#glow)" />
++<a
++	class="plate"
++	class:top={level === 1}
++	href={resolve(`/map/${building.id}/${zone.id}`)}
++	aria-label={label}
++>
++	<div class="floor">
++		{#each DIRECTIONS as face (face)}
++			{#each layout.blocks[face] ?? [] as block (block.r)}
++				{@const e = extent(face, block)}
++				{@const seats = zone.rows['R' + block.r]?.seats ?? []}
++				<div
++					class="row"
++					class:lit={seats.length > 0}
++					style:--x={e.x}
++					style:--y={e.y}
++					style:--w={e.w}
++					style:--h={e.h}
++				></div>
++				{#each seats as seat (seat.id)}
++					{@const [x, y] = seatPos(face, block, Number(seat.id))}
++					<span class="seat" style:--x={x} style:--y={y}></span>
++				{/each}
++			{/each}
+ 		{/each}
+-		<Pill x={badge[0] + 12} cy={badge[1]} label={String(online)} count={online} />
+-	</a>
+-</g>
++		<span
++			class="door"
++			style:--x={layout.entry.x}
++			style:--y={layout.entry.y}
++			style:rotate="{DOOR_TURN[layout.entry.dir]}deg"
++		>
++			<ArrowDown />
++		</span>
++		<span class="badge" class:zero={zone.totalOnline === 0}>{zone.totalOnline}</span>
++	</div>
++</a>
+ 
+ <style>
+-	a {
++	/* the floors share one grid cell and are lifted apart along Z by the scene around them */
++	.plate {
++		grid-area: 1 / 1;
++		display: block;
+ 		cursor: pointer;
+ 		outline: none;
++		pointer-events: auto; /* the scene around the floors ignores pointer events */
++		transform-style: preserve-3d;
++		transform: translateZ(calc(var(--lift) * -1));
++	}
++	.plate.top {
++		transform: translateZ(var(--lift));
++	}
++
++	/* --tone, --pad, --w and --h come from the scene: every floor shares the building's plate */
++	.floor {
++		position: relative;
++		width: calc(var(--u) * var(--w));
++		height: calc(var(--u) * var(--h));
++		background: var(--plate);
++		box-shadow: inset 0 0 0 max(2px, calc(var(--u) * 0.25)) var(--tone);
++		outline: none; /* the app's base styles draw an outline on every element */
++		transform-style: preserve-3d;
++		transition: transform 0.22s cubic-bezier(0.2, 0.7, 0.2, 1);
+ 	}
+ 	@media (hover: hover) {
+-		a {
+-			transition: transform 0.22s cubic-bezier(0.2, 0.7, 0.2, 1);
+-		}
+-		a:hover {
+-			transform: translateY(-5px);
++		.plate:hover .floor,
++		.plate:focus-visible .floor {
++			transform: translateZ(calc(var(--u) * 0.8));
+ 		}
+ 	}
+-	.edge {
+-		outline: none; /* the app's base styles draw an outline on every element */
++	.plate:hover .floor,
++	.plate:focus-visible .floor {
++		box-shadow: inset 0 0 0 max(4px, calc(var(--u) * 0.5)) var(--lit);
+ 	}
+-	a:hover .edge,
+-	a:focus-visible .edge {
+-		stroke: var(--lit);
+-		stroke-width: 4;
++
++	/* the two edges of the slab that face the viewer */
++	.floor::before,
++	.floor::after {
++		content: '';
++		position: absolute;
++		background: var(--tone-dark);
++	}
++	.floor::before {
++		top: 100%;
++		left: 0;
++		right: 0;
++		height: var(--thick);
++		transform-origin: top;
++		transform: rotateX(-90deg);
+ 	}
+-	.lit {
+-		fill: var(--lit);
++	.floor::after {
++		top: 0;
++		bottom: 0;
++		left: 100%;
++		width: var(--thick);
++		transform-origin: left;
++		transform: rotateY(90deg);
++		background: color-mix(in srgb, var(--tone-dark) 82%, var(--bg));
++	}
++
++	.row,
++	.seat,
++	.door {
++		position: absolute;
++		left: calc(var(--u) * (var(--x) + var(--pad)));
++		top: calc(var(--u) * (var(--y) + var(--pad)));
++	}
++	.seat,
++	.door {
++		translate: -50% -50%; /* --x, --y are their centre */
++	}
++
++	.row {
++		width: calc(var(--u) * var(--w));
++		height: calc(var(--u) * var(--h));
++		background-color: var(--blk);
++		/* one dim seat per seat-sized cell */
++		background-image: radial-gradient(
++			circle,
++			var(--dot) calc(var(--u) * 0.275),
++			transparent calc(var(--u) * 0.275 + 0.5px)
++		);
++		background-size: var(--u) var(--u);
++	}
++	.row.lit {
++		background-color: var(--blk-on);
++	}
++	.seat {
++		width: calc(var(--u) * 0.9);
++		height: calc(var(--u) * 0.9);
++		border-radius: 50%;
++		background: var(--lit);
++		box-shadow: 0 0 calc(var(--u) * 0.8) var(--lit);
+ 	}
+ 	@media (prefers-reduced-motion: no-preference) {
+-		.lit {
++		.seat {
+ 			animation: glow 3.4s ease-in-out infinite;
+ 		}
+ 	}
+@@ -143,4 +164,51 @@
+ 			opacity: 0.68;
+ 		}
+ 	}
++
++	.door {
++		display: grid;
++		place-items: center;
++		color: var(--muted);
++		pointer-events: none;
++	}
++	.door :global(svg) {
++		width: calc(var(--u) * 1.2);
++		height: calc(var(--u) * 1.2);
++	}
++
++	/* stands upright at the plate's right corner: the turns undo the scene's tilt */
++	.badge {
++		position: absolute;
++		top: 0;
++		left: 100%;
++		margin-left: calc(var(--u) * 0.8);
++		display: inline-flex;
++		align-items: center;
++		gap: 0.4em;
++		padding: 0.3em 0.75em;
++		border-radius: 999px;
++		background: var(--ink);
++		color: var(--bg);
++		font-size: calc(var(--u) * 2.2);
++		font-weight: 650;
++		line-height: 1;
++		white-space: nowrap;
++		transform-origin: 0 50%;
++		transform: rotateZ(-45deg) rotateX(-60deg) translateY(-50%);
++	}
++	.badge::before {
++		content: '';
++		width: 0.5em;
++		height: 0.5em;
++		border-radius: 50%;
++		background: var(--lit);
++	}
++	.badge.zero {
++		background: var(--bg);
++		color: var(--muted);
++		box-shadow: inset 0 0 0 1.5px var(--muted);
++	}
++	.badge.zero::before {
++		background: var(--muted);
++	}
+ </style>
+diff --git a/src/lib/components/map/FloorSections.svelte b/src/lib/components/map/FloorSections.svelte
+index ba1e0e4..786c0f2 100644
+--- a/src/lib/components/map/FloorSections.svelte
++++ b/src/lib/components/map/FloorSections.svelte
+@@ -1,146 +1,193 @@
+ <script lang="ts">
+ 	import { resolve } from '$app/paths';
+-	import { LAYOUTS } from '$lib/map/config/buildings_layouts';
+-	import { extent, floorInfo, sectionsOf } from '$lib/map/domain/geometry';
+-	import { onlineInSection } from '$lib/map/domain/occupancy';
+-	import type { Occupancy } from '$lib/map/domain/occupancy';
+-	import type { Building, ZoneId } from '$lib/map/domain/types';
+-	import { pillWidth } from '$lib/map/ui/pill';
++	import { DIRECTIONS, DOOR_TURN } from '$lib/config/map/layout';
++	import type { Floor } from '$lib/types/map.svelte';
++	import { extent, spanOf } from '$lib/utils/ui/geometry';
++	import { ArrowDown } from '@lucide/svelte';
+ 	import MapHint from './MapHint.svelte';
+-	import Pill from './Pill.svelte';
+ 
+ 	interface Props {
+-		building: Building;
+-		zone: ZoneId;
+-		occupancy: Occupancy;
++		floor: Floor;
++		building: string;
+ 	}
+ 
+-	let { building, zone, occupancy }: Props = $props();
+-
+-	const K = 30;
+-	const info = $derived(floorInfo(zone));
+-	const entry = $derived(LAYOUTS[zone].entry);
+-	const X = (x: number) => (x - info.minX) * K;
+-	const Y = (y: number) => (y - info.minY) * K;
+-
+-	const sections = $derived(
+-		sectionsOf(zone).map((section) => {
+-			const online = onlineInSection(occupancy, zone, section);
+-			const label = online ? `${section.label} \u00b7 ${online}` : section.label;
+-			const x = X(section.box.x0);
+-			const y = Y(section.box.y0);
+-			const w = (section.box.x1 - section.box.x0) * K;
+-			const h = (section.box.y1 - section.box.y0) * K;
+-			return {
+-				section,
+-				online,
+-				label,
+-				x,
+-				y,
+-				w,
+-				h,
+-				pillX: Math.round(x + w / 2 - pillWidth(label) / 2),
+-				pillY: Math.round(y + h / 2),
+-				rows: section.blocks.map((b) => {
+-					const e = extent(b);
+-					return { r: b.r, x: X(e.x), y: Y(e.y), w: e.w * K, h: e.h * K };
+-				})
+-			};
+-		})
+-	);
+-
+-	const cx = $derived(X(entry.x));
+-	const cy = $derived(Y(entry.y));
++	let { building, floor }: Props = $props();
++	const { zone, layout } = $derived(floor);
+ </script>
+ 
+-<svg
+-	class="lay"
+-	viewBox="0 0 {info.W * K} {info.H * K}"
+-	role="group"
+-	aria-label="{building.name} floor layout"
+->
+-	{#each sections as s (s.section.id)}
+-		<a
+-			href="{resolve(`/map/${building.id}/${zone}`)}/{s.section.id}"
+-			aria-label="Rows {s.section.lo === s.section.hi
+-				? s.section.lo
+-				: `${s.section.lo} to ${s.section.hi}`}, {s.online} online"
++<div class="view">
++	<div
++		class="floor"
++		role="group"
++		aria-label="Floor layout"
++		style:--right={layout.right}
++		style:--bottom={layout.bottom}
++	>
++		<!-- every side of the room that has rows is one section -->
++		{#each DIRECTIONS as face (face)}
++			{@const blocks = layout.blocks[face] ?? []}
++			{#if blocks.length}
++				{@const s = spanOf(face, blocks)}
++				{@const single = s.lo === s.hi}
++				{@const online = blocks.reduce((n, b) => n + (zone.rows['R' + b.r]?.seats.length ?? 0), 0)}
++				{@const range = single ? `R${s.lo}` : `R${s.lo}-R${s.hi}`}
++				<a
++					class="section"
++					class:lit={online > 0}
++					href={resolve(`/map/${building}/${zone.id}/${face}`)}
++					aria-label="Rows {single ? s.lo : `${s.lo} to ${s.hi}`}, {online} online"
++				>
++					<span class="card" style:--x={s.x} style:--y={s.y} style:--w={s.w} style:--h={s.h}>
++						<span class="badge" class:zero={online === 0}>
++							{online ? `${range} · ${online}` : range}
++						</span>
++					</span>
++					{#each blocks as block (block.r)}
++						{@const e = extent(face, block)}
++						<span class="row" style:--x={e.x} style:--y={e.y} style:--w={e.w} style:--h={e.h}
++						></span>
++					{/each}
++				</a>
++			{/if}
++		{/each}
++		<span
++			class="door"
++			class:side={layout.entry.dir === 'right'}
++			style:--x={layout.entry.x}
++			style:--y={layout.entry.y}
+ 		>
+-			<rect
+-				class="edge"
+-				x={s.x}
+-				y={s.y}
+-				width={s.w}
+-				height={s.h}
+-				rx={K * 0.5}
+-				fill="var(--{s.online ? 'blk-on' : 'blk'})"
+-			/>
+-			{#each s.rows as row (row.r)}
+-				<rect
+-					x={row.x}
+-					y={row.y}
+-					width={row.w}
+-					height={row.h}
+-					rx={K * 0.3}
+-					fill="var(--plate)"
+-					opacity="0.8"
+-				/>
+-			{/each}
+-			<Pill x={s.pillX} cy={s.pillY} label={s.label} count={s.online} />
+-		</a>
+-	{/each}
+-
+-	{#if entry.dir === 'right'}
+-		<text x={cx - 20} y={cy + 4} text-anchor="middle">Entry / exit</text>
+-		<path d="M{cx + 24} {cy}h18m-6-6l6 6-6 6" />
+-	{:else}
+-		<text x={cx} y={cy - 4} text-anchor="middle">Entry / exit</text>
+-		<path d="M{cx} {cy + 5}v16m-6-6l6 6 6-6" />
+-	{/if}
+-</svg>
++			Entry / exit
++			<span class="arrow" style:rotate="{DOOR_TURN[layout.entry.dir]}deg"><ArrowDown /></span>
++		</span>
++	</div>
++</div>
+ <MapHint>Tap a section to see its seats; the number shows who is online there.</MapHint>
+ 
+ <style>
+-	.lay {
+-		display: block;
+-		width: 100%;
+-		height: auto;
+-		margin: 0 auto;
+-		overflow: visible;
++	.view {
++		container-type: inline-size;
+ 		max-width: 560px;
+-		max-height: min(72vh, 760px);
+-		max-height: min(72dvh, 760px);
++		margin: 0 auto;
++	}
++
++	/* --pad is the empty plate around the rows; it leaves room for the entry door.
++	   --u is one seat: as wide as the view allows, and short enough to fit the screen. */
++	.floor {
++		--pad: 1;
++		--u: min(
++			calc(100cqw / (var(--right) + 2 * var(--pad))),
++			calc(min(72dvh, 760px) / (var(--bottom) + 2 * var(--pad)))
++		);
++		position: relative;
++		width: calc(var(--u) * (var(--right) + 2 * var(--pad)));
++		height: calc(var(--u) * (var(--bottom) + 2 * var(--pad)));
++		margin: 0 auto;
+ 	}
+-	a {
+-		cursor: pointer;
++
++	/* the section covers the plate so it can lift as one; only its card and rows take taps */
++	.section {
++		position: absolute;
++		inset: 0;
+ 		outline: none;
++		pointer-events: none;
+ 	}
+ 	@media (hover: hover) {
+-		a {
+-			transition: transform 0.22s cubic-bezier(0.2, 0.7, 0.2, 1);
++		.section {
++			transition: translate 0.22s cubic-bezier(0.2, 0.7, 0.2, 1);
+ 		}
+-		a:hover {
+-			transform: translateY(-5px);
++		.section:hover {
++			translate: 0 calc(var(--u) * -0.17);
+ 		}
+ 	}
+-	.edge {
++
++	.card,
++	.row {
++		position: absolute;
++		left: calc(var(--u) * (var(--x) + var(--pad)));
++		top: calc(var(--u) * (var(--y) + var(--pad)));
++		width: calc(var(--u) * var(--w));
++		height: calc(var(--u) * var(--h));
++		pointer-events: auto;
++	}
++
++	.card {
++		box-sizing: content-box;
++		margin: calc(var(--u) * -0.25);
++		padding: calc(var(--u) * 0.25);
++		display: grid;
++		place-items: center;
++		border-radius: calc(var(--u) * 0.5);
++		background: var(--blk);
+ 		outline: none; /* the app's base styles draw an outline on every element */
+-		stroke: transparent;
+-		stroke-width: 4;
+-	}
+-	a:hover .edge,
+-	a:focus-visible .edge {
+-		stroke: var(--lit);
+-	}
+-	text {
+-		font-size: 13px;
+-		fill: var(--muted);
+-	}
+-	path {
+-		fill: none;
+-		stroke: var(--muted);
+-		stroke-width: 2;
+-		stroke-linecap: round;
+-		stroke-linejoin: round;
++	}
++	.lit .card {
++		background: var(--blk-on);
++	}
++	.section:hover .card,
++	.section:focus-visible .card {
++		box-shadow: 0 0 0 calc(var(--u) * 0.13) var(--lit);
++	}
++
++	.row {
++		border-radius: calc(var(--u) * 0.3);
++		background: var(--plate);
++		opacity: 0.8;
++	}
++
++	.badge {
++		position: relative;
++		z-index: 1;
++		display: inline-flex;
++		align-items: center;
++		gap: 0.4em;
++		padding: 0.3em 0.75em;
++		border-radius: 999px;
++		background: var(--ink);
++		color: var(--bg);
++		font-size: calc(var(--u) * 0.67);
++		font-weight: 650;
++		line-height: 1;
++		white-space: nowrap;
++	}
++	.badge::before {
++		content: '';
++		width: 0.5em;
++		height: 0.5em;
++		border-radius: 50%;
++		background: var(--lit);
++	}
++	.badge.zero {
++		background: var(--bg);
++		color: var(--muted);
++		box-shadow: inset 0 0 0 1.5px var(--muted);
++	}
++	.badge.zero::before {
++		background: var(--muted);
++	}
++
++	/* --x, --y are the centre of the door's label and arrow */
++	.door {
++		position: absolute;
++		left: calc(var(--u) * (var(--x) + var(--pad)));
++		top: calc(var(--u) * (var(--y) + var(--pad)));
++		translate: -50% -50%;
++		display: flex;
++		flex-direction: column;
++		align-items: center;
++		gap: calc(var(--u) * 0.2);
++		color: var(--muted);
++		font-size: calc(var(--u) * 0.43);
++		white-space: nowrap;
++		pointer-events: none;
++	}
++	.door.side {
++		flex-direction: row;
++	}
++	.arrow {
++		display: grid;
++	}
++	.arrow :global(svg) {
++		width: calc(var(--u) * 0.75);
++		height: calc(var(--u) * 0.75);
+ 	}
+ </style>
+diff --git a/src/lib/components/map/MapHeader.svelte b/src/lib/components/map/MapHeader.svelte
+index 8ee2c6e..7a100d0 100644
+--- a/src/lib/components/map/MapHeader.svelte
++++ b/src/lib/components/map/MapHeader.svelte
+@@ -6,19 +6,13 @@
+ 		heading: string;
+ 		/** Undefined while who is online is still loading. */
+ 		online?: number;
+-		/** Href of the parent view; the back button is hidden without it. */
+-		back?: string;
+ 	}
+ 
+-	let { heading, online, back }: Props = $props();
++	let { heading, online }: Props = $props();
+ </script>
+ 
+ <header>
+-	{#if back !== undefined}
+-		<!-- `back` is resolved by the page load -->
+-		<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
+-		<a class="back" href={back} aria-label="Back"><ArrowLeft /></a>
+-	{/if}
++	<button class="back" aria-label="Back" onclick={() => history.back()}><ArrowLeft /></button>
+ 	<h1>{heading}</h1>
+ 	<span class="chip"><OnlineDot />{online === undefined ? '…' : `${online} online`}</span>
+ </header>
+diff --git a/src/lib/components/map/OccupantCard.svelte b/src/lib/components/map/OccupantCard.svelte
+index 55c115d..6db0f0b 100644
+--- a/src/lib/components/map/OccupantCard.svelte
++++ b/src/lib/components/map/OccupantCard.svelte
+@@ -1,9 +1,9 @@
+ <script lang="ts">
+ 	import UserAvatar from '$lib/components/image/UserAvatar.svelte';
+ 	import { avatarUrl } from '$lib/map/ui/avatar';
+-	import type { Occupant } from '$lib/map/domain/occupancy';
++	import type { Seat } from '$lib/types/websocket/seats';
+ 
+-	let { occupant, onclose }: { occupant: Occupant; onclose: () => void } = $props();
++	let { occupant, onclose }: { occupant: Seat; onclose: () => void } = $props();
+ </script>
+ 
+ <div class="card">
+@@ -16,8 +16,7 @@
+ 	</div>
+ 	<div class="who">
+ 		<strong>{occupant.login}</strong>
+-		<span>Row {occupant.row}, seat {occupant.seat}</span>
+-		<span>{occupant.hostname}</span>
++		<span>Row {occupant.row}, seat {occupant.id}</span>
+ 	</div>
+ 	<button class="x" aria-label="Close" onclick={onclose}>&times;</button>
+ </div>
+diff --git a/src/lib/components/map/Pill.svelte b/src/lib/components/map/Pill.svelte
+index 4911366..795c0cd 100644
+--- a/src/lib/components/map/Pill.svelte
++++ b/src/lib/components/map/Pill.svelte
+@@ -1,34 +1,27 @@
+ <script lang="ts">
+-	import { pillWidth } from '$lib/map/ui/pill';
++	import { pillWidth } from '$lib/utils/ui/geometry';
+ 
+ 	interface Props {
+-		/** Left edge of the badge. */
+-		x: number;
+-		/** Vertical centre of the badge. */
++		cx: number;
+ 		cy: number;
+ 		label: string;
+ 		count: number;
+-		/** Draw a small tip pointing down at what the badge labels. */
+-		pointer?: boolean;
+ 	}
+ 
+-	let { x, cy, label, count, pointer = false }: Props = $props();
++	let { cx, cy, label, count }: Props = $props();
+ 
+ 	const w = $derived(pillWidth(label));
++	const x = $derived(Math.round(cx - w / 2));
+ </script>
+ 
+ <g class="pill" class:zero={count === 0}>
+ 	<rect {x} y={cy - 15} width={w} height="30" rx="15" />
+-	{#if pointer}
+-		<path d="M{x + w / 2 - 7} {cy + 14} L{x + w / 2 + 7} {cy + 14} L{x + w / 2} {cy + 22} Z" />
+-	{/if}
+ 	<circle cx={x + 18} {cy} r="5" />
+ 	<text x={x + 31} y={cy + 7}>{label}</text>
+ </g>
+ 
+ <style>
+-	rect,
+-	path {
++	rect {
+ 		fill: var(--ink);
+ 	}
+ 	circle {
+@@ -45,7 +38,6 @@
+ 		stroke: var(--muted);
+ 		stroke-width: 1.5;
+ 	}
+-	.zero path,
+ 	.zero circle,
+ 	.zero text {
+ 		fill: var(--muted);
+diff --git a/src/lib/components/map/PlanCanvas.svelte b/src/lib/components/map/PlanCanvas.svelte
+index 31521ab..40b135d 100644
+--- a/src/lib/components/map/PlanCanvas.svelte
++++ b/src/lib/components/map/PlanCanvas.svelte
+@@ -1,84 +1,70 @@
+ <script lang="ts">
+-	import { ArrowDown } from '@lucide/svelte';
+-	import { LAYOUTS } from '$lib/map/config/buildings_layouts';
+-	import { extent, floorInfo, labelPos, seatPos } from '$lib/map/domain/geometry';
+-	import { placedOf } from '$lib/map/domain/occupancy';
+-	import type { Occupancy } from '$lib/map/domain/occupancy';
+-	import type { ZoneId } from '$lib/map/domain/types';
++	import { DIRECTIONS, DOOR_TURN, PLAN_PAD } from '$lib/config/map/layout';
+ 	import { UNIT } from '$lib/map/camera/math';
++	import type { Floor } from '$lib/types/map.svelte';
++	import { extent, labelPos, seatPos } from '$lib/utils/ui/geometry';
++	import { ArrowDown } from '@lucide/svelte';
+ 	import Seat from './Seat.svelte';
+ 
+ 	interface Props {
+-		zone: ZoneId;
+-		occupancy: Occupancy;
+-		/** "row:seat" of the occupant whose card is open. */
++		floor: Floor;
++		/** Login of the occupant whose card is open. */
+ 		selected: string | null;
+-		onpick: (key: string) => void;
++		onpick: (login: string) => void;
+ 	}
+ 
+-	let { zone, occupancy, selected, onpick }: Props = $props();
+-
+-	const info = $derived(floorInfo(zone));
+-	const layout = $derived(LAYOUTS[zone]);
+-	const placed = $derived(placedOf(occupancy, zone));
+-	const seated = $derived(
+-		new Map(placed.map((p) => [`${p.block.r}:${p.occupant.seat}`, p.occupant]))
+-	);
+-
+-	// seat units on the plan, relative to the top-left of the drawable area
+-	const gx = (x: number) => x - info.minX;
+-	const gy = (y: number) => y - info.minY;
+-
+-	const rows = $derived(
+-		layout.blocks.map((block) => {
+-			const e = extent(block);
+-			const [lx, ly] = labelPos(block);
+-			return {
+-				block,
+-				has: placed.some((p) => p.block === block),
+-				box: { x: gx(e.x - 0.1), y: gy(e.y - 0.1), w: e.w + 0.2, h: e.h + 0.2 },
+-				label: { x: gx(lx), y: gy(ly) },
+-				seats: Array.from({ length: 2 * block.n }, (_, i) => {
+-					const seat = i + 1;
+-					const [x, y] = seatPos(block, seat);
+-					return { seat, x: gx(x), y: gy(y), occupant: seated.get(`${block.r}:${seat}`) };
+-				})
+-			};
+-		})
+-	);
++	let { floor, selected, onpick }: Props = $props();
++	const { zone, layout } = $derived(floor);
+ </script>
+ 
+-<div class="canvas" style:--u="{UNIT}px" style:--W={info.W} style:--H={info.H} data-w={info.W}>
+-	{#each rows as row (row.block.r)}
+-		<div
+-			class="blk"
+-			class:has={row.has}
+-			style:--x={row.box.x}
+-			style:--y={row.box.y}
+-			style:--w={row.box.w}
+-			style:--h={row.box.h}
+-		></div>
+-		<span class="rl" class:has={row.has} style:--x={row.label.x} style:--y={row.label.y}
+-			>R{row.block.r}</span
+-		>
+-		{#each row.seats as s (s.seat)}
+-			<Seat
+-				x={s.x}
+-				y={s.y}
+-				occupant={s.occupant}
+-				selected={selected === `${row.block.r}:${s.seat}`}
+-				onpick={() => onpick(`${row.block.r}:${s.seat}`)}
+-			/>
++<div
++	class="canvas"
++	style:--u="{UNIT}px"
++	style:--right={layout.right}
++	style:--bottom={layout.bottom}
++	style:--pad={PLAN_PAD}
++>
++	<!-- everything is placed in the layout's own seat units, which start one margin in -->
++	<div class="origin">
++		{#each DIRECTIONS as face (face)}
++			{#each layout.blocks[face] ?? [] as block (block.r)}
++				{@const e = extent(face, block)}
++				{@const [lx, ly] = labelPos(face, block)}
++				{@const seats = zone.rows['R' + block.r]?.seats ?? []}
++				{@const lit = seats.length > 0}
++				<div
++					class="blk"
++					class:lit
++					style:--x={e.x}
++					style:--y={e.y}
++					style:--w={e.w}
++					style:--h={e.h}
++				></div>
++				<span class="rl" class:lit style:--x={lx} style:--y={ly}>R{block.r}</span>
++				<!-- seat ids are seat numbers; ones outside the row's 2n seats have nowhere to go -->
++				{#each { length: 2 * block.n }, i (i)}
++					{@const [x, y] = seatPos(face, block, i + 1)}
++					{@const occupant = seats.find((s) => Number(s.id) === i + 1)}
++					<Seat
++						{x}
++						{y}
++						{occupant}
++						selected={selected === occupant?.login}
++						onpick={() => occupant && onpick(occupant.login)}
++					/>
++				{/each}
++			{/each}
+ 		{/each}
+-	{/each}
+ 
+-	<div
+-		class="door {layout.entry.dir}"
+-		style:--x={gx(layout.entry.x)}
+-		style:--y={gy(layout.entry.y)}
+-	>
+-		<span>Entry / exit</span>
+-		<ArrowDown />
++		<span
++			class="door"
++			class:side={layout.entry.dir === 'right'}
++			style:--x={layout.entry.x}
++			style:--y={layout.entry.y}
++		>
++			<span class="label">Entry / exit</span>
++			<span class="arrow" style:rotate="{DOOR_TURN[layout.entry.dir]}deg"><ArrowDown /></span>
++		</span>
+ 	</div>
+ </div>
+ 
+@@ -89,62 +75,74 @@
+ 		left: 0;
+ 		top: 0;
+ 		transform-origin: 0 0;
+-		width: calc(var(--W) * var(--u));
+-		height: calc(var(--H) * var(--u));
++		width: calc(var(--u) * (var(--right) + 2 * var(--pad)));
++		height: calc(var(--u) * (var(--bottom) + 2 * var(--pad)));
+ 	}
+-	.blk {
++	.origin {
+ 		position: absolute;
+-		left: calc(var(--x) * var(--u));
+-		top: calc(var(--y) * var(--u));
+-		width: calc(var(--w) * var(--u));
+-		height: calc(var(--h) * var(--u));
++		left: calc(var(--u) * var(--pad));
++		top: calc(var(--u) * var(--pad));
++	}
++
++	.blk,
++	.rl,
++	.door {
++		position: absolute;
++		left: calc(var(--u) * var(--x));
++		top: calc(var(--u) * var(--y));
++	}
++	.rl,
++	.door {
++		translate: -50% -50%; /* --x, --y are their centre */
++		white-space: nowrap;
++		pointer-events: none;
++	}
++
++	.blk {
++		box-sizing: content-box;
++		margin: calc(var(--u) * -0.1);
++		padding: calc(var(--u) * 0.1);
++		width: calc(var(--u) * var(--w));
++		height: calc(var(--u) * var(--h));
+ 		border-radius: calc(var(--u) * 0.45);
+ 		background: var(--blk);
+ 	}
+-	.blk.has {
++	.blk.lit {
+ 		box-shadow: 0 0 0 2px color-mix(in srgb, var(--lit) 75%, transparent);
+ 	}
++
+ 	.rl {
+-		position: absolute;
+-		left: calc(var(--x) * var(--u));
+-		top: calc(var(--y) * var(--u));
+-		transform: translate(-50%, -50%) rotate(calc(var(--rot) * -1));
++		rotate: calc(var(--rot) * -1);
+ 		font-size: max(11px, calc(var(--u) * 0.44));
+ 		color: var(--muted);
+ 		font-variant-numeric: tabular-nums;
+-		white-space: nowrap;
+-		pointer-events: none;
+ 	}
+-	.rl.has {
++	.rl.lit {
+ 		color: var(--ink);
+ 		font-weight: 700;
+ 	}
++
+ 	.door {
+-		position: absolute;
+-		left: calc(var(--x) * var(--u));
+-		top: calc(var(--y) * var(--u));
+-		transform: translate(-50%, -50%);
+ 		display: flex;
++		flex-direction: column;
+ 		align-items: center;
+ 		gap: calc(var(--u) * 0.2);
+ 		color: var(--muted);
+ 		font-size: max(10px, calc(var(--u) * 0.34));
+-		white-space: nowrap;
+-		pointer-events: none;
+ 	}
+-	.door.down {
+-		flex-direction: column;
++	.door.side {
++		flex-direction: row;
+ 	}
+-	.door span {
++	.label {
+ 		display: inline-block;
+-		transform: rotate(calc(var(--rot) * -1));
++		rotate: calc(var(--rot) * -1);
++	}
++	.arrow {
++		display: grid;
+ 	}
+-	.door :global(svg) {
++	.arrow :global(svg) {
+ 		width: calc(var(--u) * 0.6);
+ 		height: calc(var(--u) * 0.6);
+ 		margin: 0;
+ 	}
+-	.door.right :global(svg) {
+-		transform: rotate(-90deg);
+-	}
+ </style>
+diff --git a/src/lib/components/map/Seat.svelte b/src/lib/components/map/Seat.svelte
+index 1f78023..7505db1 100644
+--- a/src/lib/components/map/Seat.svelte
++++ b/src/lib/components/map/Seat.svelte
+@@ -1,11 +1,11 @@
+ <script lang="ts">
+-	import type { Occupant } from '$lib/map/domain/occupancy';
++	import type { Seat } from '$lib/types/websocket/seats';
+ 	import Avatar from './Avatar.svelte';
+ 
+ 	interface Props {
+ 		x: number;
+ 		y: number;
+-		occupant?: Occupant;
++		occupant?: Seat;
+ 		selected?: boolean;
+ 		onpick?: () => void;
+ 	}
+@@ -20,7 +20,7 @@
+ 		style:--x={x}
+ 		style:--y={y}
+ 		title={occupant.login}
+-		aria-label="{occupant.login}, row {occupant.row}, seat {occupant.seat}"
++		aria-label="{occupant.login}, row {occupant.row}, seat {occupant.id}"
+ 		aria-pressed={selected}
+ 		onclick={onpick}
+ 		ondblclick={(e) => e.stopPropagation()}
+diff --git a/src/lib/components/map/SeatPlan.svelte b/src/lib/components/map/SeatPlan.svelte
+index f82f03b..36f2b3b 100644
+--- a/src/lib/components/map/SeatPlan.svelte
++++ b/src/lib/components/map/SeatPlan.svelte
+@@ -4,58 +4,57 @@
+ 	import { cameraGestures } from '$lib/map/camera/gestures';
+ 	import { UNIT, focusPose, overviewPose, scaleLimits } from '$lib/map/camera/math';
+ 	import type { Size } from '$lib/map/camera/math';
+-	import { LAYOUTS } from '$lib/map/config/buildings_layouts';
+-	import { floorInfo } from '$lib/map/domain/geometry';
+-	import type { Section } from '$lib/map/domain/geometry';
+-	import { occupantsOf } from '$lib/map/domain/occupancy';
+-	import type { Occupancy } from '$lib/map/domain/occupancy';
+-	import type { ZoneId } from '$lib/map/domain/types';
++	import { spanOf } from '$lib/utils/ui/geometry';
+ 	import MapHint from './MapHint.svelte';
+ 	import OccupantCard from './OccupantCard.svelte';
+ 	import PlanCanvas from './PlanCanvas.svelte';
+ 	import PlanToolbar from './PlanToolbar.svelte';
++	import { PLAN_PAD, type Direction } from '$lib/config/map/layout';
++	import type { Floor } from '$lib/types/map.svelte';
+ 
+ 	interface Props {
+-		zone: ZoneId;
+-		/** The section that was tapped; the plan opens zoomed in on it. */
+-		section: Section;
+-		occupancy: Occupancy;
++		floor: Floor;
++		/** The side of the room that was tapped; the plan opens zoomed in on its rows. */
++		face: Direction;
+ 	}
+ 
+-	let { zone, section, occupancy }: Props = $props();
++	let { floor, face }: Props = $props();
++	const { zone, layout } = $derived(floor);
+ 
+ 	const HINT_OFF =
+ 		'Scroll or swipe to move around the plan. Turn interactive mode on to drag, zoom and rotate. Tap an avatar to see who is sitting there.';
+ 	const HINT_ON =
+ 		'Drag to move, scroll or pinch to zoom, twist or right-drag to rotate. Tap an avatar to see who is sitting there. Turn interactive mode off to scroll normally.';
+ 
+-	const info = $derived(floorInfo(zone));
+-	const toPx = (units: number, min: number) => (units - min) * UNIT;
++	// the canvas is the plate plus a margin all round, so seat units start PLAN_PAD in
++	const wide = $derived(layout.right + 2 * PLAN_PAD);
++	const tall = $derived(layout.bottom + 2 * PLAN_PAD);
++	const toPx = (units: number) => (units + PLAN_PAD) * UNIT;
+ 
+ 	const camera = new Camera({
+-		content: () => ({ w: info.W * UNIT, h: info.H * UNIT }),
++		content: () => ({ w: wide * UNIT, h: tall * UNIT }),
+ 		// the floor at a readable zoom, centred on the area nearest the entrance
+ 		overview: (view, content) => {
+-			const { entry } = LAYOUTS[zone];
++			const { entry } = layout;
+ 			return overviewPose(
+ 				view,
+ 				content,
+-				info.W,
+-				[toPx(entry.x, info.minX), toPx(entry.y, info.minY)],
++				wide,
++				[toPx(entry.x), toPx(entry.y)],
+ 				scaleLimits(view, content)
+ 			);
+ 		},
+ 		// the tapped section filling the screen (margin leaves room for the row labels)
+ 		opening: (view, content) => {
+-			const m = 1.2;
+-			const { box } = section;
++			const m = 1.45;
++			const { x, y, w, h } = spanOf(face, layout.blocks[face] ?? []);
+ 			return focusPose(
+ 				view,
+ 				{
+-					x0: toPx(box.x0 - m, info.minX),
+-					y0: toPx(box.y0 - m, info.minY),
+-					x1: toPx(box.x1 + m, info.minX),
+-					y1: toPx(box.y1 + m, info.minY)
++					x0: toPx(x - m),
++					y0: toPx(y - m),
++					x1: toPx(x + w + m),
++					y1: toPx(y + h + m)
+ 				},
+ 				scaleLimits(view, content)
+ 			);
+@@ -75,10 +74,10 @@
+ 		});
+ 	});
+ 
+-	let selectedKey = $state<string | null>(null);
+-	const occupants = $derived(occupantsOf(occupancy, zone));
+-	const selected = $derived(occupants.find((o) => `${o.row}:${o.seat}` === selectedKey));
+-	const pick = (key: string) => (selectedKey = selectedKey === key ? null : key);
++	let selectedLogin = $state<string | null>(null);
++	const occupants = $derived(Object.values(zone.rows).flatMap((row) => row.seats));
++	const selected = $derived(occupants.find((o) => o.login === selectedLogin));
++	const pick = (login: string) => (selectedLogin = selectedLogin === login ? null : login);
+ 
+ 	// Without interactive mode the browser scrolls the plan, so wait for the new scale to be laid out first.
+ 	async function scrollToPose() {
+@@ -147,7 +146,7 @@
+ 		{@attach cameraGestures(camera)}
+ 	>
+ 		<div class="stage" style:transform={camera.transform} style:--rot="{camera.rotationDeg}deg">
+-			<PlanCanvas {zone} {occupancy} selected={selectedKey} onpick={pick} />
++			<PlanCanvas {floor} selected={selectedLogin} onpick={pick} />
+ 		</div>
+ 	</div>
+ 
+@@ -159,7 +158,7 @@
+ 	/>
+ 	<MapHint>{camera.interactive ? HINT_ON : HINT_OFF}</MapHint>
+ 	{#if selected}
+-		<OccupantCard occupant={selected} onclose={() => (selectedKey = null)} />
++		<OccupantCard occupant={selected} onclose={() => (selectedLogin = null)} />
+ 	{/if}
+ </section>
+ 
+@@ -180,7 +179,6 @@
+ 		-webkit-user-select: none;
+ 		-webkit-touch-callout: none;
+ 	}
+-	/* interactive on: the camera takes over */
+ 	.plan.live {
+ 		overflow: hidden;
+ 		scrollbar-gutter: auto;
+diff --git a/src/lib/config/map/buildings.ts b/src/lib/config/map/buildings.ts
+new file mode 100644
+index 0000000..565e983
+--- /dev/null
++++ b/src/lib/config/map/buildings.ts
+@@ -0,0 +1,40 @@
++import { onlineMap } from '$lib/stores/onlineUsers.svelte';
++import type { Building, Floor } from '$lib/types/map.svelte';
++import aerial from '$lib/assets/campus-aerial.jpg';
++import { LAYOUTS } from './layout';
++
++const makeFloors = (...zones: string[]): Floor[] =>
++	zones
++		.filter((id) => LAYOUTS[id])
++		.map((id) => ({ layout: LAYOUTS[id], zone: onlineMap.getZone(id) }));
++
++/** The aerial photo the campus view is drawn on. Outlines and badges are in its pixel space. */
++export const PHOTO = { src: aerial, width: 791, height: 544 } as const;
++export const BUILDINGS: Partial<Record<string, Building>> = {
++	blue: {
++		id: 'blue',
++		name: 'Blue',
++		tone: 'a',
++		floors: makeFloors('z1', 'z2'),
++		outline: [
++			[148, 75],
++			[312, 104],
++			[292, 362],
++			[108, 333]
++		],
++		badge: [210, 222]
++	},
++	green: {
++		id: 'green',
++		name: 'Green',
++		tone: 'b',
++		floors: makeFloors('z3', 'z4'),
++		outline: [
++			[400, 198],
++			[656, 243],
++			[645, 406],
++			[368, 366]
++		],
++		badge: [512, 306]
++	}
++};
+diff --git a/src/lib/config/map/layout.ts b/src/lib/config/map/layout.ts
+new file mode 100644
+index 0000000..6173ce2
+--- /dev/null
++++ b/src/lib/config/map/layout.ts
+@@ -0,0 +1,132 @@
++export const DIRECTIONS = ['up', 'down', 'left', 'right'] as const;
++export type Direction = (typeof DIRECTIONS)[number];
++
++export interface Entry {
++	x: number;
++	y: number;
++	dir: Direction;
++}
++
++export interface Block {
++	r: number;
++	x: number;
++	y: number;
++	n: number;
++}
++
++export interface FloorLayout {
++	blocks: Partial<Record<Direction, Block[]>>;
++	entry: Entry;
++	/** Where the furthest rows end, in seat units: the size of the plate that wraps them. */
++	right: number;
++	bottom: number;
++}
++
++export const LAYOUTS: Record<string, FloorLayout> = {
++	z1: {
++		blocks: {
++			up: [
++				{ r: 6, x: 7.9, y: 0, n: 6 },
++				{ r: 7, x: 10.18, y: 0, n: 6 },
++				{ r: 8, x: 12.46, y: 0, n: 6 },
++				{ r: 9, x: 14.74, y: 0, n: 6 },
++				{ r: 10, x: 17.02, y: 0, n: 6 }
++			],
++			left: [
++				{ r: 5, x: 0, y: 6.63, n: 6 },
++				{ r: 4, x: 0, y: 8.86, n: 6 },
++				{ r: 3, x: 0, y: 11.09, n: 6 },
++				{ r: 2, x: 0, y: 13.32, n: 6 },
++				{ r: 1, x: 0, y: 15.55, n: 6 }
++			],
++
++			right: [
++				{ r: 11, x: 12.57, y: 6.63, n: 6 },
++				{ r: 12, x: 12.57, y: 8.86, n: 6 },
++				{ r: 13, x: 12.57, y: 11.09, n: 6 },
++				{ r: 14, x: 12.57, y: 13.32, n: 6 },
++				{ r: 15, x: 12.57, y: 15.55, n: 6 },
++				{ r: 16, x: 12.57, y: 17.78, n: 6 }
++			],
++			down: [
++				{ r: 19, x: 5.97, y: 24.4, n: 8 },
++				{ r: 18, x: 8.27, y: 20.4, n: 12 },
++				{ r: 17, x: 10.57, y: 20.4, n: 12 }
++			]
++		},
++		entry: { x: 2.3, y: 1.7, dir: 'down' },
++		right: 18.52,
++		bottom: 31.9
++	},
++	z2: {
++		blocks: {
++			left: [
++				{ r: 5, x: 0, y: 6.63, n: 6 },
++				{ r: 4, x: 0, y: 8.86, n: 6 },
++				{ r: 3, x: 0, y: 11.09, n: 6 },
++				{ r: 2, x: 0, y: 13.32, n: 6 },
++				{ r: 1, x: 0, y: 15.55, n: 6 }
++			]
++		},
++		bottom: 30,
++		right: 15,
++		entry: {
++			dir: 'up',
++			x: 17,
++			y: 27
++		}
++	},
++	z3: {
++		blocks: {
++			up: [
++				{ r: 1, x: 0, y: 0, n: 6 },
++				{ r: 2, x: 2.33, y: 0, n: 6 },
++				{ r: 3, x: 4.66, y: 0, n: 6 },
++				{ r: 4, x: 6.99, y: 0, n: 6 }
++			],
++			right: [
++				{ r: 5, x: 14.2, y: -0.3, n: 6 },
++				{ r: 6, x: 14.2, y: 2.03, n: 6 },
++				{ r: 7, x: 14.2, y: 4.36, n: 6 },
++				{ r: 8, x: 14.2, y: 6.69, n: 6 }
++			],
++			down: [
++				{ r: 9, x: 0, y: 10.8, n: 6 },
++				{ r: 10, x: 2.33, y: 10.8, n: 6 },
++				{ r: 11, x: 4.66, y: 10.8, n: 6 }
++			]
++		},
++		entry: { x: 0.9, y: 8, dir: 'right' },
++		right: 19.7,
++		bottom: 16.3
++	},
++	z4: {
++		blocks: {
++			left: [
++				{ r: 11, x: 0, y: 0, n: 2 },
++				{ r: 10, x: 0, y: 2.5, n: 2 },
++				{ r: 9, x: 0, y: 5, n: 2 },
++				{ r: 8, x: 0, y: 7.5, n: 2 },
++				{ r: 7, x: 0, y: 10, n: 2 },
++				{ r: 6, x: 0, y: 12.5, n: 2 }
++			],
++			right: [
++				{ r: 1, x: 11.15, y: 2.5, n: 6 },
++				{ r: 2, x: 11.15, y: 5, n: 6 },
++				{ r: 3, x: 11.15, y: 7.5, n: 6 },
++				{ r: 4, x: 11.15, y: 10, n: 6 },
++				{ r: 5, x: 11.15, y: 12.5, n: 6 }
++			]
++		},
++
++		entry: { x: 14, y: 0.35, dir: 'down' },
++		right: 16.65,
++		bottom: 14
++	}
++};
++
++/** The empty margin around a floor's rows in the seat plan, in seat units: room for the row labels and the door. */
++export const PLAN_PAD = 2;
++
++/** How far the entry door arrow turns for each side it faces. */
++export const DOOR_TURN: Record<Direction, number> = { down: 0, right: -90, up: 180, left: 90 };
+diff --git a/src/lib/map/config/buildings_layouts.ts b/src/lib/map/config/buildings_layouts.ts
+deleted file mode 100644
+index c12875b..0000000
+--- a/src/lib/map/config/buildings_layouts.ts
++++ /dev/null
+@@ -1,51 +0,0 @@
+-import type { Block, Face, FloorLayout, ZoneId } from '$lib/map/domain/types';
+-
+-const row = (r: number, x: number, y: number, n: number, face: Face): Block => ({
+-	r,
+-	x,
+-	y,
+-	n,
+-	face
+-});
+-
+-/** Floor layouts, traced from the zone screenshots. */
+-const z1: FloorLayout = {
+-	blocks: [
+-		...[6, 7, 8, 9, 10].map((r, i) => row(r, 7.9 + 2.28 * i, 0, 6, 'up')),
+-		...[5, 4, 3, 2, 1].map((r, i) => row(r, 0, 6.63 + 2.23 * i, 6, 'left')),
+-		...[11, 12, 13, 14, 15, 16].map((r, i) => row(r, 12.57, 6.63 + 2.23 * i, 6, 'right')),
+-		row(19, 5.97, 24.4, 8, 'down'),
+-		row(18, 8.27, 20.4, 12, 'down'),
+-		row(17, 10.57, 20.4, 12, 'down')
+-	],
+-	entry: { x: 2.3, y: 1.7, dir: 'down' }
+-};
+-
+-const z2: FloorLayout = {
+-	blocks: [],
+-	entry: { x: 0, y: 0, dir: 'down' }
+-};
+-const z3: FloorLayout = {
+-	blocks: [
+-		...[1, 2, 3, 4].map((r, i) => row(r, 2.33 * i, 0, 6, 'up')),
+-		...[5, 6, 7, 8].map((r, i) => row(r, 14.2, -0.3 + 2.33 * i, 6, 'right')),
+-		...[9, 10, 11].map((r, i) => row(r, 2.33 * i, 10.8, 6, 'down'))
+-	],
+-	entry: { x: 0.9, y: 8, dir: 'right' }
+-};
+-
+-const z4: FloorLayout = {
+-	blocks: [
+-		...[11, 10, 9, 8, 7, 6].map((r, i) => row(r, 0, 2.5 * i, 2, 'left')),
+-		...[1, 2, 3, 4, 5].map((r, i) => row(r, 11.15, 2.5 + 2.5 * i, 6, 'right'))
+-	],
+-	entry: { x: 14, y: 0.35, dir: 'down' }
+-};
+-
+-export const LAYOUTS: Record<ZoneId, FloorLayout> = {
+-	z1,
+-	// TODO: zone 2 (top floor of the first building) was not provided yet, so it reuses zone 1's plan.
+-	z2,
+-	z3,
+-	z4
+-};
+diff --git a/src/lib/map/config/campus.ts b/src/lib/map/config/campus.ts
+deleted file mode 100644
+index b305b58..0000000
+--- a/src/lib/map/config/campus.ts
++++ /dev/null
+@@ -1,44 +0,0 @@
+-import aerial from '$lib/assets/campus-aerial.jpg';
+-import type { Building, ZoneId } from '$lib/map/domain/types';
+-
+-/** The campus has no concept of buildings in the API, so the structure is hardcoded here. */
+-export const BUILDINGS: readonly Building[] = [
+-	{
+-		id: 'A',
+-		name: 'Building A',
+-		hostId: 1,
+-		floors: ['z1', 'z2'],
+-		tone: 'a',
+-		outline: [
+-			[148, 75],
+-			[312, 104],
+-			[292, 362],
+-			[108, 333]
+-		],
+-		badge: [210, 222]
+-	},
+-	{
+-		id: 'B',
+-		name: 'Building B',
+-		hostId: 2,
+-		floors: ['z3', 'z4'],
+-		tone: 'b',
+-		outline: [
+-			[400, 198],
+-			[656, 243],
+-			[645, 406],
+-			[368, 366]
+-		],
+-		badge: [512, 306]
+-	}
+-];
+-
+-export const FLOOR_NAMES = ['Ground floor', 'Top floor'] as const;
+-
+-/** The aerial photo the campus view is drawn on. Outlines and badges are in its pixel space. */
+-export const PHOTO = { src: aerial, width: 791, height: 544 } as const;
+-
+-export const findBuilding = (id: string) => BUILDINGS.find((b) => b.id === id);
+-
+-export const floorName = (b: Building, zone: ZoneId) =>
+-	b.floors[0] === zone ? FLOOR_NAMES[0] : FLOOR_NAMES[1];
+diff --git a/src/lib/map/domain/geometry.ts b/src/lib/map/domain/geometry.ts
+deleted file mode 100644
+index 4bbf077..0000000
+--- a/src/lib/map/domain/geometry.ts
++++ /dev/null
+@@ -1,158 +0,0 @@
+-import { LAYOUTS } from '$lib/map/config/buildings_layouts';
+-import type { Block, Face, Point, ZoneId } from './types';
+-
+-export interface Extent {
+-	x: number;
+-	y: number;
+-	w: number;
+-	h: number;
+-}
+-
+-/** The rectangle a row of desks covers, in seat units. */
+-export function extent(b: Block): Extent {
+-	const vertical = b.face === 'up' || b.face === 'down';
+-	return { x: b.x - 0.5, y: b.y - 0.5, w: vertical ? 2 : b.n, h: vertical ? b.n : 2 };
+-}
+-
+-/**
+- * The local grid is 2 seats wide and n pairs deep with pair 1 on top.
+- * It is rotated so that pair 1 sits on the side of the room the label faces.
+- */
+-export function seatPos(b: Block, seat: number): Point {
+-	const r = Math.ceil(seat / 2);
+-	const c = ((seat - 1) % 2) + 1;
+-	const { n } = b;
+-	const cell: Record<Face, Point> = {
+-		up: [c, r],
+-		down: [3 - c, n + 1 - r],
+-		right: [n + 1 - r, c],
+-		left: [r, 3 - c]
+-	};
+-	const [col, row] = cell[b.face];
+-	return [b.x + col - 1, b.y + row - 1];
+-}
+-
+-export function labelPos(b: Block): Point {
+-	const e = extent(b);
+-	const cx = e.x + e.w / 2;
+-	const cy = e.y + e.h / 2;
+-	switch (b.face) {
+-		case 'up':
+-			return [cx, e.y - 0.75];
+-		case 'down':
+-			return [cx, e.y + e.h + 0.75];
+-		case 'left':
+-			return [e.x - 1, cy];
+-		case 'right':
+-			return [e.x + e.w + 1, cy];
+-	}
+-}
+-
+-export interface FloorInfo {
+-	/** Top-left corner of the drawable area, in seat units. */
+-	minX: number;
+-	minY: number;
+-	/** Size of the drawable area, in seat units. */
+-	W: number;
+-	H: number;
+-	/** The desks alone (no labels), used to stack floors in the isometric view. */
+-	solidX: number;
+-	solidY: number;
+-	solidW: number;
+-	solidH: number;
+-}
+-
+-interface Box {
+-	x0: number;
+-	y0: number;
+-	x1: number;
+-	y1: number;
+-}
+-
+-const emptyBox = (): Box => ({ x0: Infinity, y0: Infinity, x1: -Infinity, y1: -Infinity });
+-function grow(box: Box, x0: number, y0: number, x1: number, y1: number) {
+-	box.x0 = Math.min(box.x0, x0);
+-	box.y0 = Math.min(box.y0, y0);
+-	box.x1 = Math.max(box.x1, x1);
+-	box.y1 = Math.max(box.y1, y1);
+-}
+-
+-const infoCache = new Map<ZoneId, FloorInfo>();
+-
+-export function floorInfo(z: ZoneId): FloorInfo {
+-	const cached = infoCache.get(z);
+-	if (cached) return cached;
+-
+-	const { blocks, entry } = LAYOUTS[z];
+-	const full = emptyBox();
+-	const solid = emptyBox();
+-	for (const b of blocks) {
+-		const e = extent(b);
+-		const [lx, ly] = labelPos(b);
+-		grow(solid, e.x, e.y, e.x + e.w, e.y + e.h);
+-		grow(full, e.x - 0.1, e.y - 0.1, e.x + e.w + 0.1, e.y + e.h + 0.1);
+-		grow(full, lx - 0.9, ly - 0.45, lx + 0.9, ly + 0.45);
+-	}
+-	const hw = entry.dir === 'right' ? 2.2 : 1.7;
+-	const hh = entry.dir === 'right' ? 0.6 : 1.2;
+-	grow(full, entry.x - hw, entry.y - hh, entry.x + hw, entry.y + hh);
+-
+-	const pad = 0.5;
+-	const info: FloorInfo = {
+-		minX: full.x0 - pad,
+-		minY: full.y0 - pad,
+-		W: full.x1 - full.x0 + 2 * pad,
+-		H: full.y1 - full.y0 + 2 * pad,
+-		solidX: solid.x0,
+-		solidY: solid.y0,
+-		solidW: solid.x1 - solid.x0,
+-		solidH: solid.y1 - solid.y0
+-	};
+-	infoCache.set(z, info);
+-	return info;
+-}
+-
+-/** The rows that face the same side of the room (z1: R1-R5, R6-R10, R11-R16, R17-R19). */
+-export interface Section {
+-	id: Face;
+-	blocks: readonly Block[];
+-	lo: number;
+-	hi: number;
+-	label: string;
+-	box: Box;
+-}
+-
+-const sectionCache = new Map<ZoneId, readonly Section[]>();
+-
+-export function sectionsOf(z: ZoneId): readonly Section[] {
+-	const cached = sectionCache.get(z);
+-	if (cached) return cached;
+-
+-	const byFace = Map.groupBy(LAYOUTS[z].blocks, (b) => b.face);
+-	const pad = 0.25;
+-	const sections = [...byFace]
+-		.map(([face, blocks]): Section => {
+-			const rows = blocks.map((b) => b.r);
+-			const lo = Math.min(...rows);
+-			const hi = Math.max(...rows);
+-			const ex = blocks.map(extent);
+-			return {
+-				id: face,
+-				blocks,
+-				lo,
+-				hi,
+-				label: lo === hi ? `R${lo}` : `R${lo}\u2013R${hi}`,
+-				box: {
+-					x0: Math.min(...ex.map((e) => e.x)) - pad,
+-					y0: Math.min(...ex.map((e) => e.y)) - pad,
+-					x1: Math.max(...ex.map((e) => e.x + e.w)) + pad,
+-					y1: Math.max(...ex.map((e) => e.y + e.h)) + pad
+-				}
+-			};
+-		})
+-		.sort((a, b) => a.lo - b.lo);
+-	sectionCache.set(z, sections);
+-	return sections;
+-}
+-
+-export const findSection = (z: ZoneId, id: string) => sectionsOf(z).find((s) => s.id === id);
+diff --git a/src/lib/map/domain/iso.ts b/src/lib/map/domain/iso.ts
+deleted file mode 100644
+index 7387674..0000000
+--- a/src/lib/map/domain/iso.ts
++++ /dev/null
+@@ -1,34 +0,0 @@
+-import type { Building, Point } from './types';
+-import { floorInfo } from './geometry';
+-
+-/** Isometric projection used by the building view (two floors stacked). */
+-export const ISO = { c: 0.8, s: 0.38, thickness: 14, width: 560, topY: 14, bottomY: 204 } as const;
+-
+-export const iso = (x: number, y: number): Point => [ISO.c * (x - y), ISO.s * (x + y)];
+-
+-export const polygon = (points: readonly Point[]) =>
+-	points.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join(' ');
+-
+-/** One footprint per building, so both floors stack exactly. */
+-export interface Footprint {
+-	/** Footprint in seat units. */
+-	Wb: number;
+-	Hb: number;
+-	/** Pixels per seat unit. */
+-	k: number;
+-	/** Footprint in pixels. */
+-	W: number;
+-	H: number;
+-	/** Horizontal offset that centres the footprint in the viewBox. */
+-	originX: number;
+-}
+-
+-export function footprintOf(b: Building): Footprint {
+-	const infos = b.floors.map(floorInfo);
+-	const Wb = Math.max(...infos.map((i) => i.solidW)) + 1.6;
+-	const Hb = Math.max(...infos.map((i) => i.solidH)) + 1.6;
+-	const k = 410 / (Wb + Hb);
+-	const W = Wb * k;
+-	const H = Hb * k;
+-	return { Wb, Hb, k, W, H, originX: ISO.width / 2 - (ISO.c * (W - H)) / 2 };
+-}
+diff --git a/src/lib/map/domain/occupancy.ts b/src/lib/map/domain/occupancy.ts
+deleted file mode 100644
+index e2f526b..0000000
+--- a/src/lib/map/domain/occupancy.ts
++++ /dev/null
+@@ -1,67 +0,0 @@
+-import { BUILDINGS } from '$lib/map/config/campus';
+-import { LAYOUTS } from '$lib/map/config/buildings_layouts';
+-import { seatPos } from './geometry';
+-import type { Section } from './geometry';
+-import type { Block, Building, Point, ZoneId } from './types';
+-
+-export interface Occupant {
+-	login: string;
+-	hostname: string;
+-	row: number;
+-	seat: number;
+-}
+-
+-/** Who is sitting where, per floor. */
+-export type Occupancy = ReadonlyMap<ZoneId, readonly Occupant[]>;
+-
+-export interface PlacedOccupant {
+-	occupant: Occupant;
+-	block: Block;
+-	at: Point;
+-}
+-
+-const HOSTNAME = /^b(\d+)f(\d+)r(\d+)s(\d+)$/;
+-
+-/** `b1f1r7s7` -> floor, row 7, seat 7. Null for hostnames that aren't workstations on the map. */
+-export function parseHostname(hostname: string) {
+-	const match = HOSTNAME.exec(hostname);
+-	if (!match) return null;
+-	const [building, floor, row, seat] = match.slice(1).map(Number);
+-	const zone = BUILDINGS.find((b) => b.hostId === building)?.floors[floor - 1];
+-	return zone ? { zone, row, seat } : null;
+-}
+-
+-/** Adapts the campus API (`{ [hostname]: login }`) to the map's per-floor view. */
+-export function occupancyFromOnline(online: Readonly<Record<string, string>>): Occupancy {
+-	const zones = new Map<ZoneId, Occupant[]>();
+-	for (const [hostname, login] of Object.entries(online)) {
+-		const seat = parseHostname(hostname);
+-		if (!seat) continue;
+-		const occupants = zones.get(seat.zone) ?? [];
+-		occupants.push({ login, hostname, row: seat.row, seat: seat.seat });
+-		zones.set(seat.zone, occupants);
+-	}
+-	return zones;
+-}
+-
+-export const occupantsOf = (occupancy: Occupancy, z: ZoneId) => occupancy.get(z) ?? [];
+-
+-/** Occupants that land on a seat of the floor's layout, with their position on the plan. */
+-export function placedOf(occupancy: Occupancy, z: ZoneId): PlacedOccupant[] {
+-	return occupantsOf(occupancy, z).flatMap((occupant) => {
+-		const block = LAYOUTS[z].blocks.find((b) => b.r === occupant.row);
+-		if (!block || occupant.seat < 1 || occupant.seat > 2 * block.n) return [];
+-		return [{ occupant, block, at: seatPos(block, occupant.seat) }];
+-	});
+-}
+-
+-export const onlineInZone = (occupancy: Occupancy, z: ZoneId) => occupantsOf(occupancy, z).length;
+-
+-export const onlineInBuilding = (occupancy: Occupancy, b: Building) =>
+-	b.floors.reduce((n, z) => n + onlineInZone(occupancy, z), 0);
+-
+-export const onlineOnCampus = (occupancy: Occupancy) =>
+-	BUILDINGS.reduce((n, b) => n + onlineInBuilding(occupancy, b), 0);
+-
+-export const onlineInSection = (occupancy: Occupancy, z: ZoneId, section: Section) =>
+-	placedOf(occupancy, z).filter((p) => section.blocks.includes(p.block)).length;
+diff --git a/src/lib/map/domain/types.ts b/src/lib/map/domain/types.ts
+deleted file mode 100644
+index 3dbdab2..0000000
+--- a/src/lib/map/domain/types.ts
++++ /dev/null
+@@ -1,49 +0,0 @@
+-/** A point in whatever coordinate space the caller is working in. */
+-export type Point = readonly [x: number, y: number];
+-
+-export const ZONE_IDS = ['z1', 'z2', 'z3', 'z4'] as const;
+-export type ZoneId = (typeof ZONE_IDS)[number];
+-
+-export type BuildingId = 'A' | 'B';
+-export type Tone = 'a' | 'b';
+-
+-/** The side of the room an aisle of desks faces, which is also the side its row label sits on. */
+-export type Face = 'up' | 'down' | 'left' | 'right';
+-
+-/**
+- * One row of desks (R1, R2, ...), made of `n` pairs of seats, so `2 * n` seats.
+- * `x`, `y` is the centre of the row's top-left seat on the plan, in seat units.
+- * Seats are numbered in pairs starting at the label end of the row.
+- */
+-export interface Block {
+-	r: number;
+-	x: number;
+-	y: number;
+-	n: number;
+-	face: Face;
+-}
+-
+-export interface Entry {
+-	x: number;
+-	y: number;
+-	dir: 'down' | 'right';
+-}
+-
+-export interface FloorLayout {
+-	blocks: readonly Block[];
+-	entry: Entry;
+-}
+-
+-export interface Building {
+-	id: BuildingId;
+-	name: string;
+-	/** The building number in workstation hostnames: `b1f1r7s7` is building 1, floor 1, row 7, seat 7. */
+-	hostId: number;
+-	/** floors[0] is the ground floor (`f1` in hostnames), floors[1] the top floor (`f2`). */
+-	floors: readonly [ground: ZoneId, top: ZoneId];
+-	tone: Tone;
+-	/** Roof outline on the aerial photo, in photo pixels. */
+-	outline: readonly Point[];
+-	/** Where the badge sits on the aerial photo, in photo pixels. */
+-	badge: Point;
+-}
+diff --git a/src/lib/map/domain/view.ts b/src/lib/map/domain/view.ts
+deleted file mode 100644
+index 5e5e6d5..0000000
+--- a/src/lib/map/domain/view.ts
++++ /dev/null
+@@ -1,69 +0,0 @@
+-import { resolve } from '$app/paths';
+-import { floorName, findBuilding } from '$lib/map/config/campus';
+-import { findSection } from './geometry';
+-import type { Section } from './geometry';
+-import { onlineInBuilding, onlineInSection, onlineInZone, onlineOnCampus } from './occupancy';
+-import type { Occupancy } from './occupancy';
+-import type { Building, ZoneId } from './types';
+-
+-/** Which level of the campus the URL points at, with everything it names already looked up. */
+-export type MapView =
+-	| { level: 'campus' }
+-	| { level: 'building'; building: Building }
+-	| { level: 'floor'; building: Building; zone: ZoneId }
+-	| { level: 'section'; building: Building; zone: ZoneId; section: Section };
+-
+-interface MapParams {
+-	building?: string;
+-	zone?: string;
+-	section?: string;
+-}
+-
+-/** Null when the URL names a building, floor or section that doesn't exist. */
+-export function resolveView({ building: bId, zone: zId, section: sId }: MapParams): MapView | null {
+-	if (bId === undefined) return { level: 'campus' };
+-	const building = findBuilding(bId);
+-	if (!building) return null;
+-
+-	if (zId === undefined) return { level: 'building', building };
+-	const zone = building.floors.find((z) => z === zId);
+-	if (!zone) return null;
+-
+-	if (sId === undefined) return { level: 'floor', building, zone };
+-	const section = findSection(zone, sId);
+-	if (!section) return null;
+-
+-	return { level: 'section', building, zone, section };
+-}
+-
+-export interface ViewSummary {
+-	heading: string;
+-	online: number;
+-	/** Where "back" goes; absent on the campus view. */
+-	back?: string;
+-}
+-
+-export function summarize(view: MapView, occupancy: Occupancy): ViewSummary {
+-	switch (view.level) {
+-		case 'campus':
+-			return { heading: 'Campus', online: onlineOnCampus(occupancy) };
+-		case 'building':
+-			return {
+-				heading: view.building.name,
+-				online: onlineInBuilding(occupancy, view.building),
+-				back: resolve('/map')
+-			};
+-		case 'floor':
+-			return {
+-				heading: `${view.building.name}, ${floorName(view.building, view.zone).toLowerCase()}`,
+-				online: onlineInZone(occupancy, view.zone),
+-				back: resolve(`/map/${view.building.id}`)
+-			};
+-		case 'section':
+-			return {
+-				heading: `${view.section.label}, ${floorName(view.building, view.zone).toLowerCase()}`,
+-				online: onlineInSection(occupancy, view.zone, view.section),
+-				back: resolve(`/map/${view.building.id}/${view.zone}`)
+-			};
+-	}
+-}
+diff --git a/src/lib/map/stores/occupancy.svelte.ts b/src/lib/map/stores/occupancy.svelte.ts
+deleted file mode 100644
+index b68fe47..0000000
+--- a/src/lib/map/stores/occupancy.svelte.ts
++++ /dev/null
+@@ -1,41 +0,0 @@
+-import api from '$lib/api';
+-import { occupancyFromOnline } from '$lib/map/domain/occupancy';
+-import type { Occupancy } from '$lib/map/domain/occupancy';
+-
+-const NOBODY: Occupancy = new Map();
+-
+-/**
+- * Who is sitting where. Lives outside the routes so navigating around the map is never held up
+- * by a request, and so coming back to the map shows the last known state straight away.
+- */
+-class OccupancyStore {
+-	#snapshot = $state.raw<Occupancy | null>(null);
+-	#failed = $state(false);
+-	#latest = 0;
+-
+-	/** False until the first response has arrived. */
+-	get ready() {
+-		return this.#snapshot !== null;
+-	}
+-	/** The first request failed and there is nothing to show yet. */
+-	get failed() {
+-		return this.#failed && !this.ready;
+-	}
+-	get occupancy() {
+-		return this.#snapshot ?? NOBODY;
+-	}
+-
+-	async refresh() {
+-		const request = ++this.#latest;
+-		try {
+-			const online = await api.CAMPUS.online();
+-			if (request !== this.#latest) return; // a newer refresh superseded this one
+-			this.#snapshot = occupancyFromOnline(online);
+-			this.#failed = false;
+-		} catch {
+-			if (request === this.#latest) this.#failed = true;
+-		}
+-	}
+-}
+-
+-export const occupancyStore = new OccupancyStore();
+diff --git a/src/lib/map/ui/pill.ts b/src/lib/map/ui/pill.ts
+deleted file mode 100644
+index d9beb35..0000000
+--- a/src/lib/map/ui/pill.ts
++++ /dev/null
+@@ -1,2 +0,0 @@
+-/** Width of a badge for a label; the label is set in a 20px UI font. */
+-export const pillWidth = (label: string) => Math.round(label.length * 10.4 + 38);
+diff --git a/src/lib/stores/onlineUsers.svelte.ts b/src/lib/stores/onlineUsers.svelte.ts
+index ff77b9f..1a5059f 100644
+--- a/src/lib/stores/onlineUsers.svelte.ts
++++ b/src/lib/stores/onlineUsers.svelte.ts
+@@ -1,19 +1,30 @@
+ import { onWSMessage } from '$lib/api/websocket';
++import { OnlineMap } from '$lib/types/map.svelte';
+ import type { Seat } from '$lib/types/websocket/seats';
+ 
+ export const onlineUsers = $state<Record<string, Seat>>({});
++export const onlineMap = new OnlineMap();
+ 
+ onWSMessage('SeatsList', (seatsList) => {
+ 	for (const login in seatsList) {
+-		onlineUsers[login] = seatsList[login];
++		const seat = seatsList[login];
++		onlineUsers[login] = seat;
++
++		onlineMap.addSeat(seat);
+ 	}
+ });
+ 
+ onWSMessage('SeatUpdate', (update) => {
+ 	for (const login in update.online) {
++		const seat = update.online[login];
++
+ 		onlineUsers[login] = update.online[login];
++		onlineMap.addSeat(seat);
+ 	}
+ 	for (const login in update.offline) {
++		const seat = update.offline[login];
++
+ 		delete onlineUsers[login];
++		onlineMap.removeSeat(seat);
+ 	}
+ });
+diff --git a/src/lib/types/map.svelte.ts b/src/lib/types/map.svelte.ts
+new file mode 100644
+index 0000000..8360d3b
+--- /dev/null
++++ b/src/lib/types/map.svelte.ts
+@@ -0,0 +1,56 @@
++import type { FloorLayout } from '$lib/config/map/layout';
++import type { Seat } from './websocket/seats';
++export type Point = readonly [x: number, y: number];
++
++export interface Zone {
++	id: string;
++	totalOnline: number;
++	rows: Record<string, Row>;
++}
++interface Row {
++	id: string;
++	seats: Seat[];
++}
++
++export class OnlineMap {
++	totalOnline = $state(0);
++	zones: Record<string, Zone> = $state({});
++
++	/** Always returns the reactive proxy: the object `??=` evaluates to is the raw one, which never updates the UI. */
++	getZone(id: string) {
++		this.zones[id] ??= { id, totalOnline: 0, rows: {} };
++		return this.zones[id];
++	}
++
++	addSeat(seat: Seat) {
++		this.totalOnline++;
++		const zone = this.getZone(seat.zone);
++		zone.totalOnline++;
++		const row = (zone.rows[seat.row] ??= { id: seat.row, seats: [] });
++		row.seats.push(seat);
++	}
++
++	removeSeat(seat: Seat) {
++		this.totalOnline--;
++		const zone = this.zones[seat.zone];
++		zone.totalOnline--;
++		const row = zone.rows[seat.row];
++		row.seats = row.seats.filter((s) => s.id !== seat.id);
++	}
++}
++
++export interface Floor {
++	layout: FloorLayout;
++	zone: Zone;
++}
++export type Tone = 'a' | 'b';
++export interface Building {
++	id: string;
++	floors: Floor[];
++	name: string;
++	tone: Tone;
++	/** Roof outline on the aerial photo, in photo pixels. */
++	outline: readonly Point[];
++	/** Where the badge sits on the aerial photo, in photo pixels. */
++	badge: Point;
++}
+diff --git a/src/lib/utils/ui/geometry.ts b/src/lib/utils/ui/geometry.ts
+new file mode 100644
+index 0000000..60c4044
+--- /dev/null
++++ b/src/lib/utils/ui/geometry.ts
+@@ -0,0 +1,76 @@
++import type { Block, Direction } from '$lib/config/map/layout';
++import type { Point } from '$lib/types/map.svelte';
++
++export const polygon = (points: readonly Point[]) =>
++	points.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join(' ');
++
++/** Width of a badge for a label; the label is set in a 20px UI font. */
++export const pillWidth = (label: string) => Math.round(label.length * 10.4 + 38);
++
++export interface Extent {
++	x: number;
++	y: number;
++	w: number;
++	h: number;
++}
++
++/** The rectangle a row of desks covers, in seat units. */
++export function extent(face: Direction, b: Block): Extent {
++	const vertical = face === 'up' || face === 'down';
++	return { x: b.x - 0.5, y: b.y - 0.5, w: vertical ? 2 : b.n, h: vertical ? b.n : 2 };
++}
++
++/**
++ * The local grid is 2 seats wide and n pairs deep with pair 1 on top.
++ * It is rotated so that pair 1 sits on the side of the room the label faces.
++ */
++export function seatPos(face: Direction, b: Block, seat: number): Point {
++	const r = Math.ceil(seat / 2);
++	const c = ((seat - 1) % 2) + 1;
++	const { n } = b;
++	const cell: Record<Direction, Point> = {
++		up: [c, r],
++		down: [3 - c, n + 1 - r],
++		right: [n + 1 - r, c],
++		left: [r, 3 - c]
++	};
++	const [col, row] = cell[face];
++	return [b.x + col - 1, b.y + row - 1];
++}
++
++export function labelPos(face: Direction, b: Block): Point {
++	const e = extent(face, b);
++	const cx = e.x + e.w / 2;
++	const cy = e.y + e.h / 2;
++	switch (face) {
++		case 'up':
++			return [cx, e.y - 0.75];
++		case 'down':
++			return [cx, e.y + e.h + 0.75];
++		case 'left':
++			return [e.x - 1, cy];
++		case 'right':
++			return [e.x + e.w + 1, cy];
++	}
++}
++
++/**
++ * The box around one side's rows in seat units, and its first and last row numbers.
++ * A side lists its rows in order along it, so the two end rows bound the rest.
++ */
++export function spanOf(face: Direction, blocks: readonly Block[]) {
++	const first = blocks[0];
++	const last = blocks[blocks.length - 1];
++	const a = extent(face, first);
++	const b = extent(face, last);
++	const x = Math.min(a.x, b.x);
++	const y = Math.min(a.y, b.y);
++	return {
++		x,
++		y,
++		w: Math.max(a.x + a.w, b.x + b.w) - x,
++		h: Math.max(a.y + a.h, b.y + b.h) - y,
++		lo: Math.min(first.r, last.r),
++		hi: Math.max(first.r, last.r)
++	};
++}
+diff --git a/src/routes/(app)/map/+layout.svelte b/src/routes/(app)/map/+layout.svelte
+index 26de14e..bde20d1 100644
+--- a/src/routes/(app)/map/+layout.svelte
++++ b/src/routes/(app)/map/+layout.svelte
+@@ -1,37 +1,16 @@
+ <script lang="ts">
+-	import { beforeNavigate, goto } from '$app/navigation';
+-	import { resolve } from '$app/paths';
++	import { beforeNavigate } from '$app/navigation';
+ 	import { page } from '$app/state';
+ 	import MapHeader from '$lib/components/map/MapHeader.svelte';
+-	import NotFoundState from '$lib/components/profile/NotFoundState.svelte';
+-	import Notice from '$lib/components/ui/Notice.svelte';
+-	import Spinner from '$lib/components/ui/Spinner.svelte';
+-	import { resolveView, summarize } from '$lib/map/domain/view';
+-	import { occupancyStore } from '$lib/map/stores/occupancy.svelte';
+-	import { onlineUsers } from '$lib/stores/onlineUsers.svelte';
+-	import { untrack } from 'svelte';
++	import { onlineMap } from '$lib/stores/onlineUsers.svelte';
+ 	import { cubicOut } from 'svelte/easing';
+ 	import { MediaQuery } from 'svelte/reactivity';
+ 	import { scale } from 'svelte/transition';
+ 	import type { LayoutProps } from './$types';
+ 
+-	let { children }: LayoutProps = $props();
+-
+-	const view = $derived(resolveView(page.params));
+-	const summary = $derived(view && summarize(view, occupancyStore.occupancy));
+-
+-	// Fetch when the map opens, and again whenever the seats change over the websocket.
+-	// Navigation never waits for this: the map shows a spinner until the first response.
+-	const seatsSignature = $derived(
+-		Object.values(onlineUsers)
+-			.map((seat) => `${seat.login}:${seat.zone}:${seat.row}:${seat.id}`)
+-			.sort()
+-			.join()
+-	);
+-	$effect(() => {
+-		void seatsSignature;
+-		untrack(() => void occupancyStore.refresh());
+-	});
++	let { children, params }: LayoutProps = $props();
++	const { building = 'Map', zone, section } = $derived(params);
++	const heading = $derived([building, zone, section].filter(Boolean).join(' - '));
+ 
+ 	const reducedMotion = new MediaQuery('prefers-reduced-motion: reduce');
+ 	const depth = (pathname: string | undefined) => pathname?.split('/').filter(Boolean).length ?? 0;
+@@ -43,50 +22,24 @@
+ 	});
+ </script>
+ 
+-<svelte:head><title>{summary ? `${summary.heading} · Map` : 'Map'}</title></svelte:head>
+-
+-<svelte:window
+-	onkeydown={(e) => {
+-		// `back` is already resolved by `summarize`
+-		// eslint-disable-next-line svelte/no-navigation-without-resolve
+-		if (e.key === 'Escape' && summary?.back) void goto(summary.back);
+-	}}
+-/>
++<svelte:head><title>Libraone - Map</title></svelte:head>
+ 
+ <div class="map-root">
+-	<MapHeader
+-		heading={summary?.heading ?? 'Map'}
+-		online={occupancyStore.ready ? summary?.online : undefined}
+-		back={summary ? summary.back : resolve('/map')}
+-	/>
++	<MapHeader {heading} online={onlineMap.totalOnline} />
+ 	<div class="stage">
+-		{#if !view}
+-			<NotFoundState
+-				icon="🗺️"
+-				title="Nothing here"
+-				detail="This building, floor or section doesn't exist."
+-			/>
+-		{:else if occupancyStore.ready}
+-			{#key page.url.pathname}
+-				<div
+-					class="view"
+-					in:scale={{
+-						start: direction === 'in' ? 0.86 : 1.08,
+-						opacity: 0,
+-						duration: reducedMotion.current ? 0 : 320,
+-						easing: cubicOut
+-					}}
+-				>
+-					{@render children()}
+-				</div>
+-			{/key}
+-		{:else if occupancyStore.failed}
+-			<Notice type="warning" title="Couldn't load who is online">
+-				<button class="retry" onclick={() => occupancyStore.refresh()}>Try again</button>
+-			</Notice>
+-		{:else}
+-			<div class="loading"><Spinner size="32px" /></div>
+-		{/if}
++		{#key page.url.pathname}
++			<div
++				class="view"
++				in:scale={{
++					start: direction === 'in' ? 0.86 : 1.08,
++					opacity: 0,
++					duration: reducedMotion.current ? 0 : 320,
++					easing: cubicOut
++				}}
++			>
++				{@render children()}
++			</div>
++		{/key}
+ 	</div>
+ </div>
+ 
+@@ -125,17 +78,4 @@
+ 	.view {
+ 		transform-origin: 50% 40%;
+ 	}
+-	.loading {
+-		display: grid;
+-		place-items: center;
+-		min-height: 40vh;
+-	}
+-	.retry {
+-		margin-top: 8px;
+-		padding: 6px 14px;
+-		border-radius: 999px;
+-		border: 1px solid var(--warning-border);
+-		color: var(--warning);
+-		font-weight: 600;
+-	}
+ </style>
+diff --git a/src/routes/(app)/map/+page.svelte b/src/routes/(app)/map/+page.svelte
+index 996a7b1..b978693 100644
+--- a/src/routes/(app)/map/+page.svelte
++++ b/src/routes/(app)/map/+page.svelte
+@@ -1,6 +1,9 @@
+ <script lang="ts">
+ 	import CampusMap from '$lib/components/map/CampusMap.svelte';
+-	import { occupancyStore } from '$lib/map/stores/occupancy.svelte';
++	import { BUILDINGS } from '$lib/config/map/buildings';
++	$effect(() => {
++		console.log(BUILDINGS);
++	});
+ </script>
+ 
+-<CampusMap occupancy={occupancyStore.occupancy} />
++<CampusMap buildings={Object.values(BUILDINGS).filter((b) => b !== undefined)} />
+diff --git a/src/routes/(app)/map/[building]/+page.svelte b/src/routes/(app)/map/[building]/+page.svelte
+index 89ea1fb..e602673 100644
+--- a/src/routes/(app)/map/[building]/+page.svelte
++++ b/src/routes/(app)/map/[building]/+page.svelte
+@@ -1,12 +1,14 @@
+ <script lang="ts">
+-	import { page } from '$app/state';
+ 	import BuildingFloors from '$lib/components/map/BuildingFloors.svelte';
+-	import { resolveView } from '$lib/map/domain/view';
+-	import { occupancyStore } from '$lib/map/stores/occupancy.svelte';
++	import { BUILDINGS } from '$lib/config/map/buildings';
++	import type { PageProps } from './$types';
+ 
+-	const view = $derived(resolveView(page.params));
++	const { params }: PageProps = $props();
++	const building = $derived(BUILDINGS[params.building]);
+ </script>
+ 
+-{#if view?.level === 'building'}
+-	<BuildingFloors building={view.building} occupancy={occupancyStore.occupancy} />
++{#if building}
++	<BuildingFloors {building} />
++{:else}
++	The building you are looking for has no layout yet
+ {/if}
+diff --git a/src/routes/(app)/map/[building]/[zone]/+page.svelte b/src/routes/(app)/map/[building]/[zone]/+page.svelte
+index 102da5b..82728b0 100644
+--- a/src/routes/(app)/map/[building]/[zone]/+page.svelte
++++ b/src/routes/(app)/map/[building]/[zone]/+page.svelte
+@@ -1,12 +1,19 @@
+ <script lang="ts">
+-	import { page } from '$app/state';
+ 	import FloorSections from '$lib/components/map/FloorSections.svelte';
+-	import { resolveView } from '$lib/map/domain/view';
+-	import { occupancyStore } from '$lib/map/stores/occupancy.svelte';
++	import { BUILDINGS } from '$lib/config/map/buildings';
++	import type { PageProps } from './$types';
+ 
+-	const view = $derived(resolveView(page.params));
++	const { params }: PageProps = $props();
++	const building = $derived(BUILDINGS[params.building]);
+ </script>
+ 
+-{#if view?.level === 'floor'}
+-	<FloorSections building={view.building} zone={view.zone} occupancy={occupancyStore.occupancy} />
++{#if building}
++	{@const floor = building.floors.find((f) => f.zone.id === params.zone)}
++	{#if floor}
++		<FloorSections {floor} building={building.id} />
++	{:else}
++		The floor you are looking for isn't in this building or has no layout yet
++	{/if}
++{:else}
++	The building you are looking for has no layout yet
+ {/if}
+diff --git a/src/routes/(app)/map/[building]/[zone]/[section]/+page.svelte b/src/routes/(app)/map/[building]/[zone]/[section]/+page.svelte
+index 0b3d889..a2f4f18 100644
+--- a/src/routes/(app)/map/[building]/[zone]/[section]/+page.svelte
++++ b/src/routes/(app)/map/[building]/[zone]/[section]/+page.svelte
+@@ -1,12 +1,17 @@
+ <script lang="ts">
+-	import { page } from '$app/state';
+ 	import SeatPlan from '$lib/components/map/SeatPlan.svelte';
+-	import { resolveView } from '$lib/map/domain/view';
+-	import { occupancyStore } from '$lib/map/stores/occupancy.svelte';
++	import { BUILDINGS } from '$lib/config/map/buildings';
++	import { DIRECTIONS } from '$lib/config/map/layout';
++	import type { PageProps } from './$types';
+ 
+-	const view = $derived(resolveView(page.params));
++	const { params }: PageProps = $props();
++	const building = $derived(BUILDINGS[params.building]);
++	const floor = $derived(building?.floors.find((f) => f.zone.id === params.zone));
++	const face = $derived(DIRECTIONS.find((d) => d === params.section));
+ </script>
+ 
+-{#if view?.level === 'section'}
+-	<SeatPlan zone={view.zone} section={view.section} occupancy={occupancyStore.occupancy} />
++{#if floor && face && floor.layout.blocks[face]?.length}
++	<SeatPlan {floor} {face} />
++{:else}
++	This floor doesn't include the section you are searching for
+ {/if}

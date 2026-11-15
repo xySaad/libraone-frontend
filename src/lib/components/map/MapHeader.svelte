@@ -4,23 +4,16 @@
 
 	interface Props {
 		heading: string;
-		/** Undefined while who is online is still loading. */
-		online?: number;
-		/** Href of the parent view; the back button is hidden without it. */
-		back?: string;
+		online: number;
 	}
 
-	let { heading, online, back }: Props = $props();
+	let { heading, online }: Props = $props();
 </script>
 
 <header>
-	{#if back !== undefined}
-		<!-- `back` is resolved by the page load -->
-		<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
-		<a class="back" href={back} aria-label="Back"><ArrowLeft /></a>
-	{/if}
+	<button class="back" aria-label="Back" onclick={() => history.back()}><ArrowLeft /></button>
 	<h1>{heading}</h1>
-	<span class="chip"><OnlineDot />{online === undefined ? '…' : `${online} online`}</span>
+	<span class="chip"><OnlineDot />{online} online</span>
 </header>
 
 <style>

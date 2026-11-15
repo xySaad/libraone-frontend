@@ -1,84 +1,70 @@
 <script lang="ts">
-	import { ArrowDown } from '@lucide/svelte';
-	import { LAYOUTS } from '$lib/map/config/buildings_layouts';
-	import { extent, floorInfo, labelPos, seatPos } from '$lib/map/domain/geometry';
-	import { placedOf } from '$lib/map/domain/occupancy';
-	import type { Occupancy } from '$lib/map/domain/occupancy';
-	import type { ZoneId } from '$lib/map/domain/types';
+	import { DIRECTIONS, DOOR_TURN, PLAN_PAD } from '$lib/config/map/layout';
 	import { UNIT } from '$lib/map/camera/math';
+	import type { Floor } from '$lib/types/map.svelte';
+	import { extent, labelPos, seatPos } from '$lib/utils/ui/geometry';
+	import { ArrowDown } from '@lucide/svelte';
 	import Seat from './Seat.svelte';
 
 	interface Props {
-		zone: ZoneId;
-		occupancy: Occupancy;
-		/** "row:seat" of the occupant whose card is open. */
+		floor: Floor;
+		/** Login of the occupant whose card is open. */
 		selected: string | null;
-		onpick: (key: string) => void;
+		onpick: (login: string) => void;
 	}
 
-	let { zone, occupancy, selected, onpick }: Props = $props();
-
-	const info = $derived(floorInfo(zone));
-	const layout = $derived(LAYOUTS[zone]);
-	const placed = $derived(placedOf(occupancy, zone));
-	const seated = $derived(
-		new Map(placed.map((p) => [`${p.block.r}:${p.occupant.seat}`, p.occupant]))
-	);
-
-	// seat units on the plan, relative to the top-left of the drawable area
-	const gx = (x: number) => x - info.minX;
-	const gy = (y: number) => y - info.minY;
-
-	const rows = $derived(
-		layout.blocks.map((block) => {
-			const e = extent(block);
-			const [lx, ly] = labelPos(block);
-			return {
-				block,
-				has: placed.some((p) => p.block === block),
-				box: { x: gx(e.x - 0.1), y: gy(e.y - 0.1), w: e.w + 0.2, h: e.h + 0.2 },
-				label: { x: gx(lx), y: gy(ly) },
-				seats: Array.from({ length: 2 * block.n }, (_, i) => {
-					const seat = i + 1;
-					const [x, y] = seatPos(block, seat);
-					return { seat, x: gx(x), y: gy(y), occupant: seated.get(`${block.r}:${seat}`) };
-				})
-			};
-		})
-	);
+	let { floor, selected, onpick }: Props = $props();
+	const { zone, layout } = $derived(floor);
 </script>
 
-<div class="canvas" style:--u="{UNIT}px" style:--W={info.W} style:--H={info.H} data-w={info.W}>
-	{#each rows as row (row.block.r)}
-		<div
-			class="blk"
-			class:has={row.has}
-			style:--x={row.box.x}
-			style:--y={row.box.y}
-			style:--w={row.box.w}
-			style:--h={row.box.h}
-		></div>
-		<span class="rl" class:has={row.has} style:--x={row.label.x} style:--y={row.label.y}
-			>R{row.block.r}</span
-		>
-		{#each row.seats as s (s.seat)}
-			<Seat
-				x={s.x}
-				y={s.y}
-				occupant={s.occupant}
-				selected={selected === `${row.block.r}:${s.seat}`}
-				onpick={() => onpick(`${row.block.r}:${s.seat}`)}
-			/>
+<div
+	class="canvas"
+	style:--u="{UNIT}px"
+	style:--right={layout.right}
+	style:--bottom={layout.bottom}
+	style:--pad={PLAN_PAD}
+>
+	<!-- everything is placed in the layout's own seat units, which start one margin in -->
+	<div class="origin">
+		{#each DIRECTIONS as face (face)}
+			{#each layout.blocks[face] ?? [] as block (block.r)}
+				{@const e = extent(face, block)}
+				{@const [lx, ly] = labelPos(face, block)}
+				{@const seats = zone.rows['R' + block.r]?.seats ?? []}
+				{@const lit = seats.length > 0}
+				<div
+					class="blk"
+					class:lit
+					style:--x={e.x}
+					style:--y={e.y}
+					style:--w={e.w}
+					style:--h={e.h}
+				></div>
+				<span class="rl" class:lit style:--x={lx} style:--y={ly}>R{block.r}</span>
+				<!-- seat ids are seat numbers; ones outside the row's 2n seats have nowhere to go -->
+				{#each { length: 2 * block.n }, i (i)}
+					{@const [x, y] = seatPos(face, block, i + 1)}
+					{@const occupant = seats.find((s) => Number(s.id) === i + 1)}
+					<Seat
+						{x}
+						{y}
+						{occupant}
+						selected={selected === occupant?.login}
+						onpick={() => occupant && onpick(occupant.login)}
+					/>
+				{/each}
+			{/each}
 		{/each}
-	{/each}
 
-	<div
-		class="door {layout.entry.dir}"
-		style:--x={gx(layout.entry.x)}
-		style:--y={gy(layout.entry.y)}
-	>
-		<span>Entry / exit</span>
-		<ArrowDown />
+		<span
+			class="door"
+			class:side={layout.entry.dir === 'right'}
+			style:--x={layout.entry.x}
+			style:--y={layout.entry.y}
+		>
+			<span class="label">Entry / exit</span>
+			<span class="arrow" style:rotate="{DOOR_TURN[layout.entry.dir]}deg"><ArrowDown /></span>
+		</span>
 	</div>
 </div>
 
@@ -89,62 +75,74 @@
 		left: 0;
 		top: 0;
 		transform-origin: 0 0;
-		width: calc(var(--W) * var(--u));
-		height: calc(var(--H) * var(--u));
+		width: calc(var(--u) * (var(--right) + 2 * var(--pad)));
+		height: calc(var(--u) * (var(--bottom) + 2 * var(--pad)));
 	}
-	.blk {
+	.origin {
 		position: absolute;
-		left: calc(var(--x) * var(--u));
-		top: calc(var(--y) * var(--u));
-		width: calc(var(--w) * var(--u));
-		height: calc(var(--h) * var(--u));
-		border-radius: calc(var(--u) * 0.45);
-		background: var(--blk);
+		left: calc(var(--u) * var(--pad));
+		top: calc(var(--u) * var(--pad));
 	}
-	.blk.has {
-		box-shadow: 0 0 0 2px color-mix(in srgb, var(--lit) 75%, transparent);
-	}
-	.rl {
+
+	.blk,
+	.rl,
+	.door {
 		position: absolute;
-		left: calc(var(--x) * var(--u));
-		top: calc(var(--y) * var(--u));
-		transform: translate(-50%, -50%) rotate(calc(var(--rot) * -1));
-		font-size: max(11px, calc(var(--u) * 0.44));
-		color: var(--muted);
-		font-variant-numeric: tabular-nums;
+		left: calc(var(--u) * var(--x));
+		top: calc(var(--u) * var(--y));
+	}
+	.rl,
+	.door {
+		translate: -50% -50%; /* --x, --y are their centre */
 		white-space: nowrap;
 		pointer-events: none;
 	}
-	.rl.has {
+
+	.blk {
+		box-sizing: content-box;
+		margin: calc(var(--u) * -0.1);
+		padding: calc(var(--u) * 0.1);
+		width: calc(var(--u) * var(--w));
+		height: calc(var(--u) * var(--h));
+		border-radius: calc(var(--u) * 0.45);
+		background: var(--blk);
+	}
+	.blk.lit {
+		box-shadow: 0 0 0 2px color-mix(in srgb, var(--lit) 75%, transparent);
+	}
+
+	.rl {
+		rotate: calc(var(--rot) * -1);
+		font-size: max(11px, calc(var(--u) * 0.44));
+		color: var(--muted);
+		font-variant-numeric: tabular-nums;
+	}
+	.rl.lit {
 		color: var(--ink);
 		font-weight: 700;
 	}
+
 	.door {
-		position: absolute;
-		left: calc(var(--x) * var(--u));
-		top: calc(var(--y) * var(--u));
-		transform: translate(-50%, -50%);
 		display: flex;
+		flex-direction: column;
 		align-items: center;
 		gap: calc(var(--u) * 0.2);
 		color: var(--muted);
 		font-size: max(10px, calc(var(--u) * 0.34));
-		white-space: nowrap;
-		pointer-events: none;
 	}
-	.door.down {
-		flex-direction: column;
+	.door.side {
+		flex-direction: row;
 	}
-	.door span {
+	.label {
 		display: inline-block;
-		transform: rotate(calc(var(--rot) * -1));
+		rotate: calc(var(--rot) * -1);
 	}
-	.door :global(svg) {
+	.arrow {
+		display: grid;
+	}
+	.arrow :global(svg) {
 		width: calc(var(--u) * 0.6);
 		height: calc(var(--u) * 0.6);
 		margin: 0;
-	}
-	.door.right :global(svg) {
-		transform: rotate(-90deg);
 	}
 </style>

@@ -1,11 +1,11 @@
 <script lang="ts">
-	import type { Occupant } from '$lib/map/domain/occupancy';
+	import type { Seat } from '$lib/types/websocket/seats';
 	import Avatar from './Avatar.svelte';
 
 	interface Props {
 		x: number;
 		y: number;
-		occupant?: Occupant;
+		occupant?: Seat;
 		selected?: boolean;
 		onpick?: () => void;
 	}
@@ -20,7 +20,7 @@
 		style:--x={x}
 		style:--y={y}
 		title={occupant.login}
-		aria-label="{occupant.login}, row {occupant.row}, seat {occupant.seat}"
+		aria-label="{occupant.login}, row {occupant.row}, seat {occupant.id}"
 		aria-pressed={selected}
 		onclick={onpick}
 		ondblclick={(e) => e.stopPropagation()}

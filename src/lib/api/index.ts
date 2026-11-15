@@ -26,7 +26,6 @@ export const api = {
 	}),
 	CAMPUS: config({
 		BASE: `${LIBRAONE_BASE}/campus`,
-		online: endpoint<Record<string, string>>('GET', '/online'),
 		ERR_HANDLER: handleUnAuthorized,
 		profile({ login }: { login: string }) {
 			return endpoint<MaplProfile>('GET', `/profile/${login}`).call(this);

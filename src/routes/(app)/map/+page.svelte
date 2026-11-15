@@ -1,6 +1,6 @@
 <script lang="ts">
 	import CampusMap from '$lib/components/map/CampusMap.svelte';
-	import { occupancyStore } from '$lib/map/stores/occupancy.svelte';
+	import { BUILDINGS } from '$lib/config/map/buildings';
 </script>
 
-<CampusMap occupancy={occupancyStore.occupancy} />
+<CampusMap buildings={Object.values(BUILDINGS).filter((b) => b !== undefined)} />
