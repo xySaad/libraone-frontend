@@ -26,17 +26,17 @@
 			.filter((login) => typeof login === 'string');
 
 		const logins = [...auditorsLogin, ...membersLogin];
-		const usersDiscord = await api.LIBRAONE.discord(logins);
+		// Fall back to plain `@login` mentions when the Discord ids service is down
+		const usersDiscord: Record<string, string> = await api.LIBRAONE.discord(logins).catch((err) => {
+			console.error('Failed to fetch discord ids, falling back to usernames:', err);
+			return {};
+		});
 
-		const membersMention = membersLogin
-			.map((login) => usersDiscord[login])
-			.map((discordId) => `<@${discordId}>`)
-			.join(' ');
+		const mention = (login: string) =>
+			usersDiscord[login] ? `<@${usersDiscord[login]}>` : `@${login}`;
 
-		const auditorsMention = auditorsLogin
-			.map((login) => usersDiscord[login])
-			.map((discordId) => `<@${discordId}>`)
-			.join('\n');
+		const membersMention = membersLogin.map(mention).join(' ');
+		const auditorsMention = auditorsLogin.map(mention).join('\n');
 
 		return [
 			`Project: ${projectName}`,

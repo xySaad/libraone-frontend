@@ -1,6 +1,7 @@
 <script lang="ts">
 	import CheckMark from '$lib/assets/svg/check-mark.svelte';
 	import Copy from '$lib/assets/svg/copy.svelte';
+	import Warning from '$lib/assets/svg/warning.svelte';
 	import ActionButton from './ui/ActionButton.svelte';
 
 	type Props = {
@@ -12,7 +13,10 @@
 
 	const copy = async () => {
 		const plainText = typeof text === 'function' ? await text() : text;
-		navigator.clipboard.writeText(plainText);
+		if (!navigator.clipboard) {
+			throw new Error('Clipboard API is unavailable (requires a secure context)');
+		}
+		await navigator.clipboard.writeText(plainText);
 	};
 </script>
 
@@ -29,6 +33,12 @@
 			{#if label}
 				{label.charAt(0).toUpperCase() + label.substring(1)} copied
 			{/if}
+		</span>
+	{/snippet}
+	{#snippet error()}
+		<span>
+			<Warning />
+			{label ? `Failed to copy ${label}` : 'Copy failed'}
 		</span>
 	{/snippet}
 </ActionButton>

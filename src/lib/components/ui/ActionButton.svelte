@@ -6,31 +6,40 @@
 	type Props = {
 		children: Snippet;
 		success?: Snippet;
+		error?: Snippet;
 		onclick: () => unknown | Promise<unknown>;
 	} & HTMLButtonAttributes;
 
-	const { children, success, onclick, ...attrs }: Props = $props();
+	const { children, success, error, onclick, ...attrs }: Props = $props();
 
-	let actionCompleted = $state(false);
+	let status = $state<'idle' | 'success' | 'error'>('idle');
 	let timeout = 0;
 	const handleClick = async () => {
 		clearTimeout(timeout);
-		actionCompleted = false;
+		status = 'idle';
 
 		const start = Date.now();
-		await onclick?.();
+		let result: 'success' | 'error' = 'success';
+		try {
+			await onclick?.();
+		} catch (err) {
+			console.error(err);
+			result = 'error';
+		}
 		const diff = Date.now() - start;
 
 		if (diff < 500) await new Promise((res) => setTimeout(res, 500 - diff));
 
-		actionCompleted = true;
-		timeout = window.setTimeout(() => (actionCompleted = false), 1500);
+		status = result;
+		timeout = window.setTimeout(() => (status = 'idle'), 1500);
 	};
 </script>
 
-<Button onclick={handleClick} {...attrs}>
-	{#if actionCompleted && success}
+<Button onclick={handleClick} data-status={status} {...attrs}>
+	{#if status === 'success' && success}
 		{@render success()}
+	{:else if status === 'error' && error}
+		{@render error()}
 	{:else}
 		{@render children()}
 	{/if}
