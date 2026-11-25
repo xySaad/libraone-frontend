@@ -76,6 +76,19 @@
 		box-shadow: 0 0 0 3px var(--surface-shadow-hover);
 	}
 
+	button[data-status='success']:not(:disabled) {
+		color: var(--success);
+		background: var(--success-bg);
+		border-color: var(--success-border);
+	}
+
+	button[data-status='error']:not(:disabled) {
+		color: var(--error);
+		background: var(--error-bg);
+		border-color: var(--error-border);
+		box-shadow: 0 0 0 3px var(--error-shadow);
+	}
+
 	button:not(:disabled):active {
 		transform: scale(0.985);
 	}
